@@ -71,14 +71,26 @@ export default function Auth() {
 
   return (
     <div className="w-full">
-      <div>
-        {!smartAccount && !loading && <button onClick={Login}>Login</button>}
+      <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
+        {!smartAccount && !loading && (
+          <button
+            onClick={Login}
+            className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+          >
+            Login
+          </button>
+        )}
         {loading && <p>Loading</p>}
         {!!smartAccount && (
           <div>
             <h3>Smart Account:</h3>
             <p>{smartAccount.address}</p>
-            <button onClick={Logout}>Logout</button>
+            <button
+              onClick={Logout}
+              className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+            >
+              Logout
+            </button>
           </div>
         )}
       </div>
