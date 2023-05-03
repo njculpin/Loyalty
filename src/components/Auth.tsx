@@ -1,92 +1,29 @@
-import { useState, useEffect, useRef, use } from "react";
-import SocialLogin from "@biconomy/web3-auth";
-import { ChainId } from "@biconomy/core-types";
-import SmartAccount from "@biconomy/smart-account";
-import { ethers } from "ethers";
+import { useAuth } from "../context/Auth";
 
 export default function Auth() {
-  const [loading, setLoading] = useState<boolean>(false);
-  const [smartAccount, setSmartAccount] = useState<SmartAccount | null>(null);
-  const [interval, enableInterval] = useState<boolean>(false);
-  const sdkRef = useRef<SocialLogin | null>(null);
-
-  useEffect(() => {
-    let configureLogin: any;
-    if (interval) {
-      configureLogin = setInterval(() => {
-        if (!!sdkRef.current?.provider) {
-          setupSmartAccount();
-          clearInterval(configureLogin);
-        }
-      }, 1000);
-    }
-  }, [interval]);
-
-  async function Login() {
-    if (!sdkRef.current) {
-      const socialLoginSDK = new SocialLogin();
-      // @ts-ignore
-      await socialLoginSDK.init(ethers.utils.hexValue(ChainId.POLYGON_MAINNET));
-      sdkRef.current = socialLoginSDK;
-    }
-    if (!sdkRef.current.provider) {
-      // @ts-ignore
-      sdkRef.current.showWallet();
-      enableInterval(true);
-    } else {
-      setupSmartAccount();
-    }
+  const auth = useAuth();
+  console.log("auth", auth);
+  if (!auth) {
+    return <></>;
   }
-
-  async function setupSmartAccount() {
-    if (!sdkRef?.current?.provider) {
-      return;
-    }
-    setLoading(true);
-    sdkRef.current.hideWallet();
-    const web3Provider = new ethers.providers.Web3Provider(
-      sdkRef.current.provider
-    );
-    try {
-      const smartAccount = new SmartAccount(web3Provider, {
-        activeNetworkId: ChainId.POLYGON_MAINNET,
-        supportedNetworksIds: [ChainId.POLYGON_MAINNET],
-      });
-      await smartAccount.init();
-      setSmartAccount(smartAccount);
-      setLoading(false);
-    } catch (err) {}
-  }
-
-  async function Logout() {
-    if (!sdkRef.current) {
-      console.log("Web3 Modal not initialized");
-      return;
-    }
-    await sdkRef.current.logout();
-    sdkRef.current.hideWallet();
-    setSmartAccount(null);
-    enableInterval(false);
-  }
-
   return (
     <div className="w-full">
       <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
-        {!smartAccount && !loading && (
+        {!auth.smartAccount && !auth.loading && (
           <button
-            onClick={Login}
+            onClick={auth.Login}
             className="rounded-md bg-white px-3.5 py-2.5 text-sm font-semibold text-gray-900 shadow-sm hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
           >
             Login
           </button>
         )}
-        {loading && <p>Loading</p>}
-        {!!smartAccount && (
+        {auth.loading && <p>Loading</p>}
+        {!!auth.smartAccount && (
           <div>
             <h3>Smart Account:</h3>
-            <p>{smartAccount.address}</p>
+            <p>{auth.smartAccount.address}</p>
             <button
-              onClick={Logout}
+              onClick={auth.Logout}
               className="rounded-md bg-white px-3.5 py-2.5 text-sm font-semibold text-gray-900 shadow-sm hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white mt-4"
             >
               Logout
