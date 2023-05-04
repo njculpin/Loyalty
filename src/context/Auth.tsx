@@ -1,4 +1,9 @@
 import { createContext, useContext } from "react";
+import { useState, useEffect, useRef } from "react";
+import SocialLogin from "@biconomy/web3-auth";
+import { ChainId } from "@biconomy/core-types";
+import SmartAccount from "@biconomy/smart-account";
+import { ethers } from "ethers";
 
 type AuthContextType = {
   Logout: () => void;
@@ -9,13 +14,8 @@ type AuthContextType = {
 
 const authContext = createContext<AuthContextType | null>(null);
 
-import { useState, useEffect, useRef } from "react";
-import SocialLogin from "@biconomy/web3-auth";
-import { ChainId } from "@biconomy/core-types";
-import SmartAccount from "@biconomy/smart-account";
-import { ethers } from "ethers";
-
-export function AuthProvider({ children }: any) {
+// @ts-ignore
+export function AuthProvider({ children }) {
   const auth = useAuthProvider();
   return <authContext.Provider value={auth}>{children}</authContext.Provider>;
 }
@@ -40,9 +40,11 @@ function useAuthProvider() {
         }
       }, 1000);
     }
+    console.log("interval", interval);
   }, [interval]);
 
-  async function Login() {
+  const Login = async () => {
+    console.log("sdkRef", sdkRef);
     if (!sdkRef.current) {
       const socialLoginSDK = new SocialLogin();
       // @ts-ignore
@@ -56,9 +58,9 @@ function useAuthProvider() {
     } else {
       setupSmartAccount();
     }
-  }
+  };
 
-  async function setupSmartAccount() {
+  const setupSmartAccount = async () => {
     if (!sdkRef?.current?.provider) {
       return;
     }
@@ -78,9 +80,9 @@ function useAuthProvider() {
     } catch (err) {
       console.log(err);
     }
-  }
+  };
 
-  async function Logout() {
+  const Logout = async () => {
     if (!sdkRef.current) {
       console.log("Web3 Modal not initialized");
       return;
@@ -89,7 +91,7 @@ function useAuthProvider() {
     sdkRef.current.hideWallet();
     setSmartAccount(null);
     enableInterval(false);
-  }
+  };
 
   return {
     Logout,
