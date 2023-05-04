@@ -12,7 +12,7 @@ contract LoyaltyCard is ERC721, Ownable {
 
     Counters.Counter private _tokenIdCounter;
 
-    constructor() ERC721("Loyalty Card", "LYLTC") {}
+    constructor(string memory _name, string memory  _ticker) ERC721(_name, _ticker) {}
 
     function safeMint(address to) public {
         uint256 tokenId = _tokenIdCounter.current();
