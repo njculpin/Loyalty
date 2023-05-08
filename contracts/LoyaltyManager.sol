@@ -6,68 +6,62 @@ import { LoyaltyPoint } from './LoyaltyPoint.sol';
 
 contract LoyaltyManager {
 
-    LoyaltyCard public loyaltyCard;
+    LoyaltyCard public patronCard;
+    LoyaltyCard public vendorCard;
     LoyaltyPoint public loyaltyPoint;
 
-    address public loyaltyPointAddress;
-
-    mapping(address => uint256) private _balances;
-    mapping(address => mapping(address => uint256)) private _allowances;
+    mapping(uint256 => mapping(uint256 => uint256)) private _patronVendorBalances;
+    mapping(uint256 => uint256) private _patronBalances;
+    mapping(uint256 => uint256) private _vendorBalances;
 
     event Transfer(address indexed from, address indexed to, uint256 value);
     event Approval(address indexed owner, address indexed spender, uint256 value);
-    event Created(address indexed owner, uint256 amount);
 
-    constructor(address _loyaltyCard, address _loyaltyPoint){
-        loyaltyCard = LoyaltyCard(_loyaltyCard);
+    constructor(address _vendorCard, address _patronCard, address _loyaltyPoint){
+        patronCard = LoyaltyCard(_patronCard);
+        vendorCard = LoyaltyCard(_vendorCard);
         loyaltyPoint = LoyaltyPoint(_loyaltyPoint);
     }
 
-    // Check amount available to transfer
-    function balance(address owner) public view returns (uint256) {
-        // loyaltyPoint.balanceOf(owner);
-        return _balances[owner];
+    function mintPatronCard(string memory _tokenURI) external payable returns (uint256) {
+        return patronCard.mint(msg.sender, _tokenURI);
     }
 
-    // Check amount available to transfer
-    function allowance(address owner, address spender) public view returns (uint256) {
-        return _allowances[owner][spender];
+    function mintVendorCard(string memory _tokenURI) external payable returns (uint256) {
+        return vendorCard.mint(msg.sender, _tokenURI);
     }
 
-    // increase balance on vendor
-    function deposit(uint256 amount) internal {
-        _balances[msg.sender] += amount;
-        require(loyaltyPoint.transfer(msg.sender, amount), 'Deposit Failed');
-        emit Created(msg.sender, amount);
+    function createLoyalty(uint256 _patronCardId, uint256 _vendorCardId, uint256 _amount) public payable returns (uint256) {
+        _patronVendorBalances[_patronCardId][_vendorCardId] += _amount;
+        _patronBalances[_patronCardId] += _amount;
+        return _amount;
     }
 
-     // Give a reciever permission to take tokens
-    function approve(address spender, uint256 amount) public returns (bool) {
-        require(spender != address(0), "ERC20: approve to the zero address");
-        _allowances[msg.sender][spender] = amount;
-        emit Approval(msg.sender, spender, amount);
+    function getPatronLoyaltyBalanceFromVendor(uint256 _patronCardId, uint256 _vendorCardId) public view returns (uint256){
+        return _patronVendorBalances[_patronCardId][_vendorCardId];
+    }
+
+    function getPatronBalance(uint256 _patronCardId) public view returns (uint256){
+        return _patronBalances[_patronCardId];
+    }
+
+    function getVendorBalance(uint256 _patronCardId) public view returns (uint256){
+        return _vendorBalances[_patronCardId];
+    }
+
+    function redeemLoyalty(uint256 _patronCardId, uint256 _vendorCardId, uint256 _amount) public returns (uint256) {
+        require(_patronVendorBalances[_patronCardId][_vendorCardId] >= _amount, 'not enough loyalty on this card');
+        _patronVendorBalances[_patronCardId][_vendorCardId] -= _amount;
+        _patronBalances[_patronCardId] -= _amount;
+        _vendorBalances[_vendorCardId] += _amount;
+        return _amount;
+    }
+
+    function cashOut(uint256 _vendorCardId, uint256 _amount) public returns (bool){
+        require(_vendorBalances[_vendorCardId] > _amount, 'not enough loyalty to withdraw');
+        _vendorBalances[_vendorCardId] -= _amount;
+        loyaltyPoint.mint(msg.sender, _amount);
         return true;
-    }
-
-    // Request a claim from current token holder to reciever
-    function transferFrom(address sender, address recipient, uint256 amount) public returns (bool) {
-        require(_allowances[sender][msg.sender] >= amount, "ERC20: Allowance not high enough.");
-        _allowances[sender][msg.sender] -= amount;
-        _transfer(sender, recipient, amount);
-        return true;
-    }
-
-    // Execute the claim
-    function _transfer(address sender, address recipient, uint256 amount) internal {
-        require(sender != address(0), "ERC20: transfer from the zero address");
-        require(recipient != address(0), "ERC20: transfer to the zero address");
-        require(_balances[sender] >= amount, "ERC20: Not enough funds.");
-        // transfer actual tokens
-        require(loyaltyPoint.transfer(recipient, amount), 'Transfer Failed');
-        // transfer contract balance
-        _balances[sender] -= amount;
-        _balances[recipient] += amount;
-        emit Transfer(sender, recipient, amount);
     }
 
 }

@@ -13,9 +13,14 @@ contract LoyaltyPoint is ERC20, ERC721Holder, Ownable {
 
     constructor(string memory _name, string memory  _ticker) ERC20(_name, _ticker) {}
 
-    function mint(address recipient , uint256 _amount) external payable {
+    function mint(address _recipient , uint256 _amount) public payable {
         require(msg.sender == loyaltyManager, 'You must request from the Loyalty Manager');
-        _mint(recipient, _amount);
+        _mint(_recipient, _amount);
+    }
+
+    function setLoyaltyManagerAddress(address _loyaltyManager) public onlyOwner returns (bool) {
+        loyaltyManager = _loyaltyManager;
+        return true;
     }
 
 }
