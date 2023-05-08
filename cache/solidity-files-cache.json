@@ -37,8 +37,8 @@
       ]
     },
     "/Users/nickculpin/Documents/GitHub/Loyalty/contracts/LoyaltyCard.sol": {
-      "lastModificationDate": 1683532426655,
-      "contentHash": "fecc1ca62be993b53788c3b1c4503488",
+      "lastModificationDate": 1683587841983,
+      "contentHash": "3e395d5839f52f214ebd56bc31ab56b1",
       "sourceName": "contracts/LoyaltyCard.sol",
       "solcConfig": {
         "version": "0.8.18",
@@ -64,7 +64,9 @@
         }
       },
       "imports": [
+        "@openzeppelin/contracts/token/ERC721/ERC721.sol",
         "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol",
+        "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol",
         "@openzeppelin/contracts/access/Ownable.sol",
         "@openzeppelin/contracts/utils/Counters.sol"
       ],
@@ -73,41 +75,6 @@
       ],
       "artifacts": [
         "LoyaltyCard"
-      ]
-    },
-    "/Users/nickculpin/Documents/GitHub/Loyalty/node_modules/@openzeppelin/contracts/utils/Counters.sol": {
-      "lastModificationDate": 1683166455445,
-      "contentHash": "74654e3ae5d7f39555055dfe244dab7a",
-      "sourceName": "@openzeppelin/contracts/utils/Counters.sol",
-      "solcConfig": {
-        "version": "0.8.18",
-        "settings": {
-          "optimizer": {
-            "enabled": false,
-            "runs": 200
-          },
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          }
-        }
-      },
-      "imports": [],
-      "versionPragmas": [
-        "^0.8.0"
-      ],
-      "artifacts": [
-        "Counters"
       ]
     },
     "/Users/nickculpin/Documents/GitHub/Loyalty/node_modules/@openzeppelin/contracts/access/Ownable.sol": {
@@ -147,47 +114,10 @@
         "Ownable"
       ]
     },
-    "/Users/nickculpin/Documents/GitHub/Loyalty/node_modules/@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol": {
-      "lastModificationDate": 1683166455920,
-      "contentHash": "8af32effd0536e2971ff8496812a5016",
-      "sourceName": "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol",
-      "solcConfig": {
-        "version": "0.8.18",
-        "settings": {
-          "optimizer": {
-            "enabled": false,
-            "runs": 200
-          },
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          }
-        }
-      },
-      "imports": [
-        "../ERC721.sol"
-      ],
-      "versionPragmas": [
-        "^0.8.0"
-      ],
-      "artifacts": [
-        "ERC721URIStorage"
-      ]
-    },
-    "/Users/nickculpin/Documents/GitHub/Loyalty/node_modules/@openzeppelin/contracts/utils/Context.sol": {
-      "lastModificationDate": 1683166455440,
-      "contentHash": "5f2c5c4b6af2dd4551027144797bc8be",
-      "sourceName": "@openzeppelin/contracts/utils/Context.sol",
+    "/Users/nickculpin/Documents/GitHub/Loyalty/node_modules/@openzeppelin/contracts/utils/Counters.sol": {
+      "lastModificationDate": 1683166455445,
+      "contentHash": "74654e3ae5d7f39555055dfe244dab7a",
+      "sourceName": "@openzeppelin/contracts/utils/Counters.sol",
       "solcConfig": {
         "version": "0.8.18",
         "settings": {
@@ -216,7 +146,7 @@
         "^0.8.0"
       ],
       "artifacts": [
-        "Context"
+        "Counters"
       ]
     },
     "/Users/nickculpin/Documents/GitHub/Loyalty/node_modules/@openzeppelin/contracts/token/ERC721/ERC721.sol": {
@@ -260,6 +190,116 @@
       ],
       "artifacts": [
         "ERC721"
+      ]
+    },
+    "/Users/nickculpin/Documents/GitHub/Loyalty/node_modules/@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol": {
+      "lastModificationDate": 1683166455920,
+      "contentHash": "8af32effd0536e2971ff8496812a5016",
+      "sourceName": "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol",
+      "solcConfig": {
+        "version": "0.8.18",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../ERC721.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.0"
+      ],
+      "artifacts": [
+        "ERC721URIStorage"
+      ]
+    },
+    "/Users/nickculpin/Documents/GitHub/Loyalty/node_modules/@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol": {
+      "lastModificationDate": 1683166455901,
+      "contentHash": "212e86880d210b6cac8c3eb0cd6b1fad",
+      "sourceName": "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol",
+      "solcConfig": {
+        "version": "0.8.18",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../ERC721.sol",
+        "./IERC721Enumerable.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.0"
+      ],
+      "artifacts": [
+        "ERC721Enumerable"
+      ]
+    },
+    "/Users/nickculpin/Documents/GitHub/Loyalty/node_modules/@openzeppelin/contracts/utils/Context.sol": {
+      "lastModificationDate": 1683166455440,
+      "contentHash": "5f2c5c4b6af2dd4551027144797bc8be",
+      "sourceName": "@openzeppelin/contracts/utils/Context.sol",
+      "solcConfig": {
+        "version": "0.8.18",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.0"
+      ],
+      "artifacts": [
+        "Context"
       ]
     },
     "/Users/nickculpin/Documents/GitHub/Loyalty/node_modules/@openzeppelin/contracts/token/ERC721/IERC721.sol": {
@@ -550,9 +590,46 @@
         "Math"
       ]
     },
+    "/Users/nickculpin/Documents/GitHub/Loyalty/node_modules/@openzeppelin/contracts/token/ERC721/extensions/IERC721Enumerable.sol": {
+      "lastModificationDate": 1683166456139,
+      "contentHash": "f4dd06783f321aa26179bc2b6e361c29",
+      "sourceName": "@openzeppelin/contracts/token/ERC721/extensions/IERC721Enumerable.sol",
+      "solcConfig": {
+        "version": "0.8.18",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../IERC721.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.0"
+      ],
+      "artifacts": [
+        "IERC721Enumerable"
+      ]
+    },
     "/Users/nickculpin/Documents/GitHub/Loyalty/contracts/LoyaltyManager.sol": {
-      "lastModificationDate": 1683559711555,
-      "contentHash": "c42c774683e048373d1a2a98f5bb7ea3",
+      "lastModificationDate": 1683588996238,
+      "contentHash": "b256c162fcf6ab1ec4b5c300846f032a",
       "sourceName": "contracts/LoyaltyManager.sol",
       "solcConfig": {
         "version": "0.8.18",
@@ -589,8 +666,8 @@
       ]
     },
     "/Users/nickculpin/Documents/GitHub/Loyalty/contracts/LoyaltyPoint.sol": {
-      "lastModificationDate": 1683406727917,
-      "contentHash": "6e5ff7264e2ad386e08e13c7d822605b",
+      "lastModificationDate": 1683570186322,
+      "contentHash": "83bf79f2da9f5bff4b9b546d92183b43",
       "sourceName": "contracts/LoyaltyPoint.sol",
       "solcConfig": {
         "version": "0.8.18",
