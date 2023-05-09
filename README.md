@@ -13,3 +13,13 @@ the patron can redeem their LYLT tokens. The patron then sends their tokens back
 At this point, the vendor has some choices, they can either stake their LYLT tokens or cash out. Staking allows the tokens to remain in the contract in order to support the transaction fees
 of the network in exchange for other rewards. Cashing out will mint the actual ERC20 tokens into the blockchain and deposit them back into the Vendors Wallet, where they may be transfered to
 any Wallet they wish. In the future, tokens maybe used at all participating vendors to purchase goods and services.
+
+### HARDHAT
+
+'''
+npx hardhat compile
+'''
+
+'''
+npx hardhat test
+'''
