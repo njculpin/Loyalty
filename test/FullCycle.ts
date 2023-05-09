@@ -24,6 +24,9 @@ describe("FullCycle", function () {
       patronCardContract.address,
       loyaltyPointContract.address
     );
+    await loyaltyPointContract.setLoyaltyManagerAddress(
+      loyaltyManagerContract.address
+    );
   });
 
   // MINT ACCOUNTS
@@ -70,6 +73,5 @@ describe("FullCycle", function () {
       .connect(vendor)
       .cashOut(0, 1);
     const transactionReceipt = await transactionResponse.wait();
-    console.log(transactionReceipt.events[0].args);
   });
 });

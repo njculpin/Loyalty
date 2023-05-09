@@ -666,8 +666,8 @@
       ]
     },
     "/Users/nickculpin/Documents/GitHub/Loyalty/contracts/LoyaltyPoint.sol": {
-      "lastModificationDate": 1683590529847,
-      "contentHash": "dd755bf6a754a155d41196b6bbd27b3d",
+      "lastModificationDate": 1683591204154,
+      "contentHash": "ddc879f51a9326cd6e6c57145a95f54b",
       "sourceName": "contracts/LoyaltyPoint.sol",
       "solcConfig": {
         "version": "0.8.18",
