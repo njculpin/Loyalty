@@ -35,18 +35,12 @@ contract LoyaltyCard is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable {
         return _owners[_tokenId];
     }
 
-    function setLoyaltyManagerAddress(address _loyaltyManager) 
-    public 
-    onlyOwner 
-    returns (bool) {
+    function setLoyaltyManagerAddress(address _loyaltyManager) public onlyOwner returns (bool) {
         loyaltyManager = _loyaltyManager;
         return true;
     }
 
-    function _beforeTokenTransfer(address from, address to, uint256 tokenId, uint256 batchSize)
-        internal
-        override(ERC721, ERC721Enumerable)
-    {
+    function _beforeTokenTransfer(address from, address to, uint256 tokenId, uint256 batchSize)internal override(ERC721, ERC721Enumerable){
         _owners[tokenId] = to;
         super._beforeTokenTransfer(from, to, tokenId, batchSize);
     }
@@ -55,21 +49,11 @@ contract LoyaltyCard is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable {
         super._burn(tokenId);
     }
 
-    function tokenURI(uint256 tokenId)
-        public
-        view
-        override(ERC721, ERC721URIStorage)
-        returns (string memory)
-    {
+    function tokenURI(uint256 tokenId)public view override(ERC721, ERC721URIStorage) returns (string memory){
         return super.tokenURI(tokenId);
     }
 
-    function supportsInterface(bytes4 interfaceId)
-        public
-        view
-        override(ERC721, ERC721Enumerable)
-        returns (bool)
-    {
+    function supportsInterface(bytes4 interfaceId) public view override(ERC721, ERC721Enumerable) returns (bool){
         return super.supportsInterface(interfaceId);
     }
 

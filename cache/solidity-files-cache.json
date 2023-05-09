@@ -37,8 +37,8 @@
       ]
     },
     "/Users/nickculpin/Documents/GitHub/Loyalty/contracts/LoyaltyCard.sol": {
-      "lastModificationDate": 1683587841983,
-      "contentHash": "3e395d5839f52f214ebd56bc31ab56b1",
+      "lastModificationDate": 1683590021540,
+      "contentHash": "24c9e3b94047748286f8fe4869959253",
       "sourceName": "contracts/LoyaltyCard.sol",
       "solcConfig": {
         "version": "0.8.18",
@@ -628,8 +628,8 @@
       ]
     },
     "/Users/nickculpin/Documents/GitHub/Loyalty/contracts/LoyaltyManager.sol": {
-      "lastModificationDate": 1683588996238,
-      "contentHash": "b256c162fcf6ab1ec4b5c300846f032a",
+      "lastModificationDate": 1683590932567,
+      "contentHash": "2b14bf439e1de9dbf1a5f097c8a8d26c",
       "sourceName": "contracts/LoyaltyManager.sol",
       "solcConfig": {
         "version": "0.8.18",
@@ -666,8 +666,8 @@
       ]
     },
     "/Users/nickculpin/Documents/GitHub/Loyalty/contracts/LoyaltyPoint.sol": {
-      "lastModificationDate": 1683570186322,
-      "contentHash": "83bf79f2da9f5bff4b9b546d92183b43",
+      "lastModificationDate": 1683590529847,
+      "contentHash": "dd755bf6a754a155d41196b6bbd27b3d",
       "sourceName": "contracts/LoyaltyPoint.sol",
       "solcConfig": {
         "version": "0.8.18",

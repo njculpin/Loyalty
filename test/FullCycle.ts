@@ -40,9 +40,8 @@ describe("FullCycle", function () {
   });
 
   // ISSUE A LOYALTY TOKEN FROM VENDOR TO PATRON
-
   it("Create Loyalty", async function () {
-    const [vendor, patron] = await ethers.getSigners();
+    const [vendor] = await ethers.getSigners();
     await loyaltyManagerContract.connect(vendor).createLoyalty(0, 0, 1);
 
     expect(await loyaltyManagerContract.getPatronBalance(0)).to.equal(1);
@@ -53,7 +52,7 @@ describe("FullCycle", function () {
 
   // TRANSFER A LOYALTY TOKEN FROM PATRON TO VENDOR
   it("Redeem Loyalty", async function () {
-    const [vendor, patron] = await ethers.getSigners();
+    const [vendor] = await ethers.getSigners();
     await loyaltyManagerContract.connect(vendor).redeemLoyalty(0, 0, 1);
 
     expect(await loyaltyManagerContract.getVendorBalance(0)).to.equal(1);
@@ -64,16 +63,13 @@ describe("FullCycle", function () {
   });
 
   it("Cash Out Loyalty", async function () {
-    const [vendor, patron] = await ethers.getSigners();
+    const [vendor] = await ethers.getSigners();
     await loyaltyManagerContract.connect(vendor).createLoyalty(0, 0, 1);
     await loyaltyManagerContract.connect(vendor).redeemLoyalty(0, 0, 1);
     const transactionResponse = await loyaltyManagerContract
       .connect(vendor)
       .cashOut(0, 1);
-    // const transactionReceipt = await transactionResponse.wait();
-    // console.log(
-    //   transactionReceipt.events[0].args.vendor.toString(),
-    //   transactionReceipt.events[0].args.value.toString()
-    // );
+    const transactionReceipt = await transactionResponse.wait();
+    console.log(transactionReceipt.events[0].args);
   });
 });
