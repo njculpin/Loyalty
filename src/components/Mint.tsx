@@ -1,14 +1,5 @@
-import { useAuth } from "../context/Auth";
-
 export default function Mint() {
-  const auth = useAuth();
-
-  if (!auth) {
-    return <></>;
-  }
-
   const mint = async () => {};
-
   return (
     <div className="my-4">
       <button
