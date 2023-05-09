@@ -1,6 +1,7 @@
 import dynamic from "next/dynamic";
 import { Suspense } from "react";
 import useStore from "../store";
+import Mint from "../components/Mint";
 
 const Index = () => {
   const SocialLoginDynamic = dynamic(
@@ -28,7 +29,7 @@ const Index = () => {
               <h2 className="mx-auto max-w-2xl text-3xl font-bold tracking-tight text-white sm:text-4xl">
                 GET A CARD
               </h2>
-              {/* <Mint /> */}
+              <Mint />
             </>
           )}
           <div className="flex-col items-center justify-center gap-x-6">
