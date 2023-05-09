@@ -36,7 +36,7 @@ export default function Auth() {
     }
     if (!sdkRef.current.provider) {
       sdkRef.current.showWallet();
-      // enableInterval(true);
+      enableInterval(true);
     } else {
       setupSmartAccount();
     }
@@ -91,7 +91,7 @@ export default function Auth() {
         {loading && <p>Loading</p>}
         {smartAccount && (
           <div>
-            <h3>Smart Account:</h3>
+            <h3>Account:</h3>
             <p>{smartAccount?.address}</p>
             <button
               onClick={Logout}

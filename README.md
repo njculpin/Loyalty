@@ -1,38 +1,15 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+## LYLT
 
-## Getting Started
+LYLT is a two way incentive system specifically designed for small business and their customers. LYLT is similar to the paper punch cards that allow a customer to excerise 'buy 5 get 1 free' deals in their local
+sandich shop but it allows a store owner to capture recurring customers through their mobile devices and proof of ownership of digital assets.
 
-First, run the development server:
+A Vendor will sign up on the LYLT website and be issued a Vendor Card. This card contains information about the vendor and the kind of deal they would like to offer. For example, a sandwhich
+shop owner may want to offer a buy 5 sandwiches get the 6th free deal. After registration, the vendors may begin to issue LYLT tokens to the patron in the form of a ERC20 token. These tokens
+are in a locked state until they are returned to the Vendor.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-```
+Patrons may interact with the vendor through their choice of QR Code, NFC chip, or selecting their location from the search form. Using the same sandwich example above, upon on the 5th visit,
+the patron can redeem their LYLT tokens. The patron then sends their tokens back to the vendor in exchange for their sandwich, only this time the Vendor now has usable ERC20 tokens.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
-
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
-
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
-
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+At this point, the vendor has some choices, they can either stake their LYLT tokens or cash out. Staking allows the tokens to remain in the contract in order to support the transaction fees
+of the network in exchange for other rewards. Cashing out will mint the actual ERC20 tokens into the blockchain and deposit them back into the Vendors Wallet, where they may be transfered to
+any Wallet they wish. In the future, tokens maybe used at all participating vendors to purchase goods and services.
