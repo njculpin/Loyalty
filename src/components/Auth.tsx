@@ -31,7 +31,7 @@ export default function Auth() {
     if (!sdkRef.current) {
       const socialLoginSDK = new SocialLogin();
       // @ts-ignore
-      await socialLoginSDK.init(ethers.utils.hexValue(ChainId.POLYGON_MAINNET));
+      await socialLoginSDK.init(ethers.utils.hexValue(ChainId.POLYGON_MUMBAI));
       sdkRef.current = socialLoginSDK;
     }
     if (!sdkRef.current.provider) {
@@ -55,6 +55,13 @@ export default function Auth() {
       const smartAccount = new SmartAccount(web3Provider, {
         activeNetworkId: ChainId.POLYGON_MUMBAI,
         supportedNetworksIds: [ChainId.POLYGON_MUMBAI],
+        networkConfig: [
+          {
+            chainId: ChainId.POLYGON_MUMBAI,
+            dappAPIKey: process.env.BICONOMY,
+            providerUrl: process.env.ALCHEMY_TEST,
+          },
+        ],
       });
       await smartAccount.init();
       actions.setSmartAccount(smartAccount);

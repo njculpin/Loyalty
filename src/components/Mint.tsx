@@ -1,5 +1,53 @@
+import { useState, useEffect, useRef } from "react";
+import { ChainId } from "@biconomy/core-types";
+import { ethers } from "ethers";
+import useStore from "../store";
+import { loyaltyManagerAddress } from "../../config";
+
 export default function Mint() {
-  const mint = async () => {};
+  const smartAccount = useStore((state: any) => state.smartAccount);
+
+  const mint = async () => {
+    if (!smartAccount) return;
+    console.log("smartAccount: ", smartAccount);
+
+    const tokenURI = "1.json";
+
+    const mintVendorCard = new ethers.utils.Interface([
+      "function mintVendorCard(string memory _tokenURI)",
+    ]);
+
+    const encodedData = mintVendorCard.encodeFunctionData("mintVendorCard", [
+      tokenURI,
+    ]);
+
+    const tx = {
+      to: loyaltyManagerAddress,
+      data: encodedData,
+    };
+
+    smartAccount.on("txHashGenerated", (response: any) => {
+      console.log("txHashGenerated event received via emitter", response);
+    });
+    smartAccount.on("onHashChanged", (response: any) => {
+      console.log("onHashChanged event received via emitter", response);
+    });
+    smartAccount.on("txMined", (response: any) => {
+      console.log("txMined event received via emitter", response);
+    });
+    smartAccount.on("error", (response: any) => {
+      console.log("error event received via emitter", response);
+    });
+
+    const txResponse = await smartAccount.sendTransaction({
+      transaction: tx,
+    });
+    console.log("userOp hash", txResponse);
+
+    const txReciept = await txResponse.wait();
+    console.log("Tx hash", txReciept.transactionHash);
+  };
+
   return (
     <div className="space-y-12">
       <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
@@ -9,20 +57,20 @@ export default function Mint() {
           </h2>
           <p className="mx-auto mt-6 max-w-xl text-lg leading-8 text-gray-300">
             LYLT is a two way incentive system specifically designed for small
-            business and their customers. Choose your card below to get started.
-            Its completely free and anonymous. If you are a business owner
-            looking for an incentive program for your customers, choose the
-            vendor card. If you are a customer, choose the loyalty card.
+            business and their customers. Choose your card flavor below to get
+            started. Its completely free and anonymous. If you are a business
+            owner looking for an incentive program for your customers, choose
+            the vendor card. If you are a customer, choose the loyalty card.
           </p>
           <div className="mt-10 flex items-center justify-center gap-x-6">
             <a
-              href="#"
+              onClick={mint}
               className="rounded-md bg-white px-3.5 py-2.5 text-sm font-semibold text-gray-900 shadow-sm hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
             >
               Get a Loyalty Card
             </a>
             <a
-              href="#"
+              onClick={mint}
               className="rounded-md bg-white px-3.5 py-2.5 text-sm font-semibold text-gray-900 shadow-sm hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
             >
               Get a Vendor Card

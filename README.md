@@ -23,3 +23,15 @@ npx hardhat compile
 '''
 npx hardhat test
 '''
+
+'''
+npx hardhat node
+'''
+
+'''
+npx hardhat run --network localhost scripts/deploy.ts
+'''
+
+'''
+npx hardhat run --network mumbai scripts/deploy.ts
+'''
