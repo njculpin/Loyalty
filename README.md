@@ -1,4 +1,4 @@
-## LYLT
+## LYLT - work in progress
 
 LYLT is a two way incentive system specifically designed for small business and their customers. LYLT is similar to the paper punch cards that allow a customer to excerise 'buy 5 get 1 free' deals in their local
 sandich shop but it allows a store owner to capture recurring customers through their mobile devices and proof of ownership of digital assets.
