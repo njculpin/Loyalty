@@ -14,24 +14,35 @@ At this point, the vendor has some choices, they can either stake their LYLT tok
 of the network in exchange for other rewards. Cashing out will mint the actual ERC20 tokens into the blockchain and deposit them back into the Vendors Wallet, where they may be transfered to
 any Wallet they wish. In the future, tokens maybe used at all participating vendors to purchase goods and services.
 
+### TECHNOLOGIES
+
+- Typescript
+- NextJS
+- TailwindCSS
+- Zustand
+- Polygon Network
+- Alchemy
+- Hard Hat
+- Biconomy
+
 ### HARDHAT
 
-'''
+```
 npx hardhat compile
-'''
+```
 
-'''
+```
 npx hardhat test
-'''
+```
 
-'''
+```
 npx hardhat node
-'''
+```
 
-'''
+```
 npx hardhat run --network localhost scripts/deploy.ts
-'''
+```
 
-'''
+```
 npx hardhat run --network mumbai scripts/deploy.ts
-'''
+```
