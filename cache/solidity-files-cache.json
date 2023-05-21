@@ -628,8 +628,8 @@
       ]
     },
     "/Users/nickculpin/Documents/GitHub/Loyalty/contracts/LoyaltyManager.sol": {
-      "lastModificationDate": 1683590932567,
-      "contentHash": "2b14bf439e1de9dbf1a5f097c8a8d26c",
+      "lastModificationDate": 1684621026222,
+      "contentHash": "ce94502b67f1c8026970f2e7da601345",
       "sourceName": "contracts/LoyaltyManager.sol",
       "solcConfig": {
         "version": "0.8.18",

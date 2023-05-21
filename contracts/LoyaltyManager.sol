@@ -54,8 +54,8 @@ contract LoyaltyManager {
         return _patronBalances[_patronCardId];
     }
 
-    function getVendorBalance(uint256 _patronCardId) public view returns (uint256){
-        return _vendorBalances[_patronCardId];
+    function getVendorBalance(uint256 _vendorCardId) public view returns (uint256){
+        return _vendorBalances[_vendorCardId];
     }
 
     function redeemLoyalty(uint256 _patronCardId, uint256 _vendorCardId, uint256 _amount) public returns (uint256) {

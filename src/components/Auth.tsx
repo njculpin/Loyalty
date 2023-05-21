@@ -64,6 +64,7 @@ export default function Auth() {
         ],
       });
       await smartAccount.init();
+      actions.setProvider(web3Provider);
       actions.setSmartAccount(smartAccount);
       setLoading(false);
     } catch (err) {
