@@ -75,7 +75,7 @@ export default function VendorCard() {
   };
 
   return (
-    <div className="space-y-12">
+    <div className="space-y-12 p-16">
       <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
         {smartAccount && (
           <div className="relative isolate overflow-hidden px-6 py-12 text-center sm:rounded-3xl sm:px-16">
@@ -83,7 +83,7 @@ export default function VendorCard() {
               {!loading && (
                 <div>
                   {vendorCard && (
-                    <div className="px-6 py-12 text-center sm:rounded-3xl sm:px-16 grid grid-cols-1 gap-4">
+                    <div className="px-6 py-12 text-center sm:rounded-3xl sm:px-16 grid grid-cols-1 gap-8">
                       <h1 className="mt-4 text-4xl tracking-tight font-extrabold text-white sm:mt-5 sm:text-6xl lg:mt-6 xl:text-8xl">
                         <span className="">Earn a </span>
                         <span className=" text-green-400">
@@ -98,17 +98,21 @@ export default function VendorCard() {
                         <span className=" text-red-400">{vendorCard.name}</span>
                         <span> scan that shit now</span>
                       </h1>
-                      <div className="w-full flex flex-col justify-center items-center">
-                        <img src={vendorCard.qrUrl} alt="qr code" />
-                        <a href={`qr/${vendorCard.vendor}/${vendorCard.key}`}>
-                          <p className="border px-4 py-2 border-white">
-                            REDEEM - TEST ONLY
-                          </p>
-                        </a>
-                        <p className="px-4 py-2">
-                          Balance of {vendorCard.points} Points
-                        </p>
+                      <div className="w-full flex flex-col justify-center items-center p-8">
+                        <img
+                          style={{ height: "256", width: "256" }}
+                          src={vendorCard.qrUrl}
+                          alt="qr code"
+                        />
                       </div>
+                      <a href={`qr/${vendorCard.vendor}/${vendorCard.key}`}>
+                        <p className="border px-4 py-2 border-white">
+                          SIMULATE SCAN
+                        </p>
+                      </a>
+                      <p className="px-4 py-2">
+                        Vendor has a balance of {vendorCard.points} Points
+                      </p>
                     </div>
                   )}
                   {!vendorCard && (

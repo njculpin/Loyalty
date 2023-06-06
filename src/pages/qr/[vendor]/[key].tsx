@@ -118,7 +118,7 @@ const Qr = () => {
   };
 
   return (
-    <div className="w-full">
+    <div className="w-full p-16">
       <div className="mx-auto max-w-7xl p-6">
         <Suspense fallback={<div>Loading...</div>}>
           {loading && <p>Loading</p>}

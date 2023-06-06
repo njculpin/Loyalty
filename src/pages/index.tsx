@@ -12,7 +12,7 @@ const Index = () => {
   );
   return (
     <div className="w-full">
-      <div className="mx-auto max-w-7xl p-6">
+      <div className="mx-auto max-w-7xl">
         <Suspense fallback={<div>Loading...</div>}>
           <VendorCard />
           <SocialLoginDynamic />

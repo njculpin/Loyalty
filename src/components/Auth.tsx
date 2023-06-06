@@ -104,7 +104,7 @@ export default function Auth() {
         </button>
       )}
       {loading && <p>Loading</p>}
-      {smartAccount && (
+      {/* {smartAccount && (
         <div className="w-full flex flex-col justify-center items-center mt-8">
           <button
             onClick={Logout}
@@ -113,7 +113,7 @@ export default function Auth() {
             Logout
           </button>
         </div>
-      )}
+      )} */}
     </div>
   );
 }
