@@ -94,9 +94,6 @@ export default function VendorCard() {
                           {vendorCard.pointCap}
                         </span>
                         <span> points </span>
-                        <span className=" text-red-400">
-                          {vendorCard.points}
-                        </span>
                         <span>from </span>
                         <span className=" text-red-400">{vendorCard.name}</span>
                         <span> scan that shit now</span>
@@ -108,6 +105,9 @@ export default function VendorCard() {
                             REDEEM - TEST ONLY
                           </p>
                         </a>
+                        <p className="px-4 py-2">
+                          Balance of {vendorCard.points} Points
+                        </p>
                       </div>
                     </div>
                   )}

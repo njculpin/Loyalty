@@ -64,12 +64,14 @@ const Qr = () => {
     } else {
       if (relationship) {
         setRel(relationship);
-        const update = await updateCardPoints(
+        console.log("updating");
+        const updated = await updateCardPoints(
           smartAccount.address,
           vendor,
           key
         );
-        if (update === "-1") {
+        console.log("updated", updated);
+        if (updated === "-1") {
           setLoading(false);
           return setMessage("Sorry, you have already checked in today!");
         }
@@ -108,6 +110,7 @@ const Qr = () => {
 
   const redeemCard = async () => {
     const update = await updateCardPoints(smartAccount.address, vendor, key);
+    console.log("update", update);
     if (update === "-1") {
       setLoading(false);
       return setMessage("Sorry, you have already checked in today!");
@@ -135,7 +138,7 @@ const Qr = () => {
                     <span className=" text-blue-400"> {rel.name}</span>
                   </h1>
                   {rel.pointCap === rel.points && (
-                    <button onClick={() => redeemCard()}>
+                    <button className="my-8" onClick={() => redeemCard()}>
                       <p className="border px-4 py-2 border-white">
                         REDEEM - TEST ONLY
                       </p>

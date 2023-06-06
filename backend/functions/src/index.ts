@@ -41,6 +41,7 @@ export const createVendorCard = https.onRequest(
         vendor: vendor,
         name: name,
         reward: reward,
+        points: 0,
         pointCap: pointCap,
         qr: qr,
         key: key,
@@ -148,35 +149,33 @@ export const updateCardPoints = https.onRequest(
     logger.info("request body", body);
     const vendor = body.vendor;
     const patron = body.patron;
-    const key = body.key;
-    const vendorRef = db.collection("vendors").doc(vendor);
+    // const key = body.key;
+    // const vendorRef = db.collection("vendors").doc(vendor);
     const docRef = db.collection("patrons").doc(`${vendor}-${patron}`);
     try {
-      const getVendor = await vendorRef.get();
-      const vendorKey = getVendor.data().key;
+      const checkPatron = await docRef.get();
+      logger.info("checkPatron", checkPatron.data());
+      // const getVendor = await vendorRef.get();
+      // const vendorKey = getVendor.data().key;
       const updatePoints = await db.runTransaction(async (transaction: any) => {
-        const sfDoc = await transaction.get(docRef);
-        const oldPoint = sfDoc.data().points;
-        const pointCap = sfDoc.data().pointCap;
-        const lastUpdate = sfDoc.data().lastUpdate;
+        const patronDoc = await transaction.get(docRef);
+        const oldPoint = patronDoc.data().points;
+        const pointCap = patronDoc.data().pointCap;
+        const lastUpdate = patronDoc.data().lastUpdate;
         const currentTime = new Date().getTime();
         const difference = Math.abs(currentTime - lastUpdate);
         logger.info("time difference", difference);
-        if (key != vendorKey) {
-          return -1;
+        let newPoint = oldPoint + 1;
+        if (newPoint <= pointCap) {
+          transaction.update(docRef, {
+            points: newPoint,
+            lastUpdate: currentTime,
+          });
+          return newPoint;
         } else {
-          let newPoint = oldPoint + 1;
-          if (newPoint <= pointCap) {
-            transaction.update(docRef, {
-              points: newPoint,
-              lastUpdate: currentTime,
-            });
-            return newPoint;
-          } else {
-            // return points to vendor
-            transaction.update(docRef, { points: 0, lastUpdate: currentTime });
-            return 0;
-          }
+          transaction.update(docRef, { points: 0, lastUpdate: currentTime });
+          await updateVendorCardPoints(vendor, pointCap);
+          return 0;
         }
       });
       response
@@ -188,6 +187,25 @@ export const updateCardPoints = https.onRequest(
     }
   }
 );
+
+const updateVendorCardPoints = async (vendor: string, pointCap: number) => {
+  console.log("should update", vendor, pointCap);
+  const vendorRef = db.collection("vendors").doc(vendor);
+  const currentTime = new Date().getTime();
+  const updateVendor = await db.runTransaction(async (transaction: any) => {
+    const vendorDoc = await transaction.get(vendorRef);
+    const oldPoints = vendorDoc.data().points;
+    logger.info("updateVendorCardPoints oldPoints", oldPoints);
+    const newPoints = oldPoints + pointCap;
+    logger.info("updateVendorCardPoints newPoints", newPoints);
+    transaction.update(vendorRef, {
+      points: newPoints,
+      lastUpdate: currentTime,
+    });
+    return newPoints;
+  });
+  logger.info("updateVendorCardPoints", updateVendor);
+};
 
 export const getPatronCard = https.onRequest(
   { cors: true },
