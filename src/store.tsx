@@ -7,9 +7,14 @@ const useStore = create((set, get) => {
     smartAccount: null,
     vendorCard: null,
     patronCard: null,
+    testNetwork: false,
+    auth: null,
     actions: {
       setProvider: (provider: any) => {
         set({ provider: provider });
+      },
+      seTesttNetwork: (testNetwork: boolean) => {
+        set({ testNetwork: testNetwork });
       },
       setSmartAccount: (smartAccount: SmartAccount) => {
         set({ smartAccount: smartAccount });
@@ -19,6 +24,9 @@ const useStore = create((set, get) => {
       },
       setPatronCard: (patron: any) => {
         set({ patronCard: patron });
+      },
+      setAuth: (auth: any) => {
+        set({ auth: auth });
       },
     },
   };

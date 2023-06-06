@@ -1,0 +1,15 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+function signedInOrPublic() {
+      return request.auth.uid != null || resource.data.visibility == 'public';
+    }
+
+    match /patrons/{address} {
+      allow read, write: if signedInOrPublic();
+    }
+
+  }
+}

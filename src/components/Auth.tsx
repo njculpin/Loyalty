@@ -4,6 +4,7 @@ import { ChainId } from "@biconomy/core-types";
 import SmartAccount from "@biconomy/smart-account";
 import { ethers } from "ethers";
 import useStore from "../store";
+import { loginFirebase, logoutFirebase } from "../firebase";
 
 export default function Auth() {
   const [loading, setLoading] = useState<boolean>(false);
@@ -17,9 +18,9 @@ export default function Auth() {
     // @ts-ignore
     let configureLogin;
     if (interval) {
-      configureLogin = setInterval(() => {
+      configureLogin = setInterval(async () => {
         if (!!sdkRef.current?.provider) {
-          setupSmartAccount();
+          await setupSmartAccount();
           // @ts-ignore
           clearInterval(configureLogin);
         }
@@ -48,24 +49,32 @@ export default function Auth() {
     }
     setLoading(true);
     sdkRef.current.hideWallet();
+
     const web3Provider = new ethers.providers.Web3Provider(
       sdkRef.current.provider
     );
     try {
       const smartAccount = new SmartAccount(web3Provider, {
         activeNetworkId: ChainId.POLYGON_MUMBAI,
-        supportedNetworksIds: [ChainId.POLYGON_MUMBAI],
+        supportedNetworksIds: [ChainId.POLYGON_MUMBAI, ChainId.POLYGON_MAINNET],
         networkConfig: [
           {
             chainId: ChainId.POLYGON_MUMBAI,
-            dappAPIKey: process.env.BICONOMY,
+            dappAPIKey: process.env.BICONOMY_TEST,
             providerUrl: process.env.ALCHEMY_TEST,
+          },
+          {
+            chainId: ChainId.POLYGON_MAINNET,
+            dappAPIKey: process.env.BICONOMY_MAIN,
+            providerUrl: process.env.ALCHEMY_MAIN,
           },
         ],
       });
       await smartAccount.init();
+
       actions.setProvider(web3Provider);
       actions.setSmartAccount(smartAccount);
+      await loginFirebase(smartAccount?.address);
       setLoading(false);
     } catch (err) {
       console.log(err);
@@ -80,36 +89,31 @@ export default function Auth() {
     await sdkRef.current.logout();
     sdkRef.current.hideWallet();
     actions.setSmartAccount(null);
+    await logoutFirebase();
     enableInterval(false);
   };
 
   return (
-    <div className="w-full">
-      <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
-        {!smartAccount && !loading && (
-          <div>
-            <button
-              onClick={Login}
-              className="w-32 rounded-md bg-white px-3.5 py-2.5 text-sm font-semibold text-gray-900 shadow-sm hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
-            >
-              Login
-            </button>
-          </div>
-        )}
-        {loading && <p>Loading</p>}
-        {smartAccount && (
-          <div>
-            <h3>Account:</h3>
-            <p>{smartAccount?.address}</p>
-            <button
-              onClick={Logout}
-              className="w-32 rounded-md bg-white px-3.5 py-2.5 text-sm font-semibold text-gray-900 shadow-sm hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white mt-4"
-            >
-              Logout
-            </button>
-          </div>
-        )}
-      </div>
+    <div className="w-full flex justify-center items-center">
+      {!smartAccount && !loading && (
+        <button
+          onClick={Login}
+          className="w-32 rounded-md bg-white px-3.5 py-2.5 text-sm font-semibold text-gray-900 shadow-sm hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+        >
+          Login
+        </button>
+      )}
+      {loading && <p>Loading</p>}
+      {smartAccount && (
+        <div className="w-full flex flex-col justify-center items-center mt-8">
+          <button
+            onClick={Logout}
+            className="w-32 rounded-md bg-white px-3.5 py-2.5 text-sm font-semibold text-gray-900 shadow-sm hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white mt-4"
+          >
+            Logout
+          </button>
+        </div>
+      )}
     </div>
   );
 }
