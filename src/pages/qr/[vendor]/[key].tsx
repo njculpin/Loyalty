@@ -127,7 +127,7 @@ const Qr = () => {
               <p className="text-red-500 font-bold text-lg">{message}</p>
               {rel && rel.name !== "" && !loading && (
                 <div>
-                  <h1 className="mt-4 text-4xl tracking-tight font-extrabold text-white sm:mt-5 sm:text-6xl lg:mt-6 xl:text-8xl">
+                  <h1 className="mt-4 text-4xl tracking-tight font-extrabold text-black sm:mt-5 sm:text-6xl lg:mt-6 xl:text-8xl">
                     <span className="">You have earned </span>
                     <span className=" text-green-400">{rel.points} </span>
                     <span>out of </span>
@@ -137,9 +137,10 @@ const Qr = () => {
                     <span>from</span>
                     <span className=" text-blue-400"> {rel.name}</span>
                   </h1>
+                  <p className="italic my-4">you can close this window</p>
                   {rel.pointCap === rel.points && (
                     <button className="my-8" onClick={() => redeemCard()}>
-                      <p className="border px-4 py-2 border-white">
+                      <p className="border px-4 py-2 border-black">
                         REDEEM - TEST ONLY
                       </p>
                     </button>

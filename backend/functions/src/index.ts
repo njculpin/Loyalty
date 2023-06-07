@@ -17,6 +17,25 @@ const db = getFirestore(app);
 
 // Start writing functions
 // https://firebase.google.com/docs/functions/typescript
+export const createVendor = https.onRequest(
+  { cors: true },
+  async (request, response) => {
+    const body = request.body.data;
+    logger.info("request body", body);
+    const vendor = body.wallet;
+    logger.info("vendor", vendor);
+    const docRef = db.collection("vendors").doc(vendor);
+    const res = await docRef.set(body);
+    try {
+      response
+        .status(200)
+        .send({ status: "success", data: JSON.stringify(res) });
+    } catch (e) {
+      logger.error("error", e);
+      response.status(400).send({ status: "error", data: JSON.stringify(e) });
+    }
+  }
+);
 
 /*
 userId - firebase auth id
@@ -36,7 +55,7 @@ export const createVendorCard = https.onRequest(
       const pointCap = body.pointCap;
       const qr = body.qr;
       const key = body.key;
-      const docRef = db.collection("vendors").doc(vendor);
+      const docRef = db.collection("vendors").doc();
       const res = await docRef.set({
         vendor: vendor,
         name: name,
@@ -131,6 +150,7 @@ export const createPatronCard = https.onRequest(
         points: points,
         pointCap: pointCap,
         lastUpdate: new Date().getTime(),
+        redeemed: false,
       });
       response
         .status(200)
@@ -149,14 +169,10 @@ export const updateCardPoints = https.onRequest(
     logger.info("request body", body);
     const vendor = body.vendor;
     const patron = body.patron;
-    // const key = body.key;
-    // const vendorRef = db.collection("vendors").doc(vendor);
     const docRef = db.collection("patrons").doc(`${vendor}-${patron}`);
     try {
       const checkPatron = await docRef.get();
       logger.info("checkPatron", checkPatron.data());
-      // const getVendor = await vendorRef.get();
-      // const vendorKey = getVendor.data().key;
       const updatePoints = await db.runTransaction(async (transaction: any) => {
         const patronDoc = await transaction.get(docRef);
         const oldPoint = patronDoc.data().points;
@@ -173,7 +189,10 @@ export const updateCardPoints = https.onRequest(
           });
           return newPoint;
         } else {
-          transaction.update(docRef, { points: 0, lastUpdate: currentTime });
+          transaction.update(docRef, {
+            lastUpdate: currentTime,
+            redeemed: true,
+          });
           await updateVendorCardPoints(vendor, pointCap);
           return 0;
         }

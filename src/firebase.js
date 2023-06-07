@@ -49,6 +49,20 @@ export const loginFirebase = async (smartAccount) => {
   });
 };
 
+export const createVendor = async (vendor) => {
+  const create = httpsCallable(functions, "createVendor");
+  return create({ ...vendor })
+    .then((result) => {
+      const data = result.data;
+      console.log("data", data);
+      return true;
+    })
+    .catch((error) => {
+      console.log("error", error);
+      return false;
+    });
+};
+
 export const createVendorCard = async (
   vendor,
   name,
