@@ -4,10 +4,9 @@ import dynamic from "next/dynamic";
 import { Suspense, useState } from "react";
 import Link from "next/link";
 import { Dialog } from "@headlessui/react";
-import useStore from "../store";
 
 const navigation = [
-  { name: "Promotions", href: "/promotions" },
+  { name: "Create", href: "/create" },
   { name: "Account", href: "/account" },
 ];
 

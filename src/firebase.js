@@ -76,16 +76,9 @@ export const getVendor = async (wallet) => {
     });
 };
 
-export const createVendorCard = async (
-  vendor,
-  name,
-  reward,
-  pointCap,
-  qr,
-  key
-) => {
+export const createVendorCard = async (vendorCard) => {
   const create = httpsCallable(functions, "createVendorCard");
-  create({ vendor, name, reward, pointCap, qr, key })
+  create({ ...vendorCard })
     .then((result) => {
       const data = result.data;
       console.log("data", data);
@@ -100,6 +93,18 @@ export const createVendorCard = async (
 export const getVendorCard = async (vendor) => {
   const get = httpsCallable(functions, "getVendorCard");
   return get({ vendor })
+    .then((result) => {
+      return JSON.parse(result.data);
+    })
+    .catch((error) => {
+      console.log("error", error);
+      return;
+    });
+};
+
+export const getVendorCardsByOwner = async (wallet) => {
+  const get = httpsCallable(functions, "getVendorCardsByOwner");
+  return get({ wallet })
     .then((result) => {
       return JSON.parse(result.data);
     })

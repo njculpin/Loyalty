@@ -70,22 +70,8 @@ export const createVendorCard = https.onRequest(
     try {
       const body = request.body.data;
       logger.info("request body", body);
-      const vendor = body.vendor;
-      const name = body.name;
-      const reward = body.reward;
-      const pointCap = body.pointCap;
-      const qr = body.qr;
-      const key = body.key;
-      const docRef = db.collection("vendors").doc();
-      const res = await docRef.set({
-        vendor: vendor,
-        name: name,
-        reward: reward,
-        points: 0,
-        pointCap: pointCap,
-        qr: qr,
-        key: key,
-      });
+      const docRef = db.collection("promotions").doc();
+      const res = await docRef.set({ ...body });
       response
         .status(200)
         .send({ status: "success", data: JSON.stringify(res) });
@@ -103,7 +89,7 @@ export const getVendorCard = https.onRequest(
     logger.info("request body", body);
     const vendor = body.vendor;
     try {
-      const doc = await db.collection("vendors").doc(vendor).get();
+      const doc = await db.collection("promotions").doc(vendor).get();
       if (doc.exists) {
         const res = doc.data();
         response
@@ -119,6 +105,29 @@ export const getVendorCard = https.onRequest(
   }
 );
 
+export const getVendorCardsByOwner = https.onRequest(
+  { cors: true },
+  async (request, response) => {
+    const body = request.body.data;
+    logger.info("request body", body);
+    const wallet = body.wallet;
+    try {
+      const snapshot = await db
+        .collection("promotions")
+        .where("wallet", "==", wallet)
+        .get();
+      let data = snapshot.docs.map((x: any) => x.data());
+      logger.info("response docs", data);
+      response
+        .status(200)
+        .send({ status: "success", data: JSON.stringify(data) });
+    } catch (e) {
+      logger.error("error", e);
+      response.status(400).send({ status: "error", data: JSON.stringify(e) });
+    }
+  }
+);
+
 export const updateVendorCardKey = https.onRequest(
   { cors: true },
   async (request, response) => {
@@ -127,7 +136,7 @@ export const updateVendorCardKey = https.onRequest(
     const vendor = body.vendor;
     const key = body.key;
     const qr = body.qr;
-    const docRef = db.collection("vendors").doc(vendor);
+    const docRef = db.collection("promotions").doc(vendor);
     try {
       const update = await docRef.update({
         qr: qr,

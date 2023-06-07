@@ -49,33 +49,6 @@ export default function Vendor() {
     reward: "",
   });
 
-  const handleChange = (event: any) => {
-    setState({
-      ...state,
-      [event.target.id]: event.target.value,
-    });
-  };
-  const createCard = async () => {
-    if (smartAccount) {
-      const key = uuidv4();
-      const qr = await QRCode.toDataURL(
-        `loyalty-iota.vercel.app/qr/${smartAccount.address}/${key}`
-      );
-      const storageRef = ref(storage, `qr/${smartAccount.address}.png`);
-      const uploadTask = await uploadString(storageRef, qr, "data_url");
-      const QRURL = uploadTask.metadata.fullPath;
-      await createVendorCard(
-        smartAccount.address,
-        state.name,
-        state.reward,
-        Number(state.points),
-        QRURL,
-        key
-      );
-    }
-    setCreateOpen(false);
-  };
-
   return (
     <div className="p-16">
       <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
