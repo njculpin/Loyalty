@@ -63,6 +63,19 @@ export const createVendor = async (vendor) => {
     });
 };
 
+export const getVendor = async (wallet) => {
+  const get = httpsCallable(functions, "getVendor");
+  return get({ wallet: wallet })
+    .then((result) => {
+      const data = result.data;
+      return data;
+    })
+    .catch((error) => {
+      console.log("error", error);
+      return false;
+    });
+};
+
 export const createVendorCard = async (
   vendor,
   name,

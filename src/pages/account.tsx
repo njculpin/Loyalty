@@ -1,14 +1,54 @@
 import useStore from "@/lib/useStore";
 import useAuthStore from "@/lib/store";
-import { createVendor } from "../firebase";
-import { Fragment, useState } from "react";
+import { createVendor, getVendor } from "../firebase";
+import { Fragment, useEffect, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { CheckIcon } from "@heroicons/react/24/outline";
+
+type Vendor = {
+  businessCity: string;
+  businessEmail: string;
+  businessName: string;
+  businessPhone: string;
+  businessPostalCode: string;
+  businessRegion: string;
+  businessStreetAddress: string;
+  businessCountry: string;
+  wallet: string;
+};
 
 export default function Account() {
   const store = useStore(useAuthStore, (state) => state);
   const [openModal, setOpenModal] = useState<boolean>(false);
-  const [state, setState] = useState({});
+  const [state, setState] = useState<Vendor>({
+    businessCity: "",
+    businessEmail: "",
+    businessName: "",
+    businessPhone: "",
+    businessPostalCode: "",
+    businessRegion: "",
+    businessStreetAddress: "",
+    businessCountry: "",
+    wallet: "",
+  });
+
+  useEffect(() => {
+    const getData = async () => {
+      if (store?.wallet) {
+        return (await getVendor(store?.wallet)) as Vendor;
+      }
+    };
+    getData()
+      .then((res: any) => {
+        if (res) {
+          const vendor = JSON.parse(res);
+          setState({ ...vendor });
+        }
+      })
+      .catch((e) => {
+        console.log(e);
+      });
+  }, [store?.wallet]);
 
   const handleChange = (event: any) => {
     setState({ ...state, [event.target.id]: event.target.value });
@@ -37,7 +77,7 @@ export default function Account() {
           <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
             <div className="sm:col-span-3">
               <label
-                htmlFor="business-name"
+                htmlFor="businessName"
                 className="block text-sm font-medium leading-6 text-gray-900"
               >
                 Business Name
@@ -46,8 +86,9 @@ export default function Account() {
                 <input
                   onChange={handleChange}
                   type="text"
-                  name="business-name"
-                  id="business-name"
+                  name="businessName"
+                  id="businessName"
+                  value={state.businessName}
                   className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                 />
               </div>
@@ -55,7 +96,7 @@ export default function Account() {
 
             <div className="sm:col-span-4">
               <label
-                htmlFor="business-email"
+                htmlFor="businessEmail"
                 className="block text-sm font-medium leading-6 text-gray-900"
               >
                 Business Email address
@@ -63,10 +104,11 @@ export default function Account() {
               <div className="mt-2">
                 <input
                   onChange={handleChange}
-                  id="business-email"
-                  name="business-email"
+                  id="businessEmail"
+                  name="businessEmail"
                   type="email"
                   autoComplete="email"
+                  value={state.businessEmail}
                   className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                 />
               </div>
@@ -74,7 +116,7 @@ export default function Account() {
 
             <div className="sm:col-span-4">
               <label
-                htmlFor="business-phone"
+                htmlFor="businessPhone"
                 className="block text-sm font-medium leading-6 text-gray-900"
               >
                 Business Phone
@@ -82,10 +124,10 @@ export default function Account() {
               <div className="mt-2">
                 <input
                   onChange={handleChange}
-                  id="business-phone"
-                  name="business-phone"
                   type="text"
-                  autoComplete="phone"
+                  name="businessPhone"
+                  id="businessPhone"
+                  value={state.businessPhone}
                   className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                 />
               </div>
@@ -93,7 +135,7 @@ export default function Account() {
 
             <div className="sm:col-span-3">
               <label
-                htmlFor="business-country"
+                htmlFor="businessCountry"
                 className="block text-sm font-medium leading-6 text-gray-900"
               >
                 Country
@@ -101,8 +143,8 @@ export default function Account() {
               <div className="mt-2">
                 <select
                   onChange={handleChange}
-                  id="business-country"
-                  name="business-country"
+                  id="businessCountry"
+                  name="businessCountry"
                   autoComplete="country-name"
                   className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:max-w-xs sm:text-sm sm:leading-6"
                 >
@@ -115,7 +157,7 @@ export default function Account() {
 
             <div className="col-span-full">
               <label
-                htmlFor="business-street-address"
+                htmlFor="businessStreetAddress"
                 className="block text-sm font-medium leading-6 text-gray-900"
               >
                 Street address
@@ -124,9 +166,9 @@ export default function Account() {
                 <input
                   onChange={handleChange}
                   type="text"
-                  name="business-street-address"
-                  id="business-street-address"
-                  autoComplete="street-address"
+                  name="businessStreetAddress"
+                  id="businessStreetAddress"
+                  value={state.businessStreetAddress}
                   className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                 />
               </div>
@@ -134,7 +176,7 @@ export default function Account() {
 
             <div className="sm:col-span-2 sm:col-start-1">
               <label
-                htmlFor="business-city"
+                htmlFor="businessCity"
                 className="block text-sm font-medium leading-6 text-gray-900"
               >
                 City
@@ -143,9 +185,9 @@ export default function Account() {
                 <input
                   onChange={handleChange}
                   type="text"
-                  name="business-city"
-                  id="business-city"
-                  autoComplete="address-level2"
+                  name="businessCity"
+                  id="businessCity"
+                  value={state.businessCity}
                   className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                 />
               </div>
@@ -153,7 +195,7 @@ export default function Account() {
 
             <div className="sm:col-span-2">
               <label
-                htmlFor="business-region"
+                htmlFor="businessRegion"
                 className="block text-sm font-medium leading-6 text-gray-900"
               >
                 State / Province
@@ -162,9 +204,9 @@ export default function Account() {
                 <input
                   onChange={handleChange}
                   type="text"
-                  name="business-region"
-                  id="business-region"
-                  autoComplete="address-level1"
+                  name="businessRegion"
+                  id="businessRegion"
+                  value={state.businessRegion}
                   className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                 />
               </div>
@@ -172,7 +214,7 @@ export default function Account() {
 
             <div className="sm:col-span-2">
               <label
-                htmlFor="business-postal-code"
+                htmlFor="businessPostalCode"
                 className="block text-sm font-medium leading-6 text-gray-900"
               >
                 ZIP / Postal code
@@ -181,9 +223,9 @@ export default function Account() {
                 <input
                   onChange={handleChange}
                   type="text"
-                  name="business-postal-code"
-                  id="business-postal-code"
-                  autoComplete="postal-code"
+                  name="businessPostalCode"
+                  id="businessPostalCode"
+                  value={state.businessPostalCode}
                   className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                 />
               </div>

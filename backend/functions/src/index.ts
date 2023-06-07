@@ -37,6 +37,27 @@ export const createVendor = https.onRequest(
   }
 );
 
+export const getVendor = https.onRequest(
+  { cors: true },
+  async (request, response) => {
+    const body = request.body.data;
+    logger.info("request body", body);
+    const vendor = body.wallet;
+    logger.info("vendor", vendor);
+    const docRef = db.collection("vendors").doc(vendor);
+    const res = await docRef.get();
+    logger.info("res", res.data());
+    try {
+      response
+        .status(200)
+        .send({ status: "success", data: JSON.stringify(res.data()) });
+    } catch (e) {
+      logger.error("error", e);
+      response.status(400).send({ status: "error", data: JSON.stringify(e) });
+    }
+  }
+);
+
 /*
 userId - firebase auth id
 tokenId - vendor card id, used as document key
