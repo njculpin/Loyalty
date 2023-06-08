@@ -9,6 +9,7 @@ import {
 } from "firebase/auth";
 import { getFunctions, httpsCallable } from "firebase/functions";
 import { getStorage } from "firebase/storage";
+import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_KEY,
@@ -23,8 +24,9 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
-const functions = getFunctions(app);
+export const functions = getFunctions(app);
 export const storage = getStorage(app);
+export const db = getFirestore(app);
 // const analytics = getAnalytics(app);
 
 export const loginFirebase = async (smartAccount) => {

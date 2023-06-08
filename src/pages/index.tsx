@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { getPromotionsByOwner, getVendor, storage } from "../firebase";
+import { collection, query, where, onSnapshot } from "firebase/firestore";
+import { getVendor, db, storage } from "../firebase";
 import { ref, getDownloadURL } from "firebase/storage";
 import useStore from "@/lib/useStore";
 import useAuthStore from "@/lib/store";
@@ -50,28 +51,25 @@ const Index = () => {
   });
 
   useEffect(() => {
-    const getData = async () => {
-      if (store?.wallet) {
-        return (await getPromotionsByOwner(store?.wallet)) as VendorCard[];
-      }
-    };
-    getData()
-      .then(async (res: any) => {
-        if (res) {
-          const remap = await Promise.all(
-            res.map(async function (promo: VendorCard) {
-              const qr = promo.qr;
-              const url = await getDownloadURL(ref(storage, qr));
-              const data = { ...promo, qRUrl: url };
-              return data;
-            })
-          );
-          setPromotions(remap);
-        }
-      })
-      .catch((e) => {
-        console.log(e);
+    if (store?.wallet) {
+      const q = query(
+        collection(db, "promotions"),
+        where("businessWallet", "==", store?.wallet)
+      );
+      const unsubscribe = onSnapshot(q, (querySnapshot) => {
+        const mapped = querySnapshot.docs.map(async function (doc) {
+          const data = doc.data();
+          const qr = data.qr;
+          return getDownloadURL(ref(storage, qr)).then((url) => {
+            return { ...data, qRUrl: url } as unknown as VendorCard;
+          });
+        });
+        Promise.all(mapped).then((result) => {
+          setPromotions(result);
+        });
       });
+      return unsubscribe;
+    }
   }, [store?.wallet]);
 
   useEffect(() => {
