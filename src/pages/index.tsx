@@ -61,7 +61,7 @@ const Index = () => {
           const data = doc.data();
           const qr = data.qr;
           return getDownloadURL(ref(storage, qr)).then((url) => {
-            return { ...data, qRUrl: url } as unknown as VendorCard;
+            return { ...data, qRUrl: url, id: doc.id } as unknown as VendorCard;
           });
         });
         Promise.all(mapped).then((result) => {

@@ -129,6 +129,18 @@ export const updateVendorCard = async (patron, vendor) => {
     });
 };
 
+export const getPromotionById = async (id) => {
+  const get = httpsCallable(functions, "getPromotionById");
+  return get({ id })
+    .then((result) => {
+      return JSON.parse(result.data);
+    })
+    .catch((error) => {
+      console.log("error", error);
+      return;
+    });
+};
+
 export const getPromotionByKey = async (key) => {
   const get = httpsCallable(functions, "getPromotionByKey");
   return get({ key })
@@ -154,8 +166,7 @@ export const logoutFirebase = async () => {
 export const createPatronCard = async (patronCard) => {
   const create = httpsCallable(functions, "createPatronCard");
   const card = { ...patronCard, createdAt: new Date().getTime() };
-  console.log("card", card);
-  create(card)
+  return create(card)
     .then((result) => {
       const data = result.data;
       return data;
@@ -166,9 +177,9 @@ export const createPatronCard = async (patronCard) => {
     });
 };
 
-export const updatePromotionKey = async (promotionId, qr, key) => {
-  const update = httpsCallable(functions, "updatePromotionKey");
-  update({ promotionId, qr, key })
+export const getPatronCardByPromotion = async (patronWallet, promotionId) => {
+  const get = httpsCallable(functions, "getPatronCardByPromotion");
+  return get({ patronWallet, promotionId })
     .then((result) => {
       return JSON.parse(result.data);
     })
@@ -178,9 +189,9 @@ export const updatePromotionKey = async (promotionId, qr, key) => {
     });
 };
 
-export const getPatronCard = async (patronWallet, promotionId) => {
-  const get = httpsCallable(functions, "getPatronCard");
-  return get({ patronWallet, promotionId })
+export const updatePromotionKey = async (promotionId, qr, key) => {
+  const update = httpsCallable(functions, "updatePromotionKey");
+  return update({ promotionId, qr, key })
     .then((result) => {
       return JSON.parse(result.data);
     })

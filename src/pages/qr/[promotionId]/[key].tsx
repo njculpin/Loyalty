@@ -5,12 +5,13 @@ import useStore from "@/lib/useStore";
 import useAuthStore from "@/lib/store";
 import {
   createPatronCard,
-  getPatronCard,
-  getPromotionByKey,
+  getPromotionById,
   updatePatronCardPoints,
   updatePromotionKey,
+  getPatronCardByPromotion,
   storage,
-} from "../../firebase";
+} from "../../../firebase";
+
 import QRCode from "qrcode";
 import { v4 as uuidv4 } from "uuid";
 import { ref, uploadString } from "firebase/storage";
@@ -28,6 +29,7 @@ type Promotion = {
   businessWallet: string;
   pointCap: number;
   reward: string;
+  key: string;
 };
 
 type PatronCard = {
@@ -53,86 +55,110 @@ type PatronCard = {
 const Qr = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const router = useRouter();
-  const { key } = router.query;
+  const { promotionId, key } = router.query;
 
   const store = useStore(useAuthStore, (state) => state);
   const [patronCard, setPatronCard] = useState<PatronCard>();
+  const [promotion, setPromotion] = useState<Promotion>();
   const [message, setMessage] = useState("");
 
   const SocialLoginDynamic = dynamic(
-    () => import("../../components/Auth").then((res) => res.default),
+    () => import("../../../components/Auth").then((res) => res.default),
     {
       ssr: false,
     }
   );
 
   useEffect(() => {
-    if (store?.wallet) {
+    const query = async () => {
+      const found = (await getPromotionById(promotionId)) as Promotion;
+      if (!found) {
+        return console.log("missing promotion");
+      }
+      setPromotion(found);
+    };
+    query();
+  }, [promotionId]);
+
+  useEffect(() => {
+    if (promotion && promotion.key !== key) {
+      return console.log("key mismisatch");
+    }
+    const queryPatron = async () => {
+      const patrons = await getPatronCardByPromotion(
+        store?.wallet,
+        promotionId
+      );
+      console.log("patrons", patrons);
+    };
+    queryPatron();
+  }, [promotion, store?.wallet, promotionId, key]);
+
+  /*
+  useEffect(() => {
+    if (store?.wallet && key) {
+      const update = async () => {
+        setLoading(true);
+
+        if (key && found.length <= 0) {
+          return setMessage(
+            "Sorry, this is an invalid promotion key, please try again"
+          );
+        }
+        const promotion = found[0];
+        if (!promotion) {
+          return;
+        }
+        if (!store?.wallet) {
+          return;
+        }
+        if (!patronCard && promotion) {
+          let card = {
+            businessCity: promotion.businessCity,
+            businessEmail: promotion.businessEmail,
+            businessName: promotion.businessName,
+            businessPhone: promotion.businessPhone,
+            businessPostalCode: promotion.businessPostalCode,
+            businessRegion: promotion.businessRegion,
+            businessStreetAddress: promotion.businessStreetAddress,
+            businessCountry: promotion.businessCountry,
+            businessWallet: promotion.businessWallet,
+            pointCap: promotion.pointCap,
+            reward: promotion.reward,
+            patronWallet: store?.wallet,
+            points: 0,
+            createdAt: new Date().getTime(),
+            updatedAt: new Date().getTime(),
+            promotionId: promotionId,
+          };
+          await createPatronCard({ ...card });
+          setLoading(false);
+          return;
+        } else {
+          const updated = await updatePatronCardPoints(
+            store?.wallet,
+            promotionId,
+            key
+          );
+          if (updated === "-1") {
+            return setMessage("Sorry, you have already checked in today!");
+          }
+        }
+        const newKey = uuidv4();
+        const qr = await QRCode.toDataURL(
+          `loyalty-iota.vercel.app/qr/${newKey}`
+        );
+        const storageRef = ref(storage, `qr/${newKey}.png`);
+        const uploadTask = await uploadString(storageRef, qr, "data_url");
+        const QRURL = uploadTask.metadata.fullPath;
+        await updatePromotionKey(promotion.id, QRURL, newKey);
+        setLoading(false);
+      };
+
       update();
     }
-  }, [key, store?.wallet]);
-
-  const update = async () => {
-    setLoading(true);
-    const found = (await getPromotionByKey(key)) as Promotion[];
-    if (key && found.length <= 0) {
-      return setMessage(
-        "Sorry, this is an invalid promotion key, please try again"
-      );
-    }
-    console.log("found", found);
-    const promotion = found[0];
-    if (!promotion) {
-      return;
-    }
-
-    const pc = await getPatronCard(store?.wallet, promotion.id);
-    setPatronCard(pc);
-    console.log("create new");
-    if (!pc && promotion) {
-      let card = {
-        businessCity: promotion.businessCity,
-        businessEmail: promotion.businessEmail,
-        businessName: promotion.businessName,
-        businessPhone: promotion.businessPhone,
-        businessPostalCode: promotion.businessPostalCode,
-        businessRegion: promotion.businessRegion,
-        businessStreetAddress: promotion.businessStreetAddress,
-        businessCountry: promotion.businessCountry,
-        businessWallet: promotion.businessWallet,
-        pointCap: promotion.pointCap,
-        reward: promotion.reward,
-        patronWallet: store?.wallet,
-        key: key,
-        points: 0,
-        createdAt: new Date().getTime(),
-        updatedAt: new Date().getTime(),
-        promotionId: promotion.id,
-      };
-      await createPatronCard({ ...card });
-      setLoading(false);
-      return;
-    } else {
-      const updated = await updatePatronCardPoints(
-        store?.wallet,
-        promotion.id,
-        key
-      );
-      console.log("updated", updated);
-      if (updated === "-1") {
-        return setMessage("Sorry, you have already checked in today!");
-      }
-    }
-    const result = await getPatronCard(store?.wallet, promotion.id);
-    setPatronCard(result);
-    const newKey = uuidv4();
-    const qr = await QRCode.toDataURL(`loyalty-iota.vercel.app/qr/${newKey}`);
-    const storageRef = ref(storage, `qr/${newKey}.png`);
-    const uploadTask = await uploadString(storageRef, qr, "data_url");
-    const QRURL = uploadTask.metadata.fullPath;
-    await updatePromotionKey(promotion.id, QRURL, newKey);
-    setLoading(false);
-  };
+  }, [key, store?.wallet, patronCard]);
+  */
 
   return (
     <div className="w-full p-16">
@@ -158,7 +184,6 @@ const Qr = () => {
                   <span className=" text-red-400">{patronCard.reward} </span>
                   <span>from</span>
                   <span className=" text-blue-400">
-                    {" "}
                     {patronCard.businessName}
                   </span>
                 </h1>

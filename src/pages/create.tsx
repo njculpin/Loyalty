@@ -1,6 +1,6 @@
 import { useEffect, Fragment, useState } from "react";
 import { useRouter } from "next/router";
-import { createPromotion, getVendor, storage } from "../firebase";
+import { createPromotion, getVendor, storage, db } from "../firebase";
 import { ref, uploadString } from "firebase/storage";
 import { Dialog, Transition } from "@headlessui/react";
 import { CheckIcon } from "@heroicons/react/24/outline";
@@ -70,15 +70,16 @@ const Create = () => {
 
   const createCard = async () => {
     if (store?.wallet) {
+      const docRef = uuidv4();
       const key = uuidv4();
-      const qr = await QRCode.toDataURL(`loyalty-iota.vercel.app/qr/${key}`);
-      const storageRef = ref(storage, `qr/${key}.png`);
+      const qr = await QRCode.toDataURL(
+        `loyalty-iota.vercel.app/qr/${docRef}/${key}`
+      );
+      const storageRef = ref(storage, `qr/${docRef}/${key}.png`);
       const uploadTask = await uploadString(storageRef, qr, "data_url");
       const QRURL = uploadTask.metadata.fullPath;
-
-      console.log("state.pointCap", state.pointCap);
-
       const cardDetails = {
+        id: docRef,
         businessCity: state.businessCity,
         businessEmail: state.businessEmail,
         businessName: state.businessName,

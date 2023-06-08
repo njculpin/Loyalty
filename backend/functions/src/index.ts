@@ -70,7 +70,7 @@ export const createPromotion = https.onRequest(
     try {
       const body = request.body.data;
       logger.info("request body", body);
-      const docRef = db.collection("promotions").doc();
+      const docRef = db.collection("promotions").doc(body.id);
       const res = await docRef.set({ ...body });
       response
         .status(200)
@@ -97,6 +97,25 @@ export const getPromotion = https.onRequest(
         return { id: x.id, ...x.data() };
       });
       logger.info("response docs", data);
+      response
+        .status(200)
+        .send({ status: "success", data: JSON.stringify(data) });
+    } catch (e) {
+      logger.error("error", e);
+      response.status(400).send({ status: "error", data: JSON.stringify(e) });
+    }
+  }
+);
+
+export const getPromotionById = https.onRequest(
+  { cors: true },
+  async (request, response) => {
+    const body = request.body.data;
+    logger.info("request body", body);
+    const id = body.id;
+    try {
+      const snapshot = await db.collection("promotions").doc(id).get();
+      const data = snapshot.data();
       response
         .status(200)
         .send({ status: "success", data: JSON.stringify(data) });
@@ -209,6 +228,33 @@ export const createPatronCard = https.onRequest(
   }
 );
 
+export const getPatronCardByPromotion = https.onRequest(
+  { cors: true },
+  async (request, response) => {
+    const body = request.body.data;
+    logger.info("request body", body);
+    const promotionId = body.promotionId;
+    const patronWallet = body.patronWallet;
+    try {
+      const snapshot = await db
+        .collection("patrons")
+        .where("promotionId", "==", promotionId)
+        .where("patronWallet", "==", patronWallet)
+        .get();
+      let data = snapshot.docs.map(function (x: any) {
+        return { id: x.id, ...x.data() };
+      });
+      logger.info("response docs", data);
+      response
+        .status(200)
+        .send({ status: "success", data: JSON.stringify(data) });
+    } catch (e) {
+      logger.error("error", e);
+      response.status(400).send({ status: "error", data: JSON.stringify(e) });
+    }
+  }
+);
+
 export const updatePatronCardPoints = https.onRequest(
   { cors: true },
   async (request, response) => {
@@ -275,26 +321,3 @@ const updatePromotionPoints = async (promotionId: string, pointCap: number) => {
   });
   logger.info("updatePromotionPoints", updateVendor);
 };
-
-export const getPatronCard = https.onRequest(
-  { cors: true },
-  async (request, response) => {
-    logger.info("request body", request.body);
-    const body = request.body.data;
-    const patronWallet = body.patronWallet;
-    const promotionId = body.promotionId;
-    try {
-      const docRef = await db
-        .collection("patrons")
-        .doc(`${patronWallet}-${promotionId}`);
-      const res = await docRef.get();
-      logger.info("res", res.data());
-      response
-        .status(200)
-        .send({ status: "success", data: JSON.stringify(res.data()) });
-    } catch (e) {
-      logger.error("error", e);
-      response.status(400).send({ status: "error", data: JSON.stringify(e) });
-    }
-  }
-);
