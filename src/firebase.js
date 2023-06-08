@@ -193,7 +193,6 @@ export const updatePatronCardPoints = async (
   promotionId,
   key
 ) => {
-  console.log("patronWallet, promotionId, key", patronWallet, promotionId, key);
   const update = httpsCallable(functions, "updatePatronCardPoints");
   return update({ patronWallet, promotionId, key })
     .then((result) => {

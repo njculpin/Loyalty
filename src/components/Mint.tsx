@@ -1,17 +1,17 @@
 import { useEffect, useState, Suspense } from "react";
-import useStore from "../store";
-import { ref, getDownloadURL } from "firebase/storage";
-import {
-  createPatronCard,
-  getPatronCard,
-  getPromotion,
-  updatePatronCardPoints,
-  updatePromotionKey,
-  storage,
-} from "../firebase";
+// // import useStore from "../store";
+// import { ref, getDownloadURL } from "firebase/storage";
+// import {
+//   createPatronCard,
+//   getPatronCard,
+//   getPromotion,
+//   updatePatronCardPoints,
+//   updatePromotionKey,
+//   storage,
+// } from "../firebase";
 
-import { ethers } from "ethers";
-import { loyaltyManagerAddress } from "../../config";
+// import { ethers } from "ethers";
+// import { loyaltyManagerAddress } from "../../config";
 // import LoyaltyManager from "../../artifacts/contracts/LoyaltyManager.sol/LoyaltyManager.json";
 
 type VendorCard = {
@@ -24,32 +24,32 @@ type VendorCard = {
 };
 
 export default function Mint() {
-  const provider = useStore((state: any) => state.provider);
-  const actions = useStore((state: any) => state.actions);
-  const smartAccount = useStore((state: any) => state.smartAccount);
-  const vendorCards = useStore((state: any) => state.vendorCards);
+  // const provider = useStore((state: any) => state.provider);
+  // const actions = useStore((state: any) => state.actions);
+  // const smartAccount = useStore((state: any) => state.smartAccount);
+  // const vendorCards = useStore((state: any) => state.vendorCards);
   const [loading, setLoading] = useState<boolean>(false);
 
-  useEffect(() => {
-    const getVendorDetails = async () => {
-      getCard();
-    };
-    getVendorDetails();
-  }, []);
+  // useEffect(() => {
+  //   const getVendorDetails = async () => {
+  //     getCard();
+  //   };
+  //   getVendorDetails();
+  // }, []);
 
-  const getCard = async () => {
-    if (smartAccount) {
-      setLoading(true);
-      const result = await getPromotion(smartAccount.address);
-      const card = result as unknown as VendorCard;
-      if (card && card.qr) {
-        const qr = card.qr;
-        const url = await getDownloadURL(ref(storage, qr));
-        actions.setVendorCards([...vendorCards, { ...card, qrUrl: url }]);
-      }
-      setLoading(false);
-    }
-  };
+  // const getCard = async () => {
+  //   if (smartAccount) {
+  //     setLoading(true);
+  //     const result = await getPromotion(smartAccount.address);
+  //     const card = result as unknown as VendorCard;
+  //     if (card && card.qr) {
+  //       const qr = card.qr;
+  //       const url = await getDownloadURL(ref(storage, qr));
+  //       actions.setVendorCards([...vendorCards, { ...card, qrUrl: url }]);
+  //     }
+  //     setLoading(false);
+  //   }
+  // };
 
   // const getImage = async () => {
   //   if (!smartAccount) return;
@@ -129,7 +129,7 @@ export default function Mint() {
   return (
     <div className="space-y-12 p-16">
       <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
-        {smartAccount && (
+        {/* {smartAccount && (
           <div className="relative isolate overflow-hidden px-6 py-12 text-center sm:rounded-3xl sm:px-16">
             <div className="mt-10 grid grid-cols-1 gap-8 justify-center gap-x-6">
               <div className="mt-10 grid grid-cols-1 gap-8 justify-center gap-x-6">
@@ -137,7 +137,7 @@ export default function Mint() {
               </div>
             </div>
           </div>
-        )}
+        )} */}
       </div>
     </div>
   );

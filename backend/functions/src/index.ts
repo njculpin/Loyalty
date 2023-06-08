@@ -215,7 +215,6 @@ export const updatePatronCardPoints = https.onRequest(
     const body = request.body.data;
     const patronWallet = body.patronWallet;
     const promotionId = body.promotionId;
-    const key = body.key;
     const docRef = db
       .collection("patrons")
       .doc(`${patronWallet}-${promotionId}`);
@@ -229,9 +228,6 @@ export const updatePatronCardPoints = https.onRequest(
         const oldPoint = oldData.points;
         const pointCap = oldData.pointCap;
         const lastUpdate = oldData.lastUpdate;
-        const lastKey = oldData.key;
-        // todo: check if key matches
-        console.log("last key", lastKey, "req key", key);
         const currentTime = new Date().getTime();
         const difference = Math.abs(currentTime - lastUpdate);
         logger.info("time difference", difference);
