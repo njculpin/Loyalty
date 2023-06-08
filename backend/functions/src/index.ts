@@ -64,7 +64,7 @@ tokenId - vendor card id, used as document key
 vendorId - the issuer of the patron card & loyalty points
 points - current point level
 */
-export const createVendorCard = https.onRequest(
+export const createPromotion = https.onRequest(
   { cors: true },
   async (request, response) => {
     try {
@@ -82,41 +82,20 @@ export const createVendorCard = https.onRequest(
   }
 );
 
-export const getVendorCard = https.onRequest(
+export const getPromotion = https.onRequest(
   { cors: true },
   async (request, response) => {
     const body = request.body.data;
     logger.info("request body", body);
-    const vendor = body.vendor;
-    try {
-      const doc = await db.collection("promotions").doc(vendor).get();
-      if (doc.exists) {
-        const res = doc.data();
-        response
-          .status(200)
-          .send({ status: "success", data: JSON.stringify(res) });
-      } else {
-        response.status(200).send({ status: "success", data: null });
-      }
-    } catch (e) {
-      logger.error("error", e);
-      response.status(400).send({ status: "error", data: JSON.stringify(e) });
-    }
-  }
-);
-
-export const getVendorCardsByOwner = https.onRequest(
-  { cors: true },
-  async (request, response) => {
-    const body = request.body.data;
-    logger.info("request body", body);
-    const wallet = body.wallet;
+    const key = body.key;
     try {
       const snapshot = await db
         .collection("promotions")
-        .where("wallet", "==", wallet)
+        .where("key", "==", key)
         .get();
-      let data = snapshot.docs.map((x: any) => x.data());
+      let data = snapshot.docs.map(function (x: any) {
+        return { id: x.id, ...x.data() };
+      });
       logger.info("response docs", data);
       response
         .status(200)
@@ -128,19 +107,70 @@ export const getVendorCardsByOwner = https.onRequest(
   }
 );
 
-export const updateVendorCardKey = https.onRequest(
+export const getPromotionsByOwner = https.onRequest(
   { cors: true },
   async (request, response) => {
     const body = request.body.data;
     logger.info("request body", body);
-    const vendor = body.vendor;
+    const businessWallet = body.businessWallet;
+    try {
+      const snapshot = await db
+        .collection("promotions")
+        .where("businessWallet", "==", businessWallet)
+        .get();
+      let data = snapshot.docs.map(function (x: any) {
+        return { id: x.id, ...x.data() };
+      });
+      logger.info("response docs", data);
+      response
+        .status(200)
+        .send({ status: "success", data: JSON.stringify(data) });
+    } catch (e) {
+      logger.error("error", e);
+      response.status(400).send({ status: "error", data: JSON.stringify(e) });
+    }
+  }
+);
+
+export const getPromotionByKey = https.onRequest(
+  { cors: true },
+  async (request, response) => {
+    const body = request.body.data;
+    logger.info("request body", body);
     const key = body.key;
+    try {
+      const snapshot = await db
+        .collection("promotions")
+        .where("key", "==", key)
+        .get();
+      let data = snapshot.docs.map(function (x: any) {
+        return { id: x.id, ...x.data() };
+      });
+      logger.info("response docs", data);
+      response
+        .status(200)
+        .send({ status: "success", data: JSON.stringify(data) });
+    } catch (e) {
+      logger.error("error", e);
+      response.status(400).send({ status: "error", data: JSON.stringify(e) });
+    }
+  }
+);
+
+export const updatePromotionKey = https.onRequest(
+  { cors: true },
+  async (request, response) => {
+    const body = request.body.data;
+    logger.info("request body", body);
+    const promotionId = body.promotionId;
     const qr = body.qr;
-    const docRef = db.collection("promotions").doc(vendor);
+    const key = body.key;
+    const docRef = db.collection("promotions").doc(promotionId);
     try {
       const update = await docRef.update({
         qr: qr,
         key: key,
+        lastUpdate: new Date().getTime(),
       });
       response
         .status(200)
@@ -164,24 +194,11 @@ export const createPatronCard = https.onRequest(
   async (request, response) => {
     const body = request.body.data;
     logger.info("request body", body);
-    const patron = body.patron;
-    const vendor = body.vendor;
-    const name = body.name;
-    const reward = body.reward;
-    const points = body.points;
-    const pointCap = body.pointCap;
-    const docRef = db.collection("patrons").doc(`${vendor}-${patron}`);
+    const docRef = db
+      .collection("patrons")
+      .doc(`${body.patronWallet}-${body.promotionId}`);
     try {
-      const res = await docRef.set({
-        patron: patron,
-        vendor: vendor,
-        name: name,
-        reward: reward,
-        points: points,
-        pointCap: pointCap,
-        lastUpdate: new Date().getTime(),
-        redeemed: false,
-      });
+      const res = await docRef.set({ ...body });
       response
         .status(200)
         .send({ status: "success", data: JSON.stringify(res) });
@@ -192,22 +209,29 @@ export const createPatronCard = https.onRequest(
   }
 );
 
-export const updateCardPoints = https.onRequest(
+export const updatePatronCardPoints = https.onRequest(
   { cors: true },
   async (request, response) => {
     const body = request.body.data;
-    logger.info("request body", body);
-    const vendor = body.vendor;
-    const patron = body.patron;
-    const docRef = db.collection("patrons").doc(`${vendor}-${patron}`);
+    const patronWallet = body.patronWallet;
+    const promotionId = body.promotionId;
+    const key = body.key;
+    const docRef = db
+      .collection("patrons")
+      .doc(`${patronWallet}-${promotionId}`);
     try {
       const checkPatron = await docRef.get();
       logger.info("checkPatron", checkPatron.data());
+
       const updatePoints = await db.runTransaction(async (transaction: any) => {
         const patronDoc = await transaction.get(docRef);
-        const oldPoint = patronDoc.data().points;
-        const pointCap = patronDoc.data().pointCap;
-        const lastUpdate = patronDoc.data().lastUpdate;
+        const oldData = patronDoc.data();
+        const oldPoint = oldData.points;
+        const pointCap = oldData.pointCap;
+        const lastUpdate = oldData.lastUpdate;
+        const lastKey = oldData.key;
+        // todo: check if key matches
+        console.log("last key", lastKey, "req key", key);
         const currentTime = new Date().getTime();
         const difference = Math.abs(currentTime - lastUpdate);
         logger.info("time difference", difference);
@@ -221,10 +245,10 @@ export const updateCardPoints = https.onRequest(
         } else {
           transaction.update(docRef, {
             lastUpdate: currentTime,
-            redeemed: true,
+            points: 1,
           });
-          await updateVendorCardPoints(vendor, pointCap);
-          return 0;
+          await updatePromotionPoints(promotionId, pointCap);
+          return 1;
         }
       });
       response
@@ -237,45 +261,41 @@ export const updateCardPoints = https.onRequest(
   }
 );
 
-const updateVendorCardPoints = async (vendor: string, pointCap: number) => {
-  console.log("should update", vendor, pointCap);
-  const vendorRef = db.collection("vendors").doc(vendor);
+const updatePromotionPoints = async (promotionId: string, pointCap: number) => {
+  console.log("should update", promotionId, pointCap);
+  const vendorRef = db.collection("promotions").doc(promotionId);
   const currentTime = new Date().getTime();
   const updateVendor = await db.runTransaction(async (transaction: any) => {
     const vendorDoc = await transaction.get(vendorRef);
     const oldPoints = vendorDoc.data().points;
-    logger.info("updateVendorCardPoints oldPoints", oldPoints);
+    logger.info("updatePromotionPoints oldPoints", oldPoints);
     const newPoints = oldPoints + pointCap;
-    logger.info("updateVendorCardPoints newPoints", newPoints);
+    logger.info("updatePromotionPoints newPoints", newPoints);
     transaction.update(vendorRef, {
       points: newPoints,
       lastUpdate: currentTime,
     });
     return newPoints;
   });
-  logger.info("updateVendorCardPoints", updateVendor);
+  logger.info("updatePromotionPoints", updateVendor);
 };
 
 export const getPatronCard = https.onRequest(
   { cors: true },
   async (request, response) => {
+    logger.info("request body", request.body);
     const body = request.body.data;
-    logger.info("request body", body);
-    const patron = body.patron;
-    const vendor = body.vendor;
+    const patronWallet = body.patronWallet;
+    const promotionId = body.promotionId;
     try {
-      const doc = await db
+      const docRef = await db
         .collection("patrons")
-        .doc(`${vendor}-${patron}`)
-        .get();
-      if (doc.exists) {
-        const res = doc.data();
-        response
-          .status(200)
-          .send({ status: "success", data: JSON.stringify(res) });
-      } else {
-        response.status(200).send({ status: "success", data: null });
-      }
+        .doc(`${patronWallet}-${promotionId}`);
+      const res = await docRef.get();
+      logger.info("res", res.data());
+      response
+        .status(200)
+        .send({ status: "success", data: JSON.stringify(res.data()) });
     } catch (e) {
       logger.error("error", e);
       response.status(400).send({ status: "error", data: JSON.stringify(e) });

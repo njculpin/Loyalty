@@ -1,6 +1,7 @@
 import { useEffect, Fragment, useState } from "react";
-import { createVendorCard, getVendor, storage } from "../firebase";
-import { ref, uploadString, getDownloadURL } from "firebase/storage";
+import { useRouter } from "next/router";
+import { createPromotion, getVendor, storage } from "../firebase";
+import { ref, uploadString } from "firebase/storage";
 import { Dialog, Transition } from "@headlessui/react";
 import { CheckIcon } from "@heroicons/react/24/outline";
 import QRCode from "qrcode";
@@ -17,13 +18,15 @@ type VendorCard = {
   businessRegion: string;
   businessStreetAddress: string;
   businessCountry: string;
-  wallet: string;
-  name: string;
-  pointCap: string;
+  businessWallet: string;
+  pointCap: number;
   reward: string;
 };
 
+const options = [{ value: 1, label: "1" }];
+
 const Create = () => {
+  const router = useRouter();
   const [openModal, setOpenModal] = useState<boolean>(false);
   const [state, setState] = useState({
     businessCity: "",
@@ -34,14 +37,12 @@ const Create = () => {
     businessRegion: "",
     businessStreetAddress: "",
     businessCountry: "",
-    wallet: "",
-    name: "",
-    pointCap: "",
+    businessWallet: "",
+    pointCap: 0,
     reward: "",
   });
   const store = useStore(useAuthStore, (state) => state);
 
-  // todo: get vendor details, bind to vendor card
   useEffect(() => {
     const getData = async () => {
       if (store?.wallet) {
@@ -61,7 +62,6 @@ const Create = () => {
   }, [store?.wallet]);
 
   const handleChange = (event: any) => {
-    console.log("event", event.target.id, event.target.value);
     setState({
       ...state,
       [event.target.id]: event.target.value,
@@ -71,12 +71,13 @@ const Create = () => {
   const createCard = async () => {
     if (store?.wallet) {
       const key = uuidv4();
-      const qr = await QRCode.toDataURL(
-        `loyalty-iota.vercel.app/qr/${store.wallet}/${key}`
-      );
-      const storageRef = ref(storage, `qr/${store.wallet}.png`);
+      const qr = await QRCode.toDataURL(`loyalty-iota.vercel.app/qr/${key}`);
+      const storageRef = ref(storage, `qr/${key}.png`);
       const uploadTask = await uploadString(storageRef, qr, "data_url");
       const QRURL = uploadTask.metadata.fullPath;
+
+      console.log("state.pointCap", state.pointCap);
+
       const cardDetails = {
         businessCity: state.businessCity,
         businessEmail: state.businessEmail,
@@ -86,7 +87,7 @@ const Create = () => {
         businessRegion: state.businessRegion,
         businessStreetAddress: state.businessStreetAddress,
         businessCountry: state.businessCountry,
-        wallet: store.wallet,
+        businessWallet: store.wallet,
         points: 0,
         pointCap: Number(state.pointCap),
         reward: state.reward,
@@ -94,9 +95,19 @@ const Create = () => {
         key: key,
       };
       console.log("cardDetails", cardDetails);
-      await createVendorCard(cardDetails);
-      setOpenModal(true);
+      createPromotion(cardDetails)
+        .then(() => {
+          setOpenModal(true);
+        })
+        .catch((e) => {
+          console.log(e);
+        });
     }
+  };
+
+  const returnHome = () => {
+    setOpenModal(false);
+    return router.push(`/`);
   };
 
   return (
@@ -136,17 +147,17 @@ const Create = () => {
               >
                 How many points does a customer require to earn the reward?
               </label>
-              <select
-                onChange={handleChange}
-                id="pointCap"
-                name="pointCap"
-                className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                defaultValue="5"
-              >
-                <option>5</option>
-                <option>10</option>
-                <option>15</option>
-              </select>
+              <div className="mt-2">
+                <input
+                  onChange={handleChange}
+                  id="pointCap"
+                  name="pointCap"
+                  type="number"
+                  pattern="[0-9]*"
+                  required
+                  className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -212,7 +223,7 @@ const Create = () => {
                     <button
                       type="button"
                       className="inline-flex w-full justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-                      onClick={() => setOpenModal(false)}
+                      onClick={() => returnHome()}
                     >
                       Go back to dashboard
                     </button>

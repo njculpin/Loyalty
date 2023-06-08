@@ -4,9 +4,9 @@ import { ref, getDownloadURL } from "firebase/storage";
 import {
   createPatronCard,
   getPatronCard,
-  getVendorCard,
-  updateCardPoints,
-  updateVendorCardKey,
+  getPromotion,
+  updatePatronCardPoints,
+  updatePromotionKey,
   storage,
 } from "../firebase";
 
@@ -40,7 +40,7 @@ export default function Mint() {
   const getCard = async () => {
     if (smartAccount) {
       setLoading(true);
-      const result = await getVendorCard(smartAccount.address);
+      const result = await getPromotion(smartAccount.address);
       const card = result as unknown as VendorCard;
       if (card && card.qr) {
         const qr = card.qr;

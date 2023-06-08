@@ -1,10 +1,10 @@
-import { Fragment, useEffect, useState } from "react";
-import { getVendorCardsByOwner, storage } from "../firebase";
-import { ref, uploadString, getDownloadURL } from "firebase/storage";
+import { useEffect, useState } from "react";
+import { getPromotionsByOwner, getVendor, storage } from "../firebase";
+import { ref, getDownloadURL } from "firebase/storage";
 import useStore from "@/lib/useStore";
 import useAuthStore from "@/lib/store";
 
-type VendorCard = {
+type Vendor = {
   businessCity: string;
   businessEmail: string;
   businessName: string;
@@ -13,21 +13,46 @@ type VendorCard = {
   businessRegion: string;
   businessStreetAddress: string;
   businessCountry: string;
-  wallet: string;
-  name: string;
+  businessWallet: string;
+};
+
+type VendorCard = {
+  id: string;
+  businessCity: string;
+  businessEmail: string;
+  businessName: string;
+  businessPhone: string;
+  businessPostalCode: string;
+  businessRegion: string;
+  businessStreetAddress: string;
+  businessCountry: string;
+  businessWallet: string;
   pointCap: string;
   reward: string;
   qr: string;
+  qRUrl: string;
   key: string;
 };
 
 const Index = () => {
   const store = useStore(useAuthStore, (state) => state);
   const [promotions, setPromotions] = useState<VendorCard[]>([]);
+  const [state, setState] = useState<Vendor>({
+    businessCity: "",
+    businessEmail: "",
+    businessName: "",
+    businessPhone: "",
+    businessPostalCode: "",
+    businessRegion: "",
+    businessStreetAddress: "",
+    businessCountry: "",
+    businessWallet: "",
+  });
+
   useEffect(() => {
     const getData = async () => {
       if (store?.wallet) {
-        return (await getVendorCardsByOwner(store?.wallet)) as VendorCard[];
+        return (await getPromotionsByOwner(store?.wallet)) as VendorCard[];
       }
     };
     getData()
@@ -49,44 +74,68 @@ const Index = () => {
       });
   }, [store?.wallet]);
 
+  useEffect(() => {
+    const getData = async () => {
+      if (store?.wallet) {
+        return (await getVendor(store?.wallet)) as Vendor;
+      }
+    };
+    getData()
+      .then((res: any) => {
+        if (res) {
+          const vendor = JSON.parse(res);
+          setState({ ...vendor });
+        }
+      })
+      .catch((e) => {
+        console.log(e);
+      });
+  }, [store?.wallet]);
+
   return (
-    <div className="bg-white">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-        {promotions &&
-          promotions.map(function (promotion: VendorCard, index) {
-            return (
-              <div className="border m-5" key={index}>
-                <div className="px-6 py-12 text-center sm:rounded-3xl sm:px-16 grid grid-cols-1 gap-8">
-                  <h1 className="mt-4 text-4xl tracking-tight font-extrabold text-black sm:mt-5 sm:text-6xl lg:mt-6 xl:text-8xl">
-                    <span className="">Earn a </span>
-                    <span className=" text-green-400">{promotion.reward}</span>
-                    <span> for </span>
-                    <span className=" text-yellow-400">
-                      {promotion.pointCap}
-                    </span>
-                    <span> points </span>
-                    <span>from </span>
-                    <span className=" text-red-400">
-                      {promotion.businessName}
-                    </span>
-                    <span> scan that shit now</span>
-                  </h1>
-                  <div className="w-full flex flex-col justify-center items-center p-8">
-                    <img
-                      style={{ height: "256", width: "256" }}
-                      src={promotion.qRUrl}
-                      alt="qr code"
-                    />
+    <div className="mx-auto max-w-7xl p-16">
+      <div className="space-y-12">
+        <div className="pb-12">
+          <div className="grid grid-cols-1 gap-4 justify-between items-center mb-16">
+            <h2 className="font-bold text-gray-900 text-center text-6xl">
+              {state.businessName}
+            </h2>
+            <p className="text-lg font-semibold text-gray-600 text-center">
+              {state.businessStreetAddress} {state.businessCity}{" "}
+              {state.businessCountry} {state.businessPostalCode}
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-3">
+            {promotions &&
+              promotions.map(function (promotion: VendorCard, index) {
+                return (
+                  <div className="m-5 shadow-xl rounded-xl" key={index}>
+                    <div className="h-full p-8 text-center sm:rounded-3xl grid grid-cols-1 justify-between">
+                      <div className="w-full flex flex-col justify-center items-center">
+                        <img
+                          style={{ height: "256", width: "256" }}
+                          src={promotion.qRUrl}
+                          alt="qr code"
+                        />
+                      </div>
+                      <h1 className="text-3xl tracking-tight text-left font-extrabold text-red-500">
+                        {promotion.reward}
+                      </h1>
+                      <h1 className="text-xl tracking-tight text-left font-extrabold w-full text-blue-500">
+                        {promotion.pointCap} points required
+                      </h1>
+                      <a href={`qr/${promotion.key}`}>
+                        <p className="mt-8 border px-4 py-2 border-black">
+                          SIMULATE SCAN
+                        </p>
+                      </a>
+                    </div>
                   </div>
-                  <a href={`qr/${promotion.wallet}/${promotion.key}`}>
-                    <p className="border px-4 py-2 border-black">
-                      SIMULATE SCAN
-                    </p>
-                  </a>
-                </div>
-              </div>
-            );
-          })}
+                );
+              })}
+          </div>
+        </div>
       </div>
     </div>
   );

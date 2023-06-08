@@ -51,7 +51,7 @@ export const loginFirebase = async (smartAccount) => {
 
 export const createVendor = async (vendor) => {
   const create = httpsCallable(functions, "createVendor");
-  return create({ ...vendor })
+  return create({ ...vendor, createdAt: new Date().getTime() })
     .then((result) => {
       const data = result.data;
       console.log("data", data);
@@ -76,9 +76,9 @@ export const getVendor = async (wallet) => {
     });
 };
 
-export const createVendorCard = async (vendorCard) => {
-  const create = httpsCallable(functions, "createVendorCard");
-  create({ ...vendorCard })
+export const createPromotion = async (vendorCard) => {
+  const create = httpsCallable(functions, "createPromotion");
+  create({ ...vendorCard, createdAt: new Date().getTime() })
     .then((result) => {
       const data = result.data;
       console.log("data", data);
@@ -90,9 +90,9 @@ export const createVendorCard = async (vendorCard) => {
     });
 };
 
-export const getVendorCard = async (vendor) => {
-  const get = httpsCallable(functions, "getVendorCard");
-  return get({ vendor })
+export const getPromotion = async (key) => {
+  const get = httpsCallable(functions, "getPromotion");
+  return get({ key })
     .then((result) => {
       return JSON.parse(result.data);
     })
@@ -102,9 +102,9 @@ export const getVendorCard = async (vendor) => {
     });
 };
 
-export const getVendorCardsByOwner = async (wallet) => {
-  const get = httpsCallable(functions, "getVendorCardsByOwner");
-  return get({ wallet })
+export const getPromotionsByOwner = async (businessWallet) => {
+  const get = httpsCallable(functions, "getPromotionsByOwner");
+  return get({ businessWallet })
     .then((result) => {
       return JSON.parse(result.data);
     })
@@ -127,6 +127,18 @@ export const updateVendorCard = async (patron, vendor) => {
     });
 };
 
+export const getPromotionByKey = async (key) => {
+  const get = httpsCallable(functions, "getPromotionByKey");
+  return get({ key })
+    .then((result) => {
+      return JSON.parse(result.data);
+    })
+    .catch((error) => {
+      console.log("error", error);
+      return;
+    });
+};
+
 export const logoutFirebase = async () => {
   signOut(auth)
     .then((res) => {
@@ -137,16 +149,11 @@ export const logoutFirebase = async () => {
     });
 };
 
-export const createPatronCard = async (
-  patron,
-  vendor,
-  name,
-  reward,
-  points,
-  pointCap
-) => {
+export const createPatronCard = async (patronCard) => {
   const create = httpsCallable(functions, "createPatronCard");
-  create({ patron, vendor, name, reward, points, pointCap })
+  const card = { ...patronCard, createdAt: new Date().getTime() };
+  console.log("card", card);
+  create(card)
     .then((result) => {
       const data = result.data;
       return data;
@@ -157,11 +164,10 @@ export const createPatronCard = async (
     });
 };
 
-export const updateVendorCardKey = async (vendor, qr, key) => {
-  const update = httpsCallable(functions, "updateVendorCardKey");
-  update({ vendor, qr, key })
+export const updatePromotionKey = async (promotionId, qr, key) => {
+  const update = httpsCallable(functions, "updatePromotionKey");
+  update({ promotionId, qr, key })
     .then((result) => {
-      console.log("result", result);
       return JSON.parse(result.data);
     })
     .catch((error) => {
@@ -170,9 +176,9 @@ export const updateVendorCardKey = async (vendor, qr, key) => {
     });
 };
 
-export const getPatronCard = async (patron, vendor) => {
+export const getPatronCard = async (patronWallet, promotionId) => {
   const get = httpsCallable(functions, "getPatronCard");
-  return get({ patron, vendor })
+  return get({ patronWallet, promotionId })
     .then((result) => {
       return JSON.parse(result.data);
     })
@@ -182,9 +188,14 @@ export const getPatronCard = async (patron, vendor) => {
     });
 };
 
-export const updateCardPoints = async (patron, vendor, key) => {
-  const update = httpsCallable(functions, "updateCardPoints");
-  return update({ patron, vendor, key })
+export const updatePatronCardPoints = async (
+  patronWallet,
+  promotionId,
+  key
+) => {
+  console.log("patronWallet, promotionId, key", patronWallet, promotionId, key);
+  const update = httpsCallable(functions, "updatePatronCardPoints");
+  return update({ patronWallet, promotionId, key })
     .then((result) => {
       console.log("res", result);
       const data = result.data;

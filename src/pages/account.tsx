@@ -14,7 +14,7 @@ type Vendor = {
   businessRegion: string;
   businessStreetAddress: string;
   businessCountry: string;
-  wallet: string;
+  businessWallet: string;
 };
 
 export default function Account() {
@@ -29,7 +29,7 @@ export default function Account() {
     businessRegion: "",
     businessStreetAddress: "",
     businessCountry: "",
-    wallet: "",
+    businessWallet: "",
   });
 
   useEffect(() => {
@@ -55,7 +55,10 @@ export default function Account() {
   };
 
   const save = async () => {
-    const result = await createVendor({ ...state, wallet: store?.wallet });
+    const result = await createVendor({
+      ...state,
+      businessWallet: store?.wallet,
+    });
     if (result) {
       setOpenModal(true);
     }
