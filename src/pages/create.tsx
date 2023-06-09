@@ -77,6 +77,7 @@ const Create = () => {
       const uploadTask = await uploadString(storageRef, qr, "data_url");
       const QRURL = uploadTask.metadata.fullPath;
       const cardDetails = {
+        active: true,
         businessCity: state.businessCity,
         businessEmail: state.businessEmail,
         businessName: state.businessName,

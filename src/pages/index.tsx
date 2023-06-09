@@ -133,9 +133,6 @@ const Index = () => {
                           SIMULATE SCAN
                         </p>
                       </a>
-                      <p className="w-full mt-4 text-right">
-                        {promotion.points}
-                      </p>
                     </div>
                   </div>
                 );

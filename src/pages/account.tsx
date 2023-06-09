@@ -9,6 +9,7 @@ import {
   query,
   where,
   onSnapshot,
+  updateDoc,
 } from "firebase/firestore";
 import { Fragment, useEffect, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
@@ -29,6 +30,7 @@ type Vendor = {
 
 type Promotion = {
   id: string;
+  active: boolean;
   businessCity: string;
   businessEmail: string;
   businessName: string;
@@ -104,6 +106,19 @@ export default function Account() {
     setVendor({ ...vendor, [event.target.id]: event.target.value });
   };
 
+  const updateActivePromotion = async (id: string, active: boolean) => {
+    await updateDoc(doc(db, "promotions", `${id}`), {
+      active: active,
+      updatedAt: new Date().getTime(),
+    })
+      .then(() => {
+        setOpenModal(true);
+      })
+      .catch((e) => {
+        console.log(e);
+      });
+  };
+
   const save = async () => {
     await setDoc(doc(db, "vendors", `${store?.wallet}`), {
       ...vendor,
@@ -116,8 +131,6 @@ export default function Account() {
         console.log(e);
       });
   };
-
-  const [enabled, setEnabled] = useState(false);
 
   return (
     <div className="mx-auto max-w-7xl p-16">
@@ -359,8 +372,13 @@ export default function Account() {
                       </td>
                       <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-left text-sm font-medium sm:pr-0">
                         <Switch
-                          checked={enabled}
-                          onChange={setEnabled}
+                          checked={promotion.active}
+                          onChange={() =>
+                            updateActivePromotion(
+                              promotion.id,
+                              !promotion.active
+                            )
+                          }
                           className="group relative inline-flex h-5 w-10 flex-shrink-0 cursor-pointer items-center justify-center rounded-full focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:ring-offset-2"
                         >
                           <span className="sr-only">Active</span>
@@ -371,14 +389,18 @@ export default function Account() {
                           <span
                             aria-hidden="true"
                             className={classNames(
-                              enabled ? "bg-indigo-600" : "bg-gray-200",
+                              promotion.active
+                                ? "bg-indigo-600"
+                                : "bg-gray-200",
                               "pointer-events-none absolute mx-auto h-4 w-9 rounded-full transition-colors duration-200 ease-in-out"
                             )}
                           />
                           <span
                             aria-hidden="true"
                             className={classNames(
-                              enabled ? "translate-x-5" : "translate-x-0",
+                              promotion.active
+                                ? "translate-x-5"
+                                : "translate-x-0",
                               "pointer-events-none absolute left-0 inline-block h-5 w-5 transform rounded-full border border-gray-200 bg-white shadow ring-0 transition-transform duration-200 ease-in-out"
                             )}
                           />
