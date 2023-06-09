@@ -1,10 +1,19 @@
 import useStore from "@/lib/useStore";
 import useAuthStore from "@/lib/store";
 import { db } from "../firebase";
-import { doc, getDoc, setDoc } from "firebase/firestore";
+import {
+  doc,
+  getDoc,
+  setDoc,
+  collection,
+  query,
+  where,
+  onSnapshot,
+} from "firebase/firestore";
 import { Fragment, useEffect, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { CheckIcon } from "@heroicons/react/24/outline";
+import { Switch } from "@headlessui/react";
 
 type Vendor = {
   businessCity: string;
@@ -18,9 +27,33 @@ type Vendor = {
   businessWallet: string;
 };
 
+type Promotion = {
+  id: string;
+  businessCity: string;
+  businessEmail: string;
+  businessName: string;
+  businessPhone: string;
+  businessPostalCode: string;
+  businessRegion: string;
+  businessStreetAddress: string;
+  businessCountry: string;
+  businessWallet: string;
+  points: string;
+  pointCap: string;
+  reward: string;
+  qr: string;
+  qRUrl: string;
+  key: string;
+};
+
+function classNames(...classes) {
+  return classes.filter(Boolean).join(" ");
+}
+
 export default function Account() {
   const store = useStore(useAuthStore, (state) => state);
   const [openModal, setOpenModal] = useState<boolean>(false);
+  const [promotions, setPromotions] = useState<Promotion[]>([]);
   const [vendor, setVendor] = useState<Vendor>({
     businessCity: "",
     businessEmail: "",
@@ -48,6 +81,25 @@ export default function Account() {
     getData();
   }, [store?.wallet]);
 
+  useEffect(() => {
+    if (store?.wallet) {
+      const q = query(
+        collection(db, "promotions"),
+        where("businessWallet", "==", store?.wallet)
+      );
+      const unsubscribe = onSnapshot(q, (querySnapshot) => {
+        const mapped = querySnapshot.docs.map(async function (doc) {
+          const data = doc.data();
+          return { ...data, id: doc.id } as unknown as Promotion;
+        });
+        Promise.all(mapped).then((result) => {
+          setPromotions(result);
+        });
+      });
+      return unsubscribe;
+    }
+  }, [store?.wallet]);
+
   const handleChange = (event: any) => {
     setVendor({ ...vendor, [event.target.id]: event.target.value });
   };
@@ -64,6 +116,8 @@ export default function Account() {
         console.log(e);
       });
   };
+
+  const [enabled, setEnabled] = useState(false);
 
   return (
     <div className="mx-auto max-w-7xl p-16">
@@ -246,6 +300,99 @@ export default function Account() {
           Save
         </button>
       </div>
+
+      <div className="px-4 sm:px-6 lg:px-8 mt-16">
+        <div className="sm:flex sm:items-center">
+          <div className="sm:flex-auto">
+            <h1 className="text-base font-semibold leading-6 text-gray-900">
+              Promotions
+            </h1>
+            <p className="mt-2 text-sm text-gray-700">
+              A list of promotions running on your account and the points earned
+              for that promotion
+            </p>
+          </div>
+        </div>
+        <div className="mt-8 flow-root">
+          <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+            <div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
+              <table className="min-w-full divide-y divide-gray-300">
+                <thead>
+                  <tr>
+                    <th
+                      scope="col"
+                      className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-0"
+                    >
+                      Promotion
+                    </th>
+                    <th
+                      scope="col"
+                      className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
+                    >
+                      Points Required
+                    </th>
+                    <th
+                      scope="col"
+                      className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
+                    >
+                      Points Earned
+                    </th>
+                    <th
+                      scope="col"
+                      className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
+                    >
+                      Active
+                    </th>
+                  </tr>
+                </thead>
+                {promotions.map(function (promotion: Promotion) {
+                  return (
+                    <tr key={promotion.id}>
+                      <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-0">
+                        {promotion.reward}
+                      </td>
+                      <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                        {promotion.pointCap}
+                      </td>
+                      <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                        {promotion.points}
+                      </td>
+                      <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-left text-sm font-medium sm:pr-0">
+                        <Switch
+                          checked={enabled}
+                          onChange={setEnabled}
+                          className="group relative inline-flex h-5 w-10 flex-shrink-0 cursor-pointer items-center justify-center rounded-full focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:ring-offset-2"
+                        >
+                          <span className="sr-only">Active</span>
+                          <span
+                            aria-hidden="true"
+                            className="pointer-events-none absolute h-full w-full rounded-md bg-white"
+                          />
+                          <span
+                            aria-hidden="true"
+                            className={classNames(
+                              enabled ? "bg-indigo-600" : "bg-gray-200",
+                              "pointer-events-none absolute mx-auto h-4 w-9 rounded-full transition-colors duration-200 ease-in-out"
+                            )}
+                          />
+                          <span
+                            aria-hidden="true"
+                            className={classNames(
+                              enabled ? "translate-x-5" : "translate-x-0",
+                              "pointer-events-none absolute left-0 inline-block h-5 w-5 transform rounded-full border border-gray-200 bg-white shadow ring-0 transition-transform duration-200 ease-in-out"
+                            )}
+                          />
+                        </Switch>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <Transition.Root show={openModal} as={Fragment}>
         <Dialog as="div" className="relative z-10" onClose={setOpenModal}>
           <Transition.Child
