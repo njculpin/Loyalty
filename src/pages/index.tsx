@@ -1,5 +1,13 @@
 import { useEffect, useState } from "react";
-import { collection, query, where, onSnapshot } from "firebase/firestore";
+import {
+  doc,
+  getDoc,
+  setDoc,
+  collection,
+  query,
+  where,
+  onSnapshot,
+} from "firebase/firestore";
 import { db, storage } from "../firebase";
 import { ref, getDownloadURL } from "firebase/storage";
 import useStore from "@/lib/useStore";
@@ -39,7 +47,7 @@ type Promotion = {
 const Index = () => {
   const store = useStore(useAuthStore, (state) => state);
   const [promotions, setPromotions] = useState<Promotion[]>([]);
-  const [state, setState] = useState<Vendor>({
+  const [vendor, setVendor] = useState<Vendor>({
     businessCity: "",
     businessEmail: "",
     businessName: "",
@@ -74,43 +82,18 @@ const Index = () => {
   }, [store?.wallet]);
 
   useEffect(() => {
-    if (store?.wallet) {
-      const q = query(
-        collection(db, "vendor"),
-        where("businessWallet", "==", store?.wallet)
-      );
-      const unsubscribe = onSnapshot(q, (querySnapshot) => {
-        const mapped = querySnapshot.docs.map(async function (doc) {
-          const data = doc.data();
-          const qr = data.qr;
-          return getDownloadURL(ref(storage, qr)).then((url) => {
-            return { ...data, qRUrl: url, id: doc.id } as unknown as Promotion;
-          });
-        });
-        Promise.all(mapped).then((result) => {
-          setPromotions(result);
-        });
-      });
-      return unsubscribe;
-    }
-  }, [store?.wallet]);
-
-  useEffect(() => {
     const getData = async () => {
-      // if (store?.wallet) {
-      //   return (await getVendor(store?.wallet)) as Vendor;
-      // }
+      const docRef = doc(db, "vendors", `${store?.wallet}`);
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        console.log("Document data:", docSnap.data());
+        const data = docSnap.data() as Vendor;
+        setVendor(data);
+      } else {
+        console.log("No such document!");
+      }
     };
-    getData()
-      .then((res: any) => {
-        if (res) {
-          const vendor = JSON.parse(res);
-          setState({ ...vendor });
-        }
-      })
-      .catch((e) => {
-        console.log(e);
-      });
+    getData();
   }, [store?.wallet]);
 
   return (
@@ -119,11 +102,11 @@ const Index = () => {
         <div className="pb-12">
           <div className="grid grid-cols-1 gap-4 justify-between items-center mb-16">
             <h2 className="font-bold text-gray-900 text-center text-6xl">
-              {state.businessName}
+              {vendor.businessName}
             </h2>
             <p className="text-lg font-semibold text-gray-600 text-center">
-              {state.businessStreetAddress} {state.businessCity}{" "}
-              {state.businessCountry} {state.businessPostalCode}
+              {vendor.businessStreetAddress} {vendor.businessCity}{" "}
+              {vendor.businessCountry} {vendor.businessPostalCode}
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-3">
