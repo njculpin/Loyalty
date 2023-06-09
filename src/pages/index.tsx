@@ -63,7 +63,8 @@ const Index = () => {
     if (store?.wallet) {
       const q = query(
         collection(db, "promotions"),
-        where("businessWallet", "==", store?.wallet)
+        where("businessWallet", "==", store?.wallet),
+        where("active", "==", true)
       );
       const unsubscribe = onSnapshot(q, (querySnapshot) => {
         const mapped = querySnapshot.docs.map(async function (doc) {
