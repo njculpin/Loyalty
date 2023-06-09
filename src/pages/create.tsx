@@ -1,6 +1,7 @@
 import { useEffect, Fragment, useState } from "react";
 import { useRouter } from "next/router";
-import { createPromotion, getVendor, storage, db } from "../firebase";
+import { storage, db } from "../firebase";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 import { ref, uploadString } from "firebase/storage";
 import { Dialog, Transition } from "@headlessui/react";
 import { CheckIcon } from "@heroicons/react/24/outline";
@@ -45,20 +46,17 @@ const Create = () => {
 
   useEffect(() => {
     const getData = async () => {
-      if (store?.wallet) {
-        return (await getVendor(store?.wallet)) as VendorCard;
+      const docRef = doc(db, "vendors", `${store?.wallet}`);
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        console.log("Document data:", docSnap.data());
+        const data = docSnap.data() as VendorCard;
+        setState(data);
+      } else {
+        console.log("No such document!");
       }
     };
-    getData()
-      .then((res: any) => {
-        if (res) {
-          const vendor = JSON.parse(res);
-          setState({ ...vendor });
-        }
-      })
-      .catch((e) => {
-        console.log(e);
-      });
+    getData();
   }, [store?.wallet]);
 
   const handleChange = (event: any) => {
@@ -79,7 +77,6 @@ const Create = () => {
       const uploadTask = await uploadString(storageRef, qr, "data_url");
       const QRURL = uploadTask.metadata.fullPath;
       const cardDetails = {
-        id: docRef,
         businessCity: state.businessCity,
         businessEmail: state.businessEmail,
         businessName: state.businessName,
@@ -95,8 +92,10 @@ const Create = () => {
         qr: QRURL,
         key: key,
       };
-      console.log("cardDetails", cardDetails);
-      createPromotion(cardDetails)
+      await setDoc(doc(db, "promotions", docRef), {
+        ...cardDetails,
+        updatedAt: new Date().getTime(),
+      })
         .then(() => {
           setOpenModal(true);
         })

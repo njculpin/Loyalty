@@ -1,6 +1,7 @@
 import useStore from "@/lib/useStore";
 import useAuthStore from "@/lib/store";
-import { createVendor, getVendor } from "../firebase";
+import { db } from "../firebase";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 import { Fragment, useEffect, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { CheckIcon } from "@heroicons/react/24/outline";
@@ -20,7 +21,7 @@ type Vendor = {
 export default function Account() {
   const store = useStore(useAuthStore, (state) => state);
   const [openModal, setOpenModal] = useState<boolean>(false);
-  const [state, setState] = useState<Vendor>({
+  const [vendor, setVendor] = useState<Vendor>({
     businessCity: "",
     businessEmail: "",
     businessName: "",
@@ -34,35 +35,34 @@ export default function Account() {
 
   useEffect(() => {
     const getData = async () => {
-      if (store?.wallet) {
-        return (await getVendor(store?.wallet)) as Vendor;
+      const docRef = doc(db, "vendors", `${store?.wallet}`);
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        console.log("Document data:", docSnap.data());
+        const data = docSnap.data() as Vendor;
+        setVendor(data);
+      } else {
+        console.log("No such document!");
       }
     };
-    getData()
-      .then((res: any) => {
-        if (res) {
-          const vendor = JSON.parse(res);
-          setState({ ...vendor });
-        }
+    getData();
+  }, [store?.wallet]);
+
+  const handleChange = (event: any) => {
+    setVendor({ ...vendor, [event.target.id]: event.target.value });
+  };
+
+  const save = async () => {
+    await setDoc(doc(db, "vendors", `${store?.wallet}`), {
+      ...vendor,
+      updatedAt: new Date().getTime(),
+    })
+      .then(() => {
+        setOpenModal(true);
       })
       .catch((e) => {
         console.log(e);
       });
-  }, [store?.wallet]);
-
-  const handleChange = (event: any) => {
-    setState({ ...state, [event.target.id]: event.target.value });
-  };
-
-  const save = async () => {
-    const result = await createVendor({
-      ...state,
-      businessWallet: store?.wallet,
-    });
-    if (result) {
-      setOpenModal(true);
-    }
-    return console.log("result", result);
   };
 
   return (
@@ -91,7 +91,7 @@ export default function Account() {
                   type="text"
                   name="businessName"
                   id="businessName"
-                  value={state.businessName}
+                  value={vendor.businessName}
                   className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                 />
               </div>
@@ -111,7 +111,7 @@ export default function Account() {
                   name="businessEmail"
                   type="email"
                   autoComplete="email"
-                  value={state.businessEmail}
+                  value={vendor.businessEmail}
                   className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                 />
               </div>
@@ -130,7 +130,7 @@ export default function Account() {
                   type="text"
                   name="businessPhone"
                   id="businessPhone"
-                  value={state.businessPhone}
+                  value={vendor.businessPhone}
                   className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                 />
               </div>
@@ -171,7 +171,7 @@ export default function Account() {
                   type="text"
                   name="businessStreetAddress"
                   id="businessStreetAddress"
-                  value={state.businessStreetAddress}
+                  value={vendor.businessStreetAddress}
                   className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                 />
               </div>
@@ -190,7 +190,7 @@ export default function Account() {
                   type="text"
                   name="businessCity"
                   id="businessCity"
-                  value={state.businessCity}
+                  value={vendor.businessCity}
                   className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                 />
               </div>
@@ -209,7 +209,7 @@ export default function Account() {
                   type="text"
                   name="businessRegion"
                   id="businessRegion"
-                  value={state.businessRegion}
+                  value={vendor.businessRegion}
                   className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                 />
               </div>
@@ -228,7 +228,7 @@ export default function Account() {
                   type="text"
                   name="businessPostalCode"
                   id="businessPostalCode"
-                  value={state.businessPostalCode}
+                  value={vendor.businessPostalCode}
                   className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                 />
               </div>

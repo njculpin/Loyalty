@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { collection, query, where, onSnapshot } from "firebase/firestore";
-import { getVendor, db, storage } from "../firebase";
+import { db, storage } from "../firebase";
 import { ref, getDownloadURL } from "firebase/storage";
 import useStore from "@/lib/useStore";
 import useAuthStore from "@/lib/store";
@@ -17,7 +17,7 @@ type Vendor = {
   businessWallet: string;
 };
 
-type VendorCard = {
+type Promotion = {
   id: string;
   businessCity: string;
   businessEmail: string;
@@ -28,6 +28,7 @@ type VendorCard = {
   businessStreetAddress: string;
   businessCountry: string;
   businessWallet: string;
+  points: string;
   pointCap: string;
   reward: string;
   qr: string;
@@ -37,7 +38,7 @@ type VendorCard = {
 
 const Index = () => {
   const store = useStore(useAuthStore, (state) => state);
-  const [promotions, setPromotions] = useState<VendorCard[]>([]);
+  const [promotions, setPromotions] = useState<Promotion[]>([]);
   const [state, setState] = useState<Vendor>({
     businessCity: "",
     businessEmail: "",
@@ -61,7 +62,29 @@ const Index = () => {
           const data = doc.data();
           const qr = data.qr;
           return getDownloadURL(ref(storage, qr)).then((url) => {
-            return { ...data, qRUrl: url, id: doc.id } as unknown as VendorCard;
+            return { ...data, qRUrl: url, id: doc.id } as unknown as Promotion;
+          });
+        });
+        Promise.all(mapped).then((result) => {
+          setPromotions(result);
+        });
+      });
+      return unsubscribe;
+    }
+  }, [store?.wallet]);
+
+  useEffect(() => {
+    if (store?.wallet) {
+      const q = query(
+        collection(db, "vendor"),
+        where("businessWallet", "==", store?.wallet)
+      );
+      const unsubscribe = onSnapshot(q, (querySnapshot) => {
+        const mapped = querySnapshot.docs.map(async function (doc) {
+          const data = doc.data();
+          const qr = data.qr;
+          return getDownloadURL(ref(storage, qr)).then((url) => {
+            return { ...data, qRUrl: url, id: doc.id } as unknown as Promotion;
           });
         });
         Promise.all(mapped).then((result) => {
@@ -74,9 +97,9 @@ const Index = () => {
 
   useEffect(() => {
     const getData = async () => {
-      if (store?.wallet) {
-        return (await getVendor(store?.wallet)) as Vendor;
-      }
+      // if (store?.wallet) {
+      //   return (await getVendor(store?.wallet)) as Vendor;
+      // }
     };
     getData()
       .then((res: any) => {
@@ -103,10 +126,9 @@ const Index = () => {
               {state.businessCountry} {state.businessPostalCode}
             </p>
           </div>
-
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-3">
             {promotions &&
-              promotions.map(function (promotion: VendorCard, index) {
+              promotions.map(function (promotion: Promotion, index) {
                 return (
                   <div className="m-5 shadow-xl rounded-xl" key={index}>
                     <div className="h-full p-8 text-center sm:rounded-3xl grid grid-cols-1 justify-between">
@@ -123,11 +145,14 @@ const Index = () => {
                       <h1 className="text-xl tracking-tight text-left font-extrabold w-full text-blue-500">
                         {promotion.pointCap} points required
                       </h1>
-                      <a href={`qr/${promotion.key}`}>
+                      <a href={`qr/${promotion.id}/${promotion.key}`}>
                         <p className="mt-8 border px-4 py-2 border-black">
                           SIMULATE SCAN
                         </p>
                       </a>
+                      <p className="w-full mt-4 text-right">
+                        {promotion.points}
+                      </p>
                     </div>
                   </div>
                 );
