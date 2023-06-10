@@ -91,9 +91,7 @@ export default function Auth() {
               </p>
             </button>
           ) : (
-            <p className="w-32 text-sm font-semibold leading-6 text-gray-900 truncate">
-              {store?.wallet}
-            </p>
+            <div className="w-5 h-5 bg-green-500 rounded-full text-sm font-semibold leading-6 text-gray-900 truncate" />
           )}
         </>
       ) : (
