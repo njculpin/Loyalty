@@ -149,7 +149,7 @@ const Qr = () => {
             throw "Document does not exist!";
           }
           const oldData = doc.data().points;
-          const newPoints = oldData + promotion.pointCap;
+          const newPoints = oldData + 1;
           transaction.update(promotionRef, {
             points: newPoints,
             lastUpdate: currentTime,

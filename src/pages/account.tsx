@@ -12,6 +12,7 @@ import {
   updateDoc,
   runTransaction,
 } from "firebase/firestore";
+import Link from "next/link";
 import { Fragment, useEffect, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { CheckIcon } from "@heroicons/react/24/outline";
@@ -42,8 +43,8 @@ type Promotion = {
   businessStreetAddress: string;
   businessCountry: string;
   businessWallet: string;
-  points: string;
-  pointCap: string;
+  points: number;
+  pointCap: number;
   reward: string;
   qr: string;
   qRUrl: string;
@@ -72,18 +73,15 @@ export default function Account() {
   });
 
   useEffect(() => {
-    const getData = async () => {
-      const docRef = doc(db, "vendors", `${store?.wallet}`);
-      const docSnap = await getDoc(docRef);
-      if (docSnap.exists()) {
-        console.log("Document data:", docSnap.data());
-        const data = docSnap.data() as Vendor;
+    if (store?.wallet) {
+      const q = doc(db, "vendors", `${store?.wallet}`);
+      const unsubscribe = onSnapshot(q, (doc) => {
+        const data = doc.data() as Vendor;
+        console.log(data);
         setVendor(data);
-      } else {
-        console.log("No such document!");
-      }
-    };
-    getData();
+      });
+      return unsubscribe;
+    }
   }, [store?.wallet]);
 
   useEffect(() => {
@@ -135,7 +133,7 @@ export default function Account() {
       });
   };
 
-  const claimLylt = async (promotionId: string, amount: string) => {
+  const claimLylt = async (promotionId: string, amount: number) => {
     const currentTime = new Date().getTime();
     const vendorRef = doc(db, "vendors", `${store?.wallet}`);
     await runTransaction(db, async (transaction) => {
@@ -143,8 +141,11 @@ export default function Account() {
       if (!doc.exists()) {
         throw "Document does not exist!";
       }
+      let last = doc.data() as Vendor;
+      let lastPoint = last.points;
+      console.log("lp", last);
       transaction.update(vendorRef, {
-        points: amount,
+        points: lastPoint + amount,
         lastUpdate: currentTime,
       });
     })
@@ -375,18 +376,18 @@ export default function Account() {
               is ready to be minted
             </h2>
             <div className="mt-10 flex items-center gap-x-6 lg:mt-0 lg:flex-shrink-0">
-              <a
+              <Link
                 href="/mint"
                 className="rounded-md bg-green-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-green-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600"
               >
                 Mint Now
-              </a>
-              <a
-                href="/learn"
+              </Link>
+              <Link
+                href="/about"
                 className="text-sm font-semibold leading-6 text-gray-900"
               >
                 Learn more <span aria-hidden="true">→</span>
-              </a>
+              </Link>
             </div>
           </div>
         </div>
@@ -428,66 +429,70 @@ export default function Account() {
                     </th>
                   </tr>
                 </thead>
-                {promotions.map(function (promotion: Promotion) {
-                  return (
-                    <tr key={promotion.id}>
-                      <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-0">
-                        {promotion.reward}
-                      </td>
-                      <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                        {promotion.pointCap}
-                      </td>
-                      <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                        {promotion.points}
-                      </td>
-                      <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                        <button
-                          onClick={() =>
-                            claimLylt(promotion.id, promotion.points)
-                          }
-                          type="button"
-                          className="rounded-full bg-white px-4 py-2.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
-                        >
-                          Claim
-                        </button>
-                      </td>
-                      <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-left text-sm font-medium sm:pr-0">
-                        <Switch
-                          checked={promotion.active}
-                          onChange={() =>
-                            updateActivePromotion(
-                              promotion.id,
-                              !promotion.active
-                            )
-                          }
-                          className="group relative inline-flex h-5 w-10 flex-shrink-0 cursor-pointer items-center justify-center rounded-full focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-offset-2"
-                        >
-                          <span className="sr-only">Active</span>
-                          <span
-                            aria-hidden="true"
-                            className="pointer-events-none absolute h-full w-full rounded-md bg-white"
-                          />
-                          <span
-                            aria-hidden="true"
-                            className={classNames(
-                              promotion.active ? "bg-green-600" : "bg-gray-200",
-                              "pointer-events-none absolute mx-auto h-4 w-9 rounded-full transition-colors duration-200 ease-in-out"
-                            )}
-                          />
-                          <span
-                            aria-hidden="true"
-                            className={classNames(
-                              promotion.active
-                                ? "translate-x-5"
-                                : "translate-x-0",
-                              "pointer-events-none absolute left-0 inline-block h-5 w-5 transform rounded-full border border-gray-200 bg-white shadow ring-0 transition-transform duration-200 ease-in-out"
-                            )}
-                          />
-                        </Switch>
-                      </td>
-                    </tr>
-                  );
-                })}
+                <tbody className="divide-y divide-gray-200">
+                  {promotions.map(function (promotion: Promotion) {
+                    return (
+                      <tr key={promotion.id}>
+                        <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-0">
+                          {promotion.reward}
+                        </td>
+                        <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                          {promotion.pointCap}
+                        </td>
+                        <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                          {promotion.points}
+                        </td>
+                        <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                          <button
+                            onClick={() =>
+                              claimLylt(promotion.id, promotion.points)
+                            }
+                            type="button"
+                            className="rounded-full bg-white px-4 py-2.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+                          >
+                            Claim
+                          </button>
+                        </td>
+                        <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-left text-sm font-medium sm:pr-0">
+                          <Switch
+                            checked={promotion.active}
+                            onChange={() =>
+                              updateActivePromotion(
+                                promotion.id,
+                                !promotion.active
+                              )
+                            }
+                            className="group relative inline-flex h-5 w-10 flex-shrink-0 cursor-pointer items-center justify-center rounded-full focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-offset-2"
+                          >
+                            <span className="sr-only">Active</span>
+                            <span
+                              aria-hidden="true"
+                              className="pointer-events-none absolute h-full w-full rounded-md bg-white"
+                            />
+                            <span
+                              aria-hidden="true"
+                              className={classNames(
+                                promotion.active
+                                  ? "bg-green-600"
+                                  : "bg-gray-200",
+                                "pointer-events-none absolute mx-auto h-4 w-9 rounded-full transition-colors duration-200 ease-in-out"
+                              )}
+                            />
+                            <span
+                              aria-hidden="true"
+                              className={classNames(
+                                promotion.active
+                                  ? "translate-x-5"
+                                  : "translate-x-0",
+                                "pointer-events-none absolute left-0 inline-block h-5 w-5 transform rounded-full border border-gray-200 bg-white shadow ring-0 transition-transform duration-200 ease-in-out"
+                              )}
+                            />
+                          </Switch>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
               </table>
             </div>
           </div>

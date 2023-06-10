@@ -10,6 +10,7 @@ import {
 } from "firebase/firestore";
 import { db, storage } from "../firebase";
 import { ref, getDownloadURL } from "firebase/storage";
+import Link from "next/link";
 import useStore from "@/lib/useStore";
 import useAuthStore from "@/lib/store";
 
@@ -129,11 +130,11 @@ const Index = () => {
                       <h1 className="text-xl tracking-tight text-left font-extrabold w-full text-blue-500">
                         {promotion.pointCap} points required
                       </h1>
-                      <a href={`qr/${promotion.id}/${promotion.key}`}>
+                      <Link href={`qr/${promotion.id}/${promotion.key}`}>
                         <p className="mt-8 border px-4 py-2 border-black">
                           SIMULATE SCAN
                         </p>
-                      </a>
+                      </Link>
                     </div>
                   </div>
                 );
