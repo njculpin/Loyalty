@@ -10,6 +10,7 @@ import {
   where,
   onSnapshot,
   updateDoc,
+  runTransaction,
 } from "firebase/firestore";
 import { Fragment, useEffect, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
@@ -26,6 +27,7 @@ type Vendor = {
   businessStreetAddress: string;
   businessCountry: string;
   businessWallet: string;
+  points: number;
 };
 
 type Promotion = {
@@ -126,6 +128,43 @@ export default function Account() {
     })
       .then(() => {
         setOpenModal(true);
+      })
+      .catch((e) => {
+        console.log(e);
+      });
+  };
+
+  const claimLylt = async (promotionId: string, amount: string) => {
+    const currentTime = new Date().getTime();
+    const vendorRef = doc(db, "vendors", `${store?.wallet}`);
+    await runTransaction(db, async (transaction) => {
+      const doc = await transaction.get(vendorRef);
+      if (!doc.exists()) {
+        throw "Document does not exist!";
+      }
+      transaction.update(vendorRef, {
+        points: amount,
+        lastUpdate: currentTime,
+      });
+    })
+      .then(async () => {
+        const promotionRef = doc(db, "promotions", `${promotionId}`);
+        await runTransaction(db, async (transaction) => {
+          const doc = await transaction.get(promotionRef);
+          if (!doc.exists()) {
+            throw "Document does not exist!";
+          }
+          transaction.update(promotionRef, {
+            points: 0,
+            lastUpdate: currentTime,
+          });
+        })
+          .then(() => {
+            setOpenModal(true);
+          })
+          .catch((e) => {
+            console.log(e);
+          });
       })
       .catch((e) => {
         console.log(e);
@@ -302,19 +341,29 @@ export default function Account() {
             </div>
           </div>
         </div>
+        <div className="mt-6 flex items-center justify-end gap-x-6">
+          <button
+            type="submit"
+            onClick={() => save()}
+            className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+          >
+            Save
+          </button>
+        </div>
       </div>
 
-      <div className="mt-6 flex items-center justify-end gap-x-6">
-        <button
-          type="submit"
-          onClick={() => save()}
-          className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-        >
-          Save
-        </button>
+      <div className="mt-16">
+        <div className="sm:flex sm:items-center">
+          <div className="sm:flex-auto">
+            <h1 className="text-base font-semibold leading-6 text-gray-900">
+              Wallet
+            </h1>
+            <p className="mt-2 text-sm text-gray-700">{vendor.points} LYLT</p>
+          </div>
+        </div>
       </div>
 
-      <div className="px-4 sm:px-6 lg:px-8 mt-16">
+      <div className="mt-16">
         <div className="sm:flex sm:items-center">
           <div className="sm:flex-auto">
             <h1 className="text-base font-semibold leading-6 text-gray-900">
@@ -342,13 +391,19 @@ export default function Account() {
                       scope="col"
                       className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
                     >
-                      Points Required
+                      LYLT Required
                     </th>
                     <th
                       scope="col"
                       className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
                     >
-                      Points Earned
+                      LYLT Earned
+                    </th>
+                    <th
+                      scope="col"
+                      className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
+                    >
+                      Claim LYLT
                     </th>
                     <th
                       scope="col"
@@ -369,6 +424,17 @@ export default function Account() {
                       </td>
                       <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
                         {promotion.points}
+                      </td>
+                      <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                        <button
+                          onClick={() =>
+                            claimLylt(promotion.id, promotion.points)
+                          }
+                          type="button"
+                          className="rounded-full bg-white px-4 py-2.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+                        >
+                          Claim
+                        </button>
                       </td>
                       <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-left text-sm font-medium sm:pr-0">
                         <Switch
