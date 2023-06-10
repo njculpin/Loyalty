@@ -68,6 +68,7 @@ export default function Account() {
     businessStreetAddress: "",
     businessCountry: "",
     businessWallet: "",
+    points: 0,
   });
 
   useEffect(() => {
