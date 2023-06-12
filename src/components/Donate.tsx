@@ -1,4 +1,3 @@
-import { payMasterAddress } from "../../config";
 import Link from "next/link";
 
 export default function Mint() {
@@ -15,9 +14,9 @@ export default function Mint() {
             maintenance. The current contract balance is 0 MATIC. You can view
             it here on Polyscan:
           </p>
-          <Link href={`https://polygonscan.com/address/${payMasterAddress}`}>
+          {/* <Link href={`https://polygonscan.com/address/${payMasterAddress}`}>
             {payMasterAddress}
-          </Link>
+          </Link> */}
         </div>
       </div>
     </div>

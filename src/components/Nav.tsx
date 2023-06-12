@@ -5,10 +5,10 @@ import { Suspense, useState } from "react";
 import { Dialog } from "@headlessui/react";
 import Link from "next/link";
 const navigation = [
-  { name: "Create", href: "/create" },
   { name: "Shop", href: "/shop" },
   { name: "Account", href: "/account" },
-  { name: "About", href: "/about" },
+  { name: "Promotions", href: "/promotions" },
+  { name: "Settings", href: "/settings" },
 ];
 
 export default function Nav() {

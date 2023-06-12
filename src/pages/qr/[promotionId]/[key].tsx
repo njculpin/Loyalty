@@ -106,7 +106,7 @@ const Qr = () => {
                 pointCap: promotion.pointCap,
                 reward: promotion.reward,
                 patronWallet: store?.wallet,
-                points: 1,
+                points: 0,
                 createdAt: new Date().getTime(),
                 updatedAt: new Date().getTime(),
                 promotionId: promotionId,
@@ -138,7 +138,7 @@ const Qr = () => {
         const qr = await QRCode.toDataURL(
           `loyalty-iota.vercel.app/qr/${newKey}`
         );
-        const storageRef = ref(storage, `qr/${promotionId}/${newKey}.png`);
+        const storageRef = ref(storage, `qr/${promotionId}.png`);
         const uploadTask = await uploadString(storageRef, qr, "data_url");
         const QRURL = uploadTask.metadata.fullPath;
 

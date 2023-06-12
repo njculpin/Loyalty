@@ -6,6 +6,7 @@ import { ref, uploadString } from "firebase/storage";
 import { Dialog, Transition } from "@headlessui/react";
 import { CheckIcon } from "@heroicons/react/24/outline";
 import QRCode from "qrcode";
+import Select from "react-select";
 import { v4 as uuidv4 } from "uuid";
 import useAuthStore from "@/lib/store";
 import useStore from "@/lib/useStore";
@@ -21,10 +22,16 @@ type VendorCard = {
   businessCountry: string;
   businessWallet: string;
   pointCap: number;
+  coinCap: number;
+  valueCap: number;
   reward: string;
 };
 
-const options = [{ value: 1, label: "1" }];
+const options = [
+  { value: "points", label: "Points" },
+  { value: "lylt", label: "LYLT Coin" },
+  { value: "lyltb", label: "LYLT NFT" },
+];
 
 const Create = () => {
   const router = useRouter();
@@ -40,6 +47,8 @@ const Create = () => {
     businessCountry: "",
     businessWallet: "",
     pointCap: 0,
+    coinCap: 0,
+    valueCap: 0,
     reward: "",
   });
   const store = useStore(useAuthStore, (state) => state);
@@ -73,7 +82,7 @@ const Create = () => {
       const qr = await QRCode.toDataURL(
         `loyalty-iota.vercel.app/qr/${docRef}/${key}`
       );
-      const storageRef = ref(storage, `qr/${docRef}/${key}.png`);
+      const storageRef = ref(storage, `qr/${docRef}.png`);
       const uploadTask = await uploadString(storageRef, qr, "data_url");
       const QRURL = uploadTask.metadata.fullPath;
       const cardDetails = {
@@ -89,6 +98,8 @@ const Create = () => {
         businessWallet: store.wallet,
         points: 0,
         pointCap: Number(state.pointCap),
+        coinCap: Number(state.coinCap),
+        valueCap: Number(state.valueCap),
         reward: state.reward,
         qr: QRURL,
         key: key,
@@ -143,6 +154,17 @@ const Create = () => {
             </div>
             <div className="sm:col-span-4">
               <label
+                htmlFor="reward"
+                className="block text-sm font-medium leading-6 text-black mt-8"
+              >
+                What type of asset is required to earn the reward?
+              </label>
+              <div className="mt-2">
+                <Select options={options} isMulti />
+              </div>
+            </div>
+            <div className="sm:col-span-4">
+              <label
                 htmlFor="pointCap"
                 className="block text-sm font-medium leading-6 text-black"
               >
@@ -153,6 +175,45 @@ const Create = () => {
                   onChange={handleChange}
                   id="pointCap"
                   name="pointCap"
+                  type="number"
+                  pattern="[0-9]*"
+                  required
+                  className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-green-600 sm:text-sm sm:leading-6"
+                />
+              </div>
+            </div>
+            <div className="sm:col-span-4">
+              <label
+                htmlFor="pointCap"
+                className="block text-sm font-medium leading-6 text-black"
+              >
+                How much LYLT does a customer require to earn the reward?
+              </label>
+              <div className="mt-2">
+                <input
+                  onChange={handleChange}
+                  id="coinCap"
+                  name="coinCap"
+                  type="number"
+                  pattern="[0-9]*"
+                  required
+                  className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-green-600 sm:text-sm sm:leading-6"
+                />
+              </div>
+            </div>
+            <div className="sm:col-span-4">
+              <label
+                htmlFor="pointCap"
+                className="block text-sm font-medium leading-6 text-black"
+              >
+                What is the point value of the NFT that the customer requires to
+                earn the reward?
+              </label>
+              <div className="mt-2">
+                <input
+                  onChange={handleChange}
+                  id="valueCap"
+                  name="valueCap"
                   type="number"
                   pattern="[0-9]*"
                   required

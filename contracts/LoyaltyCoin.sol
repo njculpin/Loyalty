@@ -7,11 +7,13 @@ import "@openzeppelin/contracts/token/ERC721/utils/ERC721Holder.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
 
-contract LoyaltyPoint is ERC20, ERC721Holder, Ownable {
+contract LoyaltyCoin is ERC20, ERC721Holder, Ownable {
 
-    constructor(string memory _name, string memory  _ticker) ERC20(_name, _ticker) {}
+    constructor(uint256 _initialSupply) ERC20("LoyaltyCoin", "LYLT") {
+        _mint(msg.sender, _initialSupply);
+    }
 
-    function mint(address _recipient , uint256 _amount) public payable returns (bool)  {
+    function mint(address _recipient, uint256 _amount) public payable returns (bool)  {
         _mint(_recipient, _amount);
         return true;
     }

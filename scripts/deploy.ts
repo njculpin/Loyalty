@@ -2,48 +2,18 @@ import { ethers } from "hardhat";
 import fs from "fs";
 
 async function main() {
-  const VendorCard = await ethers.getContractFactory("LoyaltyCard");
-  const vendorCardContract = await VendorCard.deploy(
-    "Vendor Loyalty Card",
-    "LYLV"
+  const EarningsConsumer = await ethers.getContractFactory("EarningsConsumer");
+  const earningsConsumer = await EarningsConsumer.deploy(
+    "0x326c977e6efc84e512bb9c30f76e30c160ed06fb",
+    "0x40193c8518bb267228fc409a613bdbd8ec5a97b3",
+    "https://getpointbalance-dwado4aypa-uc.a.run.app/?tokenId=",
+    "ca98366cc7314957b8c012c72f05aeeb"
   );
-  await vendorCardContract.deployed();
-
-  const PatronCard = await ethers.getContractFactory("LoyaltyCard");
-  const patronCardContract = await PatronCard.deploy(
-    "Patron Loyalty Card",
-    "LYLP"
-  );
-  await patronCardContract.deployed();
-
-  const LoyaltyPoint = await ethers.getContractFactory("LoyaltyPoint");
-  const loyaltyPointContract = await LoyaltyPoint.deploy(
-    "Loyalty Point",
-    "LYLT"
-  );
-  await loyaltyPointContract.deployed();
-
-  const LoyaltyManager = await ethers.getContractFactory("LoyaltyManager");
-  const loyaltyManagerContract = await LoyaltyManager.deploy(
-    vendorCardContract.address,
-    patronCardContract.address,
-    loyaltyPointContract.address
-  );
-  await loyaltyManagerContract.deployed();
-
-  await loyaltyPointContract.setLoyaltyManagerAddress(
-    loyaltyManagerContract.address
-  );
-  await loyaltyPointContract.deployed();
-
+  await earningsConsumer.deployed();
   fs.writeFileSync(
     "./config.ts",
     `
-  export const vendorCardAddress = "${vendorCardContract.address}"
-  export const patronCardAddress = "${patronCardContract.address}"
-  export const loyaltyPointAddress = "${loyaltyPointContract.address}"
-  export const loyaltyManagerAddress = "${loyaltyManagerContract.address}"
-  
+  export const vendorCardAddress = "${earningsConsumer.address}"
   `
   );
 }

@@ -18,17 +18,20 @@ const db = getFirestore(app);
 export const getPointBalance = https.onRequest(
   { cors: true },
   async (request, response) => {
+    const token = request.query.tokenId;
     try {
-      const body = request.body.data;
-      const token = body.token;
+      logger.info("token -> ", request.query.tokenId);
       const docRef = db.collection("nfts").doc(token);
       const snapshot = await docRef.get();
       const data = snapshot.data();
       const points = data.points;
-      response.status(200).send({ status: "success", data: points });
+      logger.info("points -> ", points);
+      response
+        .status(200)
+        .json({ tokenId: Number(token), value: Number(points) });
     } catch (e) {
       logger.error("error", e);
-      response.status(400).send({ status: "error", data: JSON.stringify(e) });
+      response.status(400).json({ tokenId: Number(token), value: Number(0) });
     }
   }
 );
