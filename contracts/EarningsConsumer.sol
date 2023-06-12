@@ -4,9 +4,15 @@ pragma solidity ^0.8.9;
 import "@chainlink/contracts/src/v0.8/ChainlinkClient.sol";
 import "@chainlink/contracts/src/v0.8/ConfirmedOwner.sol";
 
+import "@openzeppelin/contracts/utils/Strings.sol";
+
 contract EarningsConsumer is ChainlinkClient, ConfirmedOwner {
     using Chainlink for Chainlink.Request;
 
+
+    mapping(uint256 => uint256) public lyltBalance;
+    mapping(bytes32 => uint256) public requestIdToTokenId;
+    
     uint256 public earning;
     bytes32 private jobId;
     uint256 private fee;
@@ -32,15 +38,16 @@ contract EarningsConsumer is ChainlinkClient, ConfirmedOwner {
         }
     }
 
-    function requestEarningsData(string memory _tokenId) public returns (bytes32 requestId) {
+    function requestEarningsData(uint256 _tokenId) public returns (bytes32 requestId) {
         Chainlink.Request memory req = buildChainlinkRequest(
             jobId,
             address(this),
             this.fulfill.selector
         );
-        req.add("get", string.concat(api, _tokenId));
+        req.add("get", string.concat(api, Strings.toString(_tokenId)));
         req.add("path", "value");
         req.addInt("times", 1);
+        requestIdToTokenId[requestId] = _tokenId;
         return sendChainlinkRequest(req, fee);
     }
 
@@ -48,8 +55,8 @@ contract EarningsConsumer is ChainlinkClient, ConfirmedOwner {
         bytes32 _requestId,
         uint256 _value
     ) public recordChainlinkFulfillment(_requestId) {
+        lyltBalance[requestIdToTokenId[_requestId]] = _value;
         emit RequestEarnings(_requestId, _value);
-        earning = _value;
     }
 
     function getEarningsFromStore() public view returns (uint256){

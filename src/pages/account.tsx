@@ -95,7 +95,7 @@ export default function Account() {
                 LYLT
               </dt>
               <dd className="mt-1 text-3xl font-semibold tracking-tight text-green-600">
-                1050
+                0
               </dd>
             </div>
             <div className="overflow-hidden rounded-lg bg-white px-4 py-5 shadow sm:p-6">
