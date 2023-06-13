@@ -6,7 +6,7 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
-contract LoyaltyManager is ReentrancyGuard, Ownable {
+contract LoyaltyMarket is ReentrancyGuard, Ownable {
 
     using Counters for Counters.Counter;
     Counters.Counter private marketplaceIds;
@@ -101,4 +101,5 @@ contract LoyaltyManager is ReentrancyGuard, Ownable {
         }
         return items;
     }
+
 }

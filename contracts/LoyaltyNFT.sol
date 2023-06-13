@@ -6,13 +6,15 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract NFT is ERC721, ERC721URIStorage, Ownable {
+contract LoyaltyNFT is ERC721, ERC721URIStorage, Ownable {
 
     using Counters for Counters.Counter;
 
     Counters.Counter private _tokenIdCounter;
+    address public earningsConsumer;
+    mapping(string => uint256) public pointsByRecordId;
 
-    constructor() ERC721("LoyaltyBrick", "LYLTB") {}
+    constructor() ERC721("LYLT NFT", "LYLTN") {}
 
     function safeMint(address to, string memory uri) public onlyOwner {
         uint256 tokenId = _tokenIdCounter.current();
@@ -31,6 +33,16 @@ contract NFT is ERC721, ERC721URIStorage, Ownable {
         override(ERC721, ERC721URIStorage)
         returns (string memory) {
         return super.tokenURI(tokenId);
+    }
+
+    function verifyEarnings(string memory _recordId) public view returns (uint256){
+        return pointsByRecordId[_recordId];
+    }
+
+    function setEarnings(string memory _recordId, uint256 _amount) external returns (bool){
+        require(earningsConsumer == msg.sender, 'request not sent from oracle');
+        pointsByRecordId[_recordId] = _amount;
+        return true;
     }
     
 }

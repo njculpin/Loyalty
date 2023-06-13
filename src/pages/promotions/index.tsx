@@ -1,7 +1,7 @@
 import useStore from "@/lib/useStore";
 import useAuthStore from "@/lib/store";
 import { useRouter } from "next/router";
-import { db } from "../firebase";
+import { db } from "../../firebase";
 import {
   doc,
   collection,
@@ -177,12 +177,12 @@ export default function Account() {
             <p className="mt-2 text-sm text-gray-700">
               A list of promotions running on your account and the points earned
               for that promotion. You may claim LYLT on each promotion, then
-              mint them into transferable LYLT tokens. Your current balance is{" "}
+              mint them into transferable LYLT tokens.
             </p>
           </div>
           <div className="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
             <Link
-              href="/create"
+              href="/promotions/create"
               className="rounded-md bg-green-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-green-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600"
             >
               Create
@@ -201,6 +201,12 @@ export default function Account() {
                       className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-0"
                     >
                       Promotion
+                    </th>
+                    <th
+                      scope="col"
+                      className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
+                    >
+                      Requirement
                     </th>
                     <th
                       scope="col"
@@ -240,6 +246,9 @@ export default function Account() {
                       <tr key={promotion.id}>
                         <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-0">
                           {promotion.reward}
+                        </td>
+                        <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                          {promotion.pointCap}
                         </td>
                         <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
                           {promotion.pointCap}

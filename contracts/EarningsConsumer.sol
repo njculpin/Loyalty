@@ -3,16 +3,17 @@ pragma solidity ^0.8.9;
 
 import "@chainlink/contracts/src/v0.8/ChainlinkClient.sol";
 import "@chainlink/contracts/src/v0.8/ConfirmedOwner.sol";
-
-import "@openzeppelin/contracts/utils/Strings.sol";
+import './LoyaltyCoin.sol';
+import './LoyaltyNFT.sol';
 
 contract EarningsConsumer is ChainlinkClient, ConfirmedOwner {
     using Chainlink for Chainlink.Request;
 
-
-    mapping(uint256 => uint256) public lyltBalance;
-    mapping(bytes32 => uint256) public requestIdToTokenId;
+    mapping(string => uint256) public pointsByRecordId;
+    mapping(bytes32 => string) public requestIdToRecordId;
     
+    address public lyltNftAddress;
+    address public lyltCoinAddress;
     uint256 public earning;
     bytes32 private jobId;
     uint256 private fee;
@@ -20,7 +21,12 @@ contract EarningsConsumer is ChainlinkClient, ConfirmedOwner {
 
     event RequestEarnings(bytes32 indexed requestId, uint256 value);
 
-    constructor(address _link, address _oracle, string memory _api, string memory _job) ConfirmedOwner(msg.sender) {
+    constructor(
+        address _link, 
+        address _oracle, 
+        string memory _job, 
+        string memory _api
+        ) ConfirmedOwner(msg.sender) {
         setChainlinkToken(_link);
         setChainlinkOracle(_oracle);
         jobId = stringToBytes32(_job);
@@ -28,7 +34,9 @@ contract EarningsConsumer is ChainlinkClient, ConfirmedOwner {
         fee = 1 * LINK_DIVISIBILITY / 10;
     }
 
-    function stringToBytes32(string memory source) public pure returns (bytes32 result) {
+    function stringToBytes32(
+        string memory source
+        ) public pure returns (bytes32 result) {
         bytes memory tempEmptyStringTest = bytes(source);
         if (tempEmptyStringTest.length == 0) {
             return 0x0;
@@ -38,33 +46,52 @@ contract EarningsConsumer is ChainlinkClient, ConfirmedOwner {
         }
     }
 
-    function requestEarningsData(uint256 _tokenId) public returns (bytes32 requestId) {
+    function requestRecordEarningsData(
+        string memory _recordId
+        ) public returns (bytes32 requestId) {
         Chainlink.Request memory req = buildChainlinkRequest(
             jobId,
             address(this),
-            this.fulfill.selector
+            this.fulfillToken.selector
         );
-        req.add("get", string.concat(api, Strings.toString(_tokenId)));
+        req.add("get", string.concat(api, _recordId));
         req.add("path", "value");
         req.addInt("times", 1);
-        requestIdToTokenId[requestId] = _tokenId;
+        requestIdToRecordId[requestId] = _recordId;
         return sendChainlinkRequest(req, fee);
     }
 
-    function fulfill(
+    function fulfillToken(
         bytes32 _requestId,
         uint256 _value
     ) public recordChainlinkFulfillment(_requestId) {
-        lyltBalance[requestIdToTokenId[_requestId]] = _value;
+        pointsByRecordId[requestIdToRecordId[_requestId]] = _value;
+        string memory record = requestIdToRecordId[_requestId];
+        LoyaltyCoin(lyltCoinAddress).setEarnings(record, _value);
+        LoyaltyNFT(lyltNftAddress).setEarnings(record, _value);
         emit RequestEarnings(_requestId, _value);
     }
 
-    function getEarningsFromStore() public view returns (uint256){
-        return earning;
+    function getTokenEarningsFromStore(
+        string memory _recordId)
+         public view returns (uint256){
+        return pointsByRecordId[_recordId];
     }
 
-    function setApiUrl(string memory _api) public onlyOwner {
+    function setTokenApiUrl(
+        string memory _api
+        ) public onlyOwner {
         api = _api;
+    }
+
+    function setLoyaltyCoinAddress(address _address) public onlyOwner returns(bool) {
+        lyltCoinAddress = _address;
+        return true;
+    }
+
+    function setLoyaltyNftAddress(address _address) public onlyOwner returns(bool) {
+        lyltNftAddress = _address;
+        return true;
     }
 
     function withdrawLink() public onlyOwner {
