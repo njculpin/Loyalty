@@ -31,5 +31,10 @@ contract LoyaltyCoin is ERC20, ERC721Holder, Ownable {
         pointsByRecordId[_recordId] = _amount;
         return true;
     }
+
+    function setEarningsConsumer(address _address) public onlyOwner returns (bool){
+        earningsConsumer = _address;
+        return true;
+    }
     
 }

@@ -1,57 +1,36 @@
 import useStore from "@/lib/useStore";
 import useAuthStore from "@/lib/store";
 import { db } from "../firebase";
-import { doc, collection, query, where, onSnapshot } from "firebase/firestore";
+import {
+  doc,
+  collection,
+  query,
+  where,
+  runTransaction,
+  setDoc,
+  onSnapshot,
+} from "firebase/firestore";
 import { useEffect, useState } from "react";
-import axios from "axios";
 import Link from "next/link";
 
-type Vendor = {
-  businessCity: string;
-  businessEmail: string;
-  businessName: string;
-  businessPhone: string;
-  businessPostalCode: string;
-  businessRegion: string;
-  businessStreetAddress: string;
-  businessCountry: string;
-  businessWallet: string;
+type Wallet = {
   points: number;
+  coins: number;
 };
 
 export default function Account() {
   const store = useStore(useAuthStore, (state) => state);
   const [patronCount, setPatronCount] = useState<number>(0);
   const [promotionsCount, setPromotionsCount] = useState<number>(0);
-  const [lyltBalance, setLyltBalance] = useState<string>();
-  const [vendor, setVendor] = useState<Vendor>({
-    businessCity: "",
-    businessEmail: "",
-    businessName: "",
-    businessPhone: "",
-    businessPostalCode: "",
-    businessRegion: "",
-    businessStreetAddress: "",
-    businessCountry: "",
-    businessWallet: "",
+  const [wallet, setWallet] = useState<Wallet>({
+    coins: 0,
     points: 0,
   });
 
   useEffect(() => {
     if (store?.wallet) {
-      const q = doc(db, "vendors", `${store?.wallet}`);
-      const unsubscribe = onSnapshot(q, (doc) => {
-        const data = doc.data() as Vendor;
-        setVendor(data);
-      });
-      return unsubscribe;
-    }
-  }, [store?.wallet]);
-
-  useEffect(() => {
-    if (store?.wallet) {
       const q = query(
-        collection(db, "patrons"),
+        collection(db, "patronToPromotions"),
         where("businessWallet", "==", store?.wallet)
       );
       const unsubscribe = onSnapshot(q, (querySnapshot) => {
@@ -78,17 +57,41 @@ export default function Account() {
 
   useEffect(() => {
     const queryBalance = async () => {
-      if (!store?.wallet) {
-        return;
-      }
-      const query = await axios.post("/api/getTokenBalance", {
-        tokenContractAddress: "0x326C977E6efc84E512bB9C30f76E30c160eD06FB", // chainlink
-        wallet: store?.wallet,
+      const q = doc(db, "wallets", `${store?.wallet}`);
+      const unsubscribe = onSnapshot(q, async (document) => {
+        if (document.exists()) {
+          const data = document.data() as Wallet;
+          setWallet(data);
+        }
       });
-      setLyltBalance(query.data.message);
+      return unsubscribe;
     };
     queryBalance();
   }, [store?.wallet]);
+
+  const convertToLoyalty = async () => {
+    try {
+      const currentTime = new Date().getTime();
+      const walletRef = doc(db, "wallets", `${store?.wallet}`);
+      await runTransaction(db, async (transaction) => {
+        const document = await transaction.get(walletRef);
+        if (!document.exists()) {
+          return;
+        }
+        const oldData = document.data();
+        const oldPoint = oldData.points;
+        const oldCoins = oldData.coins;
+        let newCoin = oldCoins + oldPoint;
+        await setDoc(doc(db, "wallets", `${store?.wallet}`), {
+          address: store?.wallet,
+          points: 0,
+          coins: newCoin,
+          createdAt: currentTime,
+          updatedAt: new Date().getTime(),
+        });
+      });
+    } catch (e) {}
+  };
 
   const showAddressInformation = () => {};
 
@@ -126,10 +129,11 @@ export default function Account() {
               <dd className="mt-1">
                 <div className="flex justify-between items-center">
                   <h1 className="text-3xl font-semibold tracking-tight text-gray-900">
-                    {vendor.points}
+                    {wallet.points}
                   </h1>
                   <button
                     type="button"
+                    onClick={() => convertToLoyalty()}
                     className="rounded bg-green-600 px-2 py-1 text-xs font-semibold text-white shadow-sm hover:bg-green-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600"
                   >
                     Convert to LYLT
@@ -144,11 +148,11 @@ export default function Account() {
               <dd className="mt-1">
                 <div className="flex justify-between items-center">
                   <h1 className="text-3xl font-semibold tracking-tight text-gray-900">
-                    {lyltBalance}
+                    {wallet.coins}
                   </h1>
                   <button
                     type="button"
-                    className="rounded bg-green-600 px-2 py-1 text-xs font-semibold text-white shadow-sm hover:bg-green-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600"
+                    className="disabled rounded bg-gray-600 px-2 py-1 text-xs font-semibold text-white shadow-sm hover:bg-gray-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600"
                   >
                     Send
                   </button>

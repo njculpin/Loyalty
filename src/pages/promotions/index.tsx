@@ -77,7 +77,6 @@ export default function Account() {
       const q = doc(db, "vendors", `${store?.wallet}`);
       const unsubscribe = onSnapshot(q, (doc) => {
         const data = doc.data() as Vendor;
-        console.log(data);
         setVendor(data);
       });
       return unsubscribe;
@@ -121,7 +120,7 @@ export default function Account() {
       return;
     }
     const currentTime = new Date().getTime();
-    const vendorRef = doc(db, "vendors", `${store?.wallet}`);
+    const vendorRef = doc(db, "wallets", `${store?.wallet}`);
     await runTransaction(db, async (transaction) => {
       const doc = await transaction.get(vendorRef);
       if (!doc.exists()) {
@@ -129,7 +128,6 @@ export default function Account() {
       }
       let last = doc.data() as Vendor;
       let lastPoint = last.points;
-      console.log("lp", last);
       transaction.update(vendorRef, {
         points: lastPoint + amount,
         lastUpdate: currentTime,
@@ -159,7 +157,7 @@ export default function Account() {
       });
   };
 
-  const mintLyltB = async (promotionId: string) => {};
+  const mintNFT = async (id: string) => {};
 
   const closeModal = () => {
     setOpenModal(false);
@@ -269,7 +267,7 @@ export default function Account() {
                         </td>
                         <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
                           <button
-                            onClick={() => mintLyltB(promotion.id)}
+                            onClick={() => mintNFT(promotion.id)}
                             type="button"
                             className="rounded-full bg-white px-4 py-2.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
                           >

@@ -2,8 +2,8 @@
   "_format": "hh-sol-cache-2",
   "files": {
     "/Users/nickculpin/Documents/GitHub/Loyalty/contracts/EarningsConsumer.sol": {
-      "lastModificationDate": 1686631885170,
-      "contentHash": "5b973ddb1975c344666c4762bda9511b",
+      "lastModificationDate": 1686643340283,
+      "contentHash": "f7766735a220bf5b29ad2fa190318a9a",
       "sourceName": "contracts/EarningsConsumer.sol",
       "solcConfig": {
         "version": "0.8.18",
@@ -30,7 +30,9 @@
       },
       "imports": [
         "@chainlink/contracts/src/v0.8/ChainlinkClient.sol",
-        "@chainlink/contracts/src/v0.8/ConfirmedOwner.sol"
+        "@chainlink/contracts/src/v0.8/ConfirmedOwner.sol",
+        "./LoyaltyCoin.sol",
+        "./LoyaltyNFT.sol"
       ],
       "versionPragmas": [
         "^0.8.9"
@@ -1025,8 +1027,8 @@
       ]
     },
     "/Users/nickculpin/Documents/GitHub/Loyalty/contracts/LoyaltyCoin.sol": {
-      "lastModificationDate": 1686631369495,
-      "contentHash": "197149e8dafd5fed595787a9033ff44d",
+      "lastModificationDate": 1686643051776,
+      "contentHash": "319acad0c86f660eab94bb8d2f890291",
       "sourceName": "contracts/LoyaltyCoin.sol",
       "solcConfig": {
         "version": "0.8.18",
@@ -1323,8 +1325,8 @@
       ]
     },
     "/Users/nickculpin/Documents/GitHub/Loyalty/contracts/LoyaltyNFT.sol": {
-      "lastModificationDate": 1686626425443,
-      "contentHash": "b371ac78a3c37b5ea406d3ce631d0755",
+      "lastModificationDate": 1686643062722,
+      "contentHash": "64ad751181fb4c25ed664ed096c8e30f",
       "sourceName": "contracts/LoyaltyNFT.sol",
       "solcConfig": {
         "version": "0.8.18",
@@ -1400,41 +1402,6 @@
       ],
       "artifacts": [
         "LoyaltyMarket"
-      ]
-    },
-    "/Users/nickculpin/Documents/GitHub/Loyalty/contracts/IEarningsConsumer.sol": {
-      "lastModificationDate": 1686629025220,
-      "contentHash": "04083cd2edcff9ac0c08890be0dc066b",
-      "sourceName": "contracts/IEarningsConsumer.sol",
-      "solcConfig": {
-        "version": "0.8.18",
-        "settings": {
-          "optimizer": {
-            "enabled": false,
-            "runs": 200
-          },
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          }
-        }
-      },
-      "imports": [],
-      "versionPragmas": [
-        "^0.8.9"
-      ],
-      "artifacts": [
-        "IEarningsConsumer"
       ]
     }
   }

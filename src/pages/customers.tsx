@@ -34,7 +34,7 @@ export default function Customers() {
   useEffect(() => {
     if (store?.wallet) {
       const q = query(
-        collection(db, "patrons"),
+        collection(db, "patronToPromotions"),
         where("businessWallet", "==", store?.wallet)
       );
       const unsubscribe = onSnapshot(q, (querySnapshot) => {

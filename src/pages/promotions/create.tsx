@@ -58,7 +58,6 @@ const Create = () => {
       const docRef = doc(db, "vendors", `${store?.wallet}`);
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
-        console.log("Document data:", docSnap.data());
         const data = docSnap.data() as VendorCard;
         setState(data);
       } else {

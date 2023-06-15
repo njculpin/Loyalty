@@ -7,7 +7,7 @@ async function main() {
     "0x326c977e6efc84e512bb9c30f76e30c160ed06fb", // link address
     "0x40193c8518bb267228fc409a613bdbd8ec5a97b3", // oracle address
     "ca98366cc7314957b8c012c72f05aeeb", // job
-    "https://getpointbalance-dwado4aypa-uc.a.run.app/?Id=" // api url
+    "https://getpointbalance-dwado4aypa-uc.a.run.app/?id=" // api url
   );
   await earningsConsumer.deployed();
 
@@ -15,11 +15,21 @@ async function main() {
   const loyaltyCoin = await LoyaltyCoin.deploy(100);
   await loyaltyCoin.deployed();
 
+  const LoyaltyNft = await ethers.getContractFactory("LoyaltyNft");
+  const loyaltyNft = await LoyaltyNft.deploy();
+  await loyaltyNft.deployed();
+
+  const LoyaltyMarket = await ethers.getContractFactory("LoyaltyMarket");
+  const loyaltyMarket = await LoyaltyMarket.deploy();
+  await loyaltyMarket.deployed();
+
   fs.writeFileSync(
     "./config.ts",
     `
   export const earningsConsumerAddress = "${earningsConsumer.address}"
   export const loyaltyCoinAddress = "${loyaltyCoin.address}"
+  export const loyaltyNftAddress = "${loyaltyNft.address}"
+  export const loyaltyMarketAddress = "${loyaltyMarket.address}"
   `
   );
 }

@@ -44,5 +44,10 @@ contract LoyaltyNFT is ERC721, ERC721URIStorage, Ownable {
         pointsByRecordId[_recordId] = _amount;
         return true;
     }
+
+    function setEarningsConsumer(address _address) public onlyOwner returns (bool){
+        earningsConsumer = _address;
+        return true;
+    }
     
 }

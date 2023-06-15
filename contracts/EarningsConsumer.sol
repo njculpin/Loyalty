@@ -72,7 +72,7 @@ contract EarningsConsumer is ChainlinkClient, ConfirmedOwner {
         emit RequestEarnings(_requestId, _value);
     }
 
-    function getTokenEarningsFromStore(
+    function verifyEarnings(
         string memory _recordId)
          public view returns (uint256){
         return pointsByRecordId[_recordId];

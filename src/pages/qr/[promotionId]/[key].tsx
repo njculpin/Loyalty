@@ -55,7 +55,11 @@ const Qr = () => {
 
   useEffect(() => {
     if (store?.wallet && promotionId && key) {
-      const q = doc(db, "patrons", `${store?.wallet}-${promotionId}`);
+      const q = doc(
+        db,
+        "patronToPromotions",
+        `${store?.wallet}-${promotionId}`
+      );
       const unsubscribe = onSnapshot(q, (doc) => {
         const data = doc.data() as PatronCard;
         setPatronCard(data);
@@ -86,13 +90,17 @@ const Qr = () => {
         }
         const currentTime = new Date().getTime();
         // update patron
-        const patronRef = doc(db, "patrons", `${store?.wallet}-${promotionId}`);
+        const patronRef = doc(
+          db,
+          "patronToPromotions",
+          `${store?.wallet}-${promotionId}`
+        );
         await runTransaction(db, async (transaction) => {
           const document = await transaction.get(patronRef);
           if (!document.exists()) {
             // create document because its missing - first time scan
             await setDoc(
-              doc(db, "patrons", `${store?.wallet}-${promotionId}`),
+              doc(db, "patronToPromotions", `${store?.wallet}-${promotionId}`),
               {
                 businessCity: promotion.businessCity,
                 businessEmail: promotion.businessEmail,
@@ -157,7 +165,6 @@ const Qr = () => {
             qr: QRURL,
           });
         });
-        console.log("Transaction successfully committed!");
       } catch (e) {
         console.log("Transaction failed: ", e);
       }
