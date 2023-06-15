@@ -43,7 +43,7 @@ type Promotion = {
   businessCountry: string;
   businessWallet: string;
   points: number;
-  pointCap: number;
+  pointsRequired: number;
   reward: string;
   qr: string;
   qRUrl: string;
@@ -130,7 +130,7 @@ export default function Account() {
       let lastPoint = last.points;
       transaction.update(vendorRef, {
         points: lastPoint + amount,
-        lastUpdate: currentTime,
+        updatedAt: currentTime,
       });
     })
       .then(async () => {
@@ -142,7 +142,7 @@ export default function Account() {
           }
           transaction.update(promotionRef, {
             points: 0,
-            lastUpdate: currentTime,
+            updatedAt: currentTime,
           });
         })
           .then(() => {
@@ -246,10 +246,10 @@ export default function Account() {
                           {promotion.reward}
                         </td>
                         <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                          {promotion.pointCap}
+                          {promotion.pointsRequired}
                         </td>
                         <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                          {promotion.pointCap}
+                          {promotion.pointsRequired}
                         </td>
                         <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
                           {promotion.points}

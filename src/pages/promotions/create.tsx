@@ -21,8 +21,8 @@ type VendorCard = {
   businessStreetAddress: string;
   businessCountry: string;
   businessWallet: string;
-  pointCap: number;
-  coinCap: number;
+  pointsRequired: number;
+  coinsRequired: number;
   valueCap: number;
   reward: string;
 };
@@ -46,8 +46,8 @@ const Create = () => {
     businessStreetAddress: "",
     businessCountry: "",
     businessWallet: "",
-    pointCap: 0,
-    coinCap: 0,
+    pointsRequired: 0,
+    coinsRequired: 0,
     valueCap: 0,
     reward: "",
   });
@@ -96,8 +96,8 @@ const Create = () => {
         businessCountry: state.businessCountry,
         businessWallet: store.wallet,
         points: 0,
-        pointCap: Number(state.pointCap),
-        coinCap: Number(state.coinCap),
+        pointsRequired: Number(state.pointsRequired),
+        coinsRequired: Number(state.coinsRequired),
         valueCap: Number(state.valueCap),
         reward: state.reward,
         qr: QRURL,
@@ -164,7 +164,7 @@ const Create = () => {
             </div>
             <div className="sm:col-span-4">
               <label
-                htmlFor="pointCap"
+                htmlFor="pointsRequired"
                 className="block text-sm font-medium leading-6 text-black"
               >
                 How many points does a customer require to earn the reward?
@@ -172,8 +172,8 @@ const Create = () => {
               <div className="mt-2">
                 <input
                   onChange={handleChange}
-                  id="pointCap"
-                  name="pointCap"
+                  id="pointsRequired"
+                  name="pointsRequired"
                   type="number"
                   pattern="[0-9]*"
                   required
@@ -183,7 +183,7 @@ const Create = () => {
             </div>
             <div className="sm:col-span-4">
               <label
-                htmlFor="pointCap"
+                htmlFor="pointsRequired"
                 className="block text-sm font-medium leading-6 text-black"
               >
                 How much LYLT does a customer require to earn the reward?
@@ -191,8 +191,8 @@ const Create = () => {
               <div className="mt-2">
                 <input
                   onChange={handleChange}
-                  id="coinCap"
-                  name="coinCap"
+                  id="coinsRequired"
+                  name="coinsRequired"
                   type="number"
                   pattern="[0-9]*"
                   required
@@ -202,7 +202,7 @@ const Create = () => {
             </div>
             <div className="sm:col-span-4">
               <label
-                htmlFor="pointCap"
+                htmlFor="pointsRequired"
                 className="block text-sm font-medium leading-6 text-black"
               >
                 What is the point value of the NFT that the customer requires to

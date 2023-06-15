@@ -16,7 +16,7 @@ type PatronCard = {
   businessStreetAddress: string;
   businessCountry: string;
   businessWallet: string;
-  pointCap: number;
+  pointsRequired: number;
   reward: string;
   patronWallet: string;
   key: string;

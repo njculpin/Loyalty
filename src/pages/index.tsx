@@ -37,7 +37,7 @@ type Promotion = {
   businessCountry: string;
   businessWallet: string;
   points: string;
-  pointCap: string;
+  pointsRequired: string;
   reward: string;
   qr: string;
   qRUrl: string;
@@ -126,7 +126,7 @@ const Index = () => {
                         {promotion.reward}
                       </h1>
                       <h1 className="text-xl tracking-tight text-left font-extrabold w-full text-blue-500">
-                        {promotion.pointCap} LYLT required
+                        {promotion.pointsRequired} LYLT required
                       </h1>
                       <Link href={`qr/${promotion.id}/${promotion.key}`}>
                         <p className="mt-8 border px-4 py-2 border-black">

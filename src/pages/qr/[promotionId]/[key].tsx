@@ -19,7 +19,10 @@ type Promotion = {
   businessStreetAddress: string;
   businessCountry: string;
   businessWallet: string;
-  pointCap: number;
+  pointsRequired: number;
+  coinsRequired: number;
+  coins: number;
+  points: number;
   reward: string;
   key: string;
 };
@@ -35,11 +38,13 @@ type PatronCard = {
   businessStreetAddress: string;
   businessCountry: string;
   businessWallet: string;
-  pointCap: number;
+  pointsRequired: number;
+  coinsRequired: number;
   reward: string;
   patronWallet: string;
   key: string;
   points: number;
+  coins: number;
   createdAt: number;
   updatedAt: number;
 };
@@ -111,10 +116,12 @@ const Qr = () => {
                 businessStreetAddress: promotion.businessStreetAddress,
                 businessCountry: promotion.businessCountry,
                 businessWallet: promotion.businessWallet,
-                pointCap: promotion.pointCap,
+                pointsRequired: promotion.pointsRequired,
+                coinsRequired: promotion.coinsRequired,
                 reward: promotion.reward,
                 patronWallet: store?.wallet,
                 points: 0,
+                coins: 0,
                 createdAt: new Date().getTime(),
                 updatedAt: new Date().getTime(),
                 promotionId: promotionId,
@@ -124,16 +131,16 @@ const Qr = () => {
           }
           const oldData = document.data();
           const oldPoint = oldData.points;
-          const pointCap = oldData.pointCap;
+          const pointsRequired = oldData.pointsRequired;
           let newPoint = oldPoint + 1;
-          if (newPoint <= pointCap) {
+          if (newPoint <= pointsRequired) {
             transaction.update(patronRef, {
               points: newPoint,
-              lastUpdate: currentTime,
+              updatedAt: currentTime,
             });
           } else {
             transaction.update(patronRef, {
-              lastUpdate: currentTime,
+              updatedAt: currentTime,
               points: 1,
             });
           }
@@ -160,7 +167,7 @@ const Qr = () => {
           const newPoints = oldData + 1;
           transaction.update(promotionRef, {
             points: newPoints,
-            lastUpdate: currentTime,
+            updatedAt: currentTime,
             key: newKey,
             qr: QRURL,
           });
@@ -183,7 +190,7 @@ const Qr = () => {
                   <span className=" text-green-400">{patronCard.points} </span>
                   <span>out of </span>
                   <span className=" text-yellow-400">
-                    {patronCard.pointCap}{" "}
+                    {patronCard.pointsRequired}{" "}
                   </span>
                   <span>points for a </span>
                   <span className=" text-red-400">{patronCard.reward} </span>
