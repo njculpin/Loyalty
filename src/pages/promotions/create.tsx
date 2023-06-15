@@ -10,33 +10,27 @@ import Select from "react-select";
 import { v4 as uuidv4 } from "uuid";
 import useAuthStore from "@/lib/store";
 import useStore from "@/lib/useStore";
-
-type VendorCard = {
-  businessCity: string;
-  businessEmail: string;
-  businessName: string;
-  businessPhone: string;
-  businessPostalCode: string;
-  businessRegion: string;
-  businessStreetAddress: string;
-  businessCountry: string;
-  businessWallet: string;
-  pointsRequired: number;
-  coinsRequired: number;
-  valueCap: number;
-  reward: string;
-};
+import { Vendor } from "../../types";
 
 const options = [
   { value: "points", label: "Points" },
-  { value: "lylt", label: "LYLT Coin" },
-  { value: "lyltb", label: "LYLT NFT" },
+  { value: "coins", label: "LYLT Coin" },
 ];
 
 const Create = () => {
   const router = useRouter();
   const [openModal, setOpenModal] = useState<boolean>(false);
-  const [state, setState] = useState({
+  const [selected, setSelected] = useState("");
+  const [promotion, setPromotion] = useState({
+    pointsRequired: 0,
+    coinsRequired: 0,
+    coins: 0,
+    points: 0,
+    reward: "",
+    key: "",
+    qRUrl: "",
+  });
+  const [vendor, setVendor] = useState({
     businessCity: "",
     businessEmail: "",
     businessName: "",
@@ -46,10 +40,6 @@ const Create = () => {
     businessStreetAddress: "",
     businessCountry: "",
     businessWallet: "",
-    pointsRequired: 0,
-    coinsRequired: 0,
-    valueCap: 0,
-    reward: "",
   });
   const store = useStore(useAuthStore, (state) => state);
 
@@ -58,8 +48,8 @@ const Create = () => {
       const docRef = doc(db, "vendors", `${store?.wallet}`);
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
-        const data = docSnap.data() as VendorCard;
-        setState(data);
+        const data = docSnap.data() as Vendor;
+        setVendor(data);
       } else {
         console.log("No such document!");
       }
@@ -68,8 +58,8 @@ const Create = () => {
   }, [store?.wallet]);
 
   const handleChange = (event: any) => {
-    setState({
-      ...state,
+    setPromotion({
+      ...promotion,
       [event.target.id]: event.target.value,
     });
   };
@@ -86,20 +76,20 @@ const Create = () => {
       const QRURL = uploadTask.metadata.fullPath;
       const cardDetails = {
         active: true,
-        businessCity: state.businessCity,
-        businessEmail: state.businessEmail,
-        businessName: state.businessName,
-        businessPhone: state.businessPhone,
-        businessPostalCode: state.businessPostalCode,
-        businessRegion: state.businessRegion,
-        businessStreetAddress: state.businessStreetAddress,
-        businessCountry: state.businessCountry,
+        businessCity: vendor.businessCity,
+        businessEmail: vendor.businessEmail,
+        businessName: vendor.businessName,
+        businessPhone: vendor.businessPhone,
+        businessPostalCode: vendor.businessPostalCode,
+        businessRegion: vendor.businessRegion,
+        businessStreetAddress: vendor.businessStreetAddress,
+        businessCountry: vendor.businessCountry,
         businessWallet: store.wallet,
         points: 0,
-        pointsRequired: Number(state.pointsRequired),
-        coinsRequired: Number(state.coinsRequired),
-        valueCap: Number(state.valueCap),
-        reward: state.reward,
+        coins: 0,
+        pointsRequired: Number(promotion.pointsRequired),
+        coinsRequired: Number(promotion.coinsRequired),
+        reward: promotion.reward,
         qr: QRURL,
         key: key,
       };
@@ -114,6 +104,11 @@ const Create = () => {
           console.log(e);
         });
     }
+  };
+
+  const handleSelectChange = (e: any) => {
+    setSelected(e.value);
+    console.log("e", e);
   };
 
   const returnHome = () => {
@@ -154,76 +149,59 @@ const Create = () => {
             <div className="sm:col-span-4">
               <label
                 htmlFor="reward"
-                className="block text-sm font-medium leading-6 text-black mt-8"
+                className="block text-sm font-medium leading-6 text-black"
               >
                 What type of asset is required to earn the reward?
               </label>
               <div className="mt-2">
-                <Select options={options} isMulti />
+                <Select options={options} onChange={handleSelectChange} />
               </div>
             </div>
-            <div className="sm:col-span-4">
-              <label
-                htmlFor="pointsRequired"
-                className="block text-sm font-medium leading-6 text-black"
-              >
-                How many points does a customer require to earn the reward?
-              </label>
-              <div className="mt-2">
-                <input
-                  onChange={handleChange}
-                  id="pointsRequired"
-                  name="pointsRequired"
-                  type="number"
-                  pattern="[0-9]*"
-                  required
-                  className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-green-600 sm:text-sm sm:leading-6"
-                />
+            {selected === "points" && (
+              <div className="sm:col-span-4">
+                <label
+                  htmlFor="pointsRequired"
+                  className="block text-sm font-medium leading-6 text-black"
+                >
+                  How many points does a customer require to earn the reward?
+                </label>
+                <div className="mt-2">
+                  <input
+                    onChange={handleChange}
+                    id="pointsRequired"
+                    name="pointsRequired"
+                    type="number"
+                    pattern="[0-9]*"
+                    required
+                    className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-green-600 sm:text-sm sm:leading-6"
+                  />
+                </div>
               </div>
-            </div>
-            <div className="sm:col-span-4">
-              <label
-                htmlFor="pointsRequired"
-                className="block text-sm font-medium leading-6 text-black"
-              >
-                How much LYLT does a customer require to earn the reward?
-              </label>
-              <div className="mt-2">
-                <input
-                  onChange={handleChange}
-                  id="coinsRequired"
-                  name="coinsRequired"
-                  type="number"
-                  pattern="[0-9]*"
-                  required
-                  className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-green-600 sm:text-sm sm:leading-6"
-                />
+            )}
+            {selected === "coins" && (
+              <div className="sm:col-span-4">
+                <label
+                  htmlFor="pointsRequired"
+                  className="block text-sm font-medium leading-6 text-black"
+                >
+                  How much LYLT does a customer require to earn the reward?
+                </label>
+                <div className="mt-2">
+                  <input
+                    onChange={handleChange}
+                    id="coinsRequired"
+                    name="coinsRequired"
+                    type="number"
+                    pattern="[0-9]*"
+                    required
+                    className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-green-600 sm:text-sm sm:leading-6"
+                  />
+                </div>
               </div>
-            </div>
-            <div className="sm:col-span-4">
-              <label
-                htmlFor="pointsRequired"
-                className="block text-sm font-medium leading-6 text-black"
-              >
-                What is the point value of the NFT that the customer requires to
-                earn the reward?
-              </label>
-              <div className="mt-2">
-                <input
-                  onChange={handleChange}
-                  id="valueCap"
-                  name="valueCap"
-                  type="number"
-                  pattern="[0-9]*"
-                  required
-                  className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-green-600 sm:text-sm sm:leading-6"
-                />
-              </div>
-            </div>
+            )}
           </div>
         </div>
       </div>
-
       <div className="mt-6 flex items-center justify-end gap-x-6">
         <button
           type="submit"

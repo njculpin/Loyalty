@@ -4,32 +4,12 @@ import { useRouter } from "next/router";
 import { db } from "../firebase";
 import { collection, query, where, onSnapshot } from "firebase/firestore";
 import { useEffect, useState } from "react";
-
-type PatronCard = {
-  id: string;
-  businessCity: string;
-  businessEmail: string;
-  businessName: string;
-  businessPhone: string;
-  businessPostalCode: string;
-  businessRegion: string;
-  businessStreetAddress: string;
-  businessCountry: string;
-  businessWallet: string;
-  pointsRequired: number;
-  reward: string;
-  patronWallet: string;
-  key: string;
-  points: number;
-  promotionId: string;
-  createdAt: number;
-  updatedAt: number;
-};
+import { PatronToPromotion } from "../types";
 
 export default function Customers() {
   const router = useRouter();
   const store = useStore(useAuthStore, (state) => state);
-  const [patrons, setPatrons] = useState<PatronCard[]>([]);
+  const [patrons, setPatrons] = useState<PatronToPromotion[]>([]);
 
   useEffect(() => {
     if (store?.wallet) {
@@ -40,7 +20,7 @@ export default function Customers() {
       const unsubscribe = onSnapshot(q, (querySnapshot) => {
         const mapped = querySnapshot.docs.map(async function (doc) {
           const data = doc.data();
-          return { ...data, id: doc.id } as unknown as PatronCard;
+          return { ...data, id: doc.id } as unknown as PatronToPromotion;
         });
         Promise.all(mapped).then((result) => {
           setPatrons(result);
@@ -109,7 +89,7 @@ export default function Customers() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
-                  {patrons.map(function (patron: PatronCard) {
+                  {patrons.map(function (patron: PatronToPromotion) {
                     return (
                       <tr key={patron.id}>
                         <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-0">

@@ -5,19 +5,7 @@ import { doc, setDoc, onSnapshot } from "firebase/firestore";
 import { Fragment, useEffect, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { CheckIcon } from "@heroicons/react/24/outline";
-
-type Vendor = {
-  businessCity: string;
-  businessEmail: string;
-  businessName: string;
-  businessPhone: string;
-  businessPostalCode: string;
-  businessRegion: string;
-  businessStreetAddress: string;
-  businessCountry: string;
-  businessWallet: string;
-  points: number;
-};
+import { Vendor } from "../types";
 
 export default function Settings() {
   const store = useStore(useAuthStore, (state) => state);
@@ -32,7 +20,6 @@ export default function Settings() {
     businessStreetAddress: "",
     businessCountry: "",
     businessWallet: "",
-    points: 0,
   });
 
   useEffect(() => {

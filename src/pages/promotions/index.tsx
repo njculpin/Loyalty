@@ -16,39 +16,7 @@ import { Fragment, useEffect, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { CheckIcon } from "@heroicons/react/24/outline";
 import { Switch } from "@headlessui/react";
-
-type Vendor = {
-  businessCity: string;
-  businessEmail: string;
-  businessName: string;
-  businessPhone: string;
-  businessPostalCode: string;
-  businessRegion: string;
-  businessStreetAddress: string;
-  businessCountry: string;
-  businessWallet: string;
-  points: number;
-};
-
-type Promotion = {
-  id: string;
-  active: boolean;
-  businessCity: string;
-  businessEmail: string;
-  businessName: string;
-  businessPhone: string;
-  businessPostalCode: string;
-  businessRegion: string;
-  businessStreetAddress: string;
-  businessCountry: string;
-  businessWallet: string;
-  points: number;
-  pointsRequired: number;
-  reward: string;
-  qr: string;
-  qRUrl: string;
-  key: string;
-};
+import { Wallet, Vendor, Promotion } from "../../types";
 
 function classNames(...classes: any) {
   return classes.filter(Boolean).join(" ");
@@ -69,7 +37,6 @@ export default function Account() {
     businessStreetAddress: "",
     businessCountry: "",
     businessWallet: "",
-    points: 0,
   });
 
   useEffect(() => {
@@ -115,7 +82,7 @@ export default function Account() {
       });
   };
 
-  const claimLylt = async (promotionId: string, amount: number) => {
+  const claimPoints = async (promotionId: string, amount: number) => {
     if (amount <= 0) {
       return;
     }
@@ -126,7 +93,7 @@ export default function Account() {
       if (!doc.exists()) {
         throw "Document does not exist!";
       }
-      let last = doc.data() as Vendor;
+      let last = doc.data() as Wallet;
       let lastPoint = last.points;
       transaction.update(vendorRef, {
         points: lastPoint + amount,
@@ -142,6 +109,48 @@ export default function Account() {
           }
           transaction.update(promotionRef, {
             points: 0,
+            updatedAt: currentTime,
+          });
+        })
+          .then(() => {
+            setOpenModal(true);
+          })
+          .catch((e) => {
+            console.log(e);
+          });
+      })
+      .catch((e) => {
+        console.log(e);
+      });
+  };
+
+  const claimCoins = async (promotionId: string, amount: number) => {
+    if (amount <= 0) {
+      return;
+    }
+    const currentTime = new Date().getTime();
+    const vendorRef = doc(db, "wallets", `${store?.wallet}`);
+    await runTransaction(db, async (transaction) => {
+      const doc = await transaction.get(vendorRef);
+      if (!doc.exists()) {
+        throw "Document does not exist!";
+      }
+      let last = doc.data() as Wallet;
+      let lastPoint = last.coins;
+      transaction.update(vendorRef, {
+        coins: lastPoint + amount,
+        updatedAt: currentTime,
+      });
+    })
+      .then(async () => {
+        const promotionRef = doc(db, "promotions", `${promotionId}`);
+        await runTransaction(db, async (transaction) => {
+          const doc = await transaction.get(promotionRef);
+          if (!doc.exists()) {
+            throw "Document does not exist!";
+          }
+          transaction.update(promotionRef, {
+            coins: 0,
             updatedAt: currentTime,
           });
         })
@@ -198,13 +207,19 @@ export default function Account() {
                       scope="col"
                       className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-0"
                     >
-                      Promotion
+                      Reward
                     </th>
                     <th
                       scope="col"
                       className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
                     >
-                      Requirement
+                      Points Required
+                    </th>
+                    <th
+                      scope="col"
+                      className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
+                    >
+                      Points Earned
                     </th>
                     <th
                       scope="col"
@@ -222,7 +237,7 @@ export default function Account() {
                       scope="col"
                       className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
                     >
-                      Claim LYLT
+                      Claim Points
                     </th>
                     <th
                       scope="col"
@@ -249,15 +264,29 @@ export default function Account() {
                           {promotion.pointsRequired}
                         </td>
                         <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                          {promotion.pointsRequired}
+                          {promotion.points}
                         </td>
                         <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                          {promotion.points}
+                          {promotion.coinsRequired}
+                        </td>
+                        <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                          {promotion.coins}
                         </td>
                         <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
                           <button
                             onClick={() =>
-                              claimLylt(promotion.id, promotion.points)
+                              claimPoints(promotion.id, promotion.points)
+                            }
+                            type="button"
+                            className="rounded-full bg-white px-4 py-2.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+                          >
+                            Claim
+                          </button>
+                        </td>
+                        <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                          <button
+                            onClick={() =>
+                              claimCoins(promotion.id, promotion.coins)
                             }
                             type="button"
                             className="rounded-full bg-white px-4 py-2.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"

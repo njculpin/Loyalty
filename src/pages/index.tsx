@@ -12,37 +12,7 @@ import { ref, getDownloadURL } from "firebase/storage";
 import Link from "next/link";
 import useStore from "@/lib/useStore";
 import useAuthStore from "@/lib/store";
-
-type Vendor = {
-  businessCity: string;
-  businessEmail: string;
-  businessName: string;
-  businessPhone: string;
-  businessPostalCode: string;
-  businessRegion: string;
-  businessStreetAddress: string;
-  businessCountry: string;
-  businessWallet: string;
-};
-
-type Promotion = {
-  id: string;
-  businessCity: string;
-  businessEmail: string;
-  businessName: string;
-  businessPhone: string;
-  businessPostalCode: string;
-  businessRegion: string;
-  businessStreetAddress: string;
-  businessCountry: string;
-  businessWallet: string;
-  points: string;
-  pointsRequired: string;
-  reward: string;
-  qr: string;
-  qRUrl: string;
-  key: string;
-};
+import { Vendor, Promotion } from "../types";
 
 const Index = () => {
   const store = useStore(useAuthStore, (state) => state);
@@ -125,9 +95,16 @@ const Index = () => {
                       <h1 className="text-3xl tracking-tight text-left font-extrabold text-red-500">
                         {promotion.reward}
                       </h1>
-                      <h1 className="text-xl tracking-tight text-left font-extrabold w-full text-blue-500">
-                        {promotion.pointsRequired} LYLT required
-                      </h1>
+                      {promotion.pointsRequired > 0 && (
+                        <h1 className="text-xl tracking-tight text-left font-extrabold w-full text-blue-500">
+                          {promotion.pointsRequired} Points required
+                        </h1>
+                      )}
+                      {promotion.coinsRequired > 0 && (
+                        <h1 className="text-xl tracking-tight text-left font-extrabold w-full text-blue-500">
+                          {promotion.coinsRequired} LYLT required
+                        </h1>
+                      )}
                       <Link href={`qr/${promotion.id}/${promotion.key}`}>
                         <p className="mt-8 border px-4 py-2 border-black">
                           SIMULATE SCAN

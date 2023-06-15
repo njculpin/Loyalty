@@ -12,17 +12,14 @@ import {
 } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import Link from "next/link";
-
-type Wallet = {
-  points: number;
-  coins: number;
-};
+import { Wallet } from "../types";
 
 export default function Account() {
   const store = useStore(useAuthStore, (state) => state);
   const [patronCount, setPatronCount] = useState<number>(0);
   const [promotionsCount, setPromotionsCount] = useState<number>(0);
   const [wallet, setWallet] = useState<Wallet>({
+    address: "",
     coins: 0,
     points: 0,
   });

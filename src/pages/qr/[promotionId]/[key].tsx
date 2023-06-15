@@ -7,47 +7,7 @@ import { doc, setDoc, runTransaction, onSnapshot } from "firebase/firestore";
 import QRCode from "qrcode";
 import { v4 as uuidv4 } from "uuid";
 import { ref, uploadString } from "firebase/storage";
-
-type Promotion = {
-  id: string;
-  businessCity: string;
-  businessEmail: string;
-  businessName: string;
-  businessPhone: string;
-  businessPostalCode: string;
-  businessRegion: string;
-  businessStreetAddress: string;
-  businessCountry: string;
-  businessWallet: string;
-  pointsRequired: number;
-  coinsRequired: number;
-  coins: number;
-  points: number;
-  reward: string;
-  key: string;
-};
-
-type PatronCard = {
-  id: string;
-  businessCity: string;
-  businessEmail: string;
-  businessName: string;
-  businessPhone: string;
-  businessPostalCode: string;
-  businessRegion: string;
-  businessStreetAddress: string;
-  businessCountry: string;
-  businessWallet: string;
-  pointsRequired: number;
-  coinsRequired: number;
-  reward: string;
-  patronWallet: string;
-  key: string;
-  points: number;
-  coins: number;
-  createdAt: number;
-  updatedAt: number;
-};
+import { Promotion, PatronToPromotion, Wallet } from "../../../types";
 
 const Qr = () => {
   const [loading, setLoading] = useState<boolean>(false);
@@ -55,8 +15,23 @@ const Qr = () => {
   const { promotionId, key } = router.query;
 
   const store = useStore(useAuthStore, (state) => state);
-  const [patronCard, setPatronCard] = useState<PatronCard>();
+  const [patronCard, setPatronCard] = useState<PatronToPromotion>();
   const [promotion, setPromotion] = useState<Promotion>();
+  const [wallet, setWallet] = useState<Wallet>();
+
+  useEffect(() => {
+    const queryBalance = async () => {
+      const q = doc(db, "wallets", `${store?.wallet}`);
+      const unsubscribe = onSnapshot(q, async (document) => {
+        if (document.exists()) {
+          const data = document.data() as Wallet;
+          setWallet(data);
+        }
+      });
+      return unsubscribe;
+    };
+    queryBalance();
+  }, [store?.wallet]);
 
   useEffect(() => {
     if (store?.wallet && promotionId && key) {
@@ -66,7 +41,7 @@ const Qr = () => {
         `${store?.wallet}-${promotionId}`
       );
       const unsubscribe = onSnapshot(q, (doc) => {
-        const data = doc.data() as PatronCard;
+        const data = doc.data() as PatronToPromotion;
         setPatronCard(data);
       });
       return unsubscribe;
@@ -87,6 +62,9 @@ const Qr = () => {
   useEffect(() => {
     const issuePoints = async () => {
       try {
+        if (wallet && wallet.coins != promotion?.coinsRequired) {
+          throw "not enough coins for this promotion";
+        }
         if (!promotion) {
           throw "missing promotion";
         }
@@ -177,7 +155,7 @@ const Qr = () => {
       }
     };
     issuePoints();
-  }, [promotion, store?.wallet, promotionId, key]);
+  }, [promotion, store?.wallet, promotionId, key, wallet]);
 
   return (
     <div className="w-full p-16">
