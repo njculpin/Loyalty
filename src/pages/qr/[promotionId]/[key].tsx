@@ -72,7 +72,6 @@ const Qr = () => {
           throw "key does not match";
         }
         const currentTime = new Date().getTime();
-        // update patron
         const patronRef = doc(
           db,
           "patronToPromotions",
@@ -81,7 +80,6 @@ const Qr = () => {
         await runTransaction(db, async (transaction) => {
           const document = await transaction.get(patronRef);
           if (!document.exists()) {
-            // create document because its missing - first time scan
             await setDoc(
               doc(db, "patronToPromotions", `${store?.wallet}-${promotionId}`),
               {
@@ -123,7 +121,6 @@ const Qr = () => {
             });
           }
         });
-        // update promotion
         if (!promotionId && !promotion) {
           return console.log("missing promotion");
         }

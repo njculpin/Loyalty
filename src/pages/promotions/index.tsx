@@ -285,17 +285,6 @@ export default function Account() {
                         </td>
                         <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
                           <button
-                            onClick={() =>
-                              claimCoins(promotion.id, promotion.coins)
-                            }
-                            type="button"
-                            className="rounded-full bg-white px-4 py-2.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
-                          >
-                            Claim
-                          </button>
-                        </td>
-                        <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                          <button
                             onClick={() => mintNFT(promotion.id)}
                             type="button"
                             className="rounded-full bg-white px-4 py-2.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
