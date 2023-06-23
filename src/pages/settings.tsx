@@ -26,9 +26,14 @@ export default function Settings() {
     if (store?.wallet) {
       const q = doc(db, "vendors", `${store?.wallet}`);
       const unsubscribe = onSnapshot(q, (doc) => {
+        if (!doc.exists) {
+          return;
+        }
         const data = doc.data() as Vendor;
-        console.log(data);
-        setVendor(data);
+        if (data) {
+          console.log(data);
+          setVendor(data);
+        }
       });
       return unsubscribe;
     }

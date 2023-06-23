@@ -54,13 +54,17 @@ const Index = () => {
 
   useEffect(() => {
     const getData = async () => {
-      const docRef = doc(db, "vendors", `${store?.wallet}`);
-      const docSnap = await getDoc(docRef);
-      if (docSnap.exists()) {
-        const data = docSnap.data() as Vendor;
-        setVendor(data);
-      } else {
-        console.log("No such document!");
+      try {
+        const docRef = doc(db, "vendors", `${store?.wallet}`);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          const data = docSnap.data() as Vendor;
+          setVendor(data);
+        } else {
+          console.log("No such document!");
+        }
+      } catch (e) {
+        console.log(e);
       }
     };
     getData();
