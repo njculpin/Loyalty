@@ -80,6 +80,11 @@ export default function Auth() {
     }
   };
 
+  const Logout = async () => {
+    sdkRef.current?.logout();
+    store?.logout();
+  };
+
   return (
     <>
       {!loading ? (
@@ -91,7 +96,12 @@ export default function Auth() {
               </p>
             </button>
           ) : (
-            <div className="w-5 h-5 bg-green-500 rounded-full text-sm font-semibold leading-6 text-gray-900 truncate" />
+            <button onClick={Logout}>
+              <p className="text-sm font-semibold leading-6 text-gray-900">
+                Log out
+                <span aria-hidden="true">&rarr;</span>
+              </p>
+            </button>
           )}
         </>
       ) : (

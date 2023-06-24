@@ -22,24 +22,24 @@ import {
 
 const features = [
   {
-    name: "Push to deploy",
+    name: "Bacon Club",
     description:
       "Commodo nec sagittis tortor mauris sed. Turpis tortor quis scelerisque diam id accumsan nullam tempus. Pulvinar etiam lacus volutpat eu. Phasellus praesent ligula sit faucibus.",
-    href: "#",
+    href: "/cases/bacon-club",
     icon: CloudArrowUpIcon,
   },
   {
-    name: "SSL certificates",
+    name: "Roaming Traveler",
     description:
       "Pellentesque enim a commodo malesuada turpis eleifend risus. Facilisis donec placerat sapien consequat tempor fermentum nibh.",
-    href: "#",
+    href: "/cases/roaming",
     icon: LockClosedIcon,
   },
   {
-    name: "Simple queues",
+    name: "Food Alliance",
     description:
       "Pellentesque sit elit congue ante nec amet. Dolor aenean curabitur viverra suspendisse iaculis eget. Nec mollis placerat ultricies euismod ut condimentum.",
-    href: "#",
+    href: "/cases/food-alliance",
     icon: ArrowPathIcon,
   },
 ];
@@ -267,16 +267,23 @@ const Index = () => {
         <div className="mx-auto max-w-7xl px-6 lg:px-8">
           <div className="mx-auto max-w-2xl lg:text-center">
             <h2 className="text-base font-semibold leading-7 text-green-600">
-              Deploy faster
+              Case Studies
             </h2>
             <p className="mt-2 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
-              Everything you need to deploy your app
+              See it in real world
             </p>
             <p className="mt-6 text-lg leading-8 text-gray-600">
-              Quis tellus eget adipiscing convallis sit sit eget aliquet quis.
-              Suspendisse eget egestas a elementum pulvinar et feugiat blandit
-              at. In mi viverra elit nunc.
+              Here are some use cases that have been deployed to effectively
+              make use of the LYLT system. If any of these resonate with you,
+              feel free to reach out so we can help you model a perfect solution
+              for you and your business.
             </p>
+            <a
+              href={"/cases"}
+              className="text-sm font-semibold leading-6 text-green-600"
+            >
+              View All <span aria-hidden="true">→</span>
+            </a>
           </div>
           <div className="mx-auto mt-16 max-w-2xl sm:mt-20 lg:mt-24 lg:max-w-none">
             <dl className="grid max-w-xl grid-cols-1 gap-x-8 gap-y-16 lg:max-w-none lg:grid-cols-3">

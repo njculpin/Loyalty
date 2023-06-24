@@ -4,6 +4,7 @@ import { persist } from "zustand/middleware";
 interface AuthState {
   wallet: null | string;
   login: (wallet: string) => Promise<void>;
+  logout: () => void;
 }
 
 const useAuthStore = create<AuthState>()(
@@ -12,6 +13,9 @@ const useAuthStore = create<AuthState>()(
       wallet: null,
       login: async (wallet) => {
         set({ wallet: wallet });
+      },
+      logout: () => {
+        set({ wallet: "" });
       },
     }),
     {
