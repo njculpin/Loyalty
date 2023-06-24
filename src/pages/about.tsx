@@ -45,13 +45,18 @@ const About = () => {
     <div className="mx-auto max-w-7xl p-16">
       <div className="space-y-12">
         <div className="mx-auto max-w-7xl px-6 text-center lg:px-8">
-          <div className="mx-auto max-w-2xl">
+          <div className="mx-auto max-w-3xl">
             <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
               Meet our team
             </h2>
             <p className="mt-4 text-lg leading-8 text-gray-600">
-              We’re a dynamic group of individuals who are passionate about what
-              we do.
+              We have decades of experience in the fields of software
+              engineering, product development, commercial print, and marketing.
+              Joe Burk, an Executive Producer at the Food Network, brings his
+              years of experience in entertainment. We've created businesses,
+              NFT projects, built web and mobile apps, and have a deep love of
+              all things Web3. We've combined our skills, experience, and
+              friendships together to start building LYLT.
             </p>
           </div>
           <ul
