@@ -12,6 +12,7 @@ const navigation = [
   { name: "Account", href: "/account" },
   { name: "Promotions", href: "/promotions" },
   { name: "Settings", href: "/settings" },
+  { name: "About", href: "/about" },
 ];
 
 export default function Nav() {
