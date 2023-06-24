@@ -13,34 +13,27 @@ import Link from "next/link";
 import useStore from "@/lib/useStore";
 import useAuthStore from "@/lib/store";
 import { Vendor, Promotion } from "../types";
-import {
-  CheckIcon,
-  CloudArrowUpIcon,
-  ArrowPathIcon,
-  LockClosedIcon,
-} from "@heroicons/react/20/solid";
+import { CheckIcon } from "@heroicons/react/20/solid";
 
 const features = [
   {
     name: "Bacon Club",
-    description:
-      "Commodo nec sagittis tortor mauris sed. Turpis tortor quis scelerisque diam id accumsan nullam tempus. Pulvinar etiam lacus volutpat eu. Phasellus praesent ligula sit faucibus.",
+    description: "Premium Bacon Delivered To Your Door.",
     href: "/cases/bacon-club",
-    icon: CloudArrowUpIcon,
+    icon: "/bacon.png",
   },
   {
     name: "Roaming Traveler",
-    description:
-      "Pellentesque enim a commodo malesuada turpis eleifend risus. Facilisis donec placerat sapien consequat tempor fermentum nibh.",
+    description: "A brick and mortor clothing store.",
     href: "/cases/roaming",
-    icon: LockClosedIcon,
+    icon: "/roamingtravelers.png",
   },
   {
     name: "Food Alliance",
     description:
-      "Pellentesque sit elit congue ante nec amet. Dolor aenean curabitur viverra suspendisse iaculis eget. Nec mollis placerat ultricies euismod ut condimentum.",
+      "The NFFA aims to help Web2 and Web3 brands build gamified ecosystems that reward the complete customer journey.",
     href: "/cases/food-alliance",
-    icon: ArrowPathIcon,
+    icon: "/nffa.png",
   },
 ];
 
@@ -278,6 +271,8 @@ const Index = () => {
               feel free to reach out so we can help you model a perfect solution
               for you and your business.
             </p>
+          </div>
+          <div className="mx-auto max-w-2xl lg:text-center my-6">
             <a
               href={"/cases"}
               className="text-sm font-semibold leading-6 text-green-600"
@@ -285,14 +280,17 @@ const Index = () => {
               View All <span aria-hidden="true">→</span>
             </a>
           </div>
+
           <div className="mx-auto mt-16 max-w-2xl sm:mt-20 lg:mt-24 lg:max-w-none">
             <dl className="grid max-w-xl grid-cols-1 gap-x-8 gap-y-16 lg:max-w-none lg:grid-cols-3">
               {features.map((feature) => (
                 <div key={feature.name} className="flex flex-col">
                   <dt className="flex items-center gap-x-3 text-base font-semibold leading-7 text-gray-900">
-                    <feature.icon
-                      className="h-5 w-5 flex-none text-green-600"
+                    <img
+                      className="h-5 w-5 flex-none"
                       aria-hidden="true"
+                      src={feature.icon}
+                      alt={feature.name}
                     />
                     {feature.name}
                   </dt>
