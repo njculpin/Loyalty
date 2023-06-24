@@ -7,7 +7,6 @@ import { useEffect, useState } from "react";
 import { PatronToPromotion } from "../types";
 
 export default function Customers() {
-  const router = useRouter();
   const store = useStore(useAuthStore, (state) => state);
   const [patrons, setPatrons] = useState<PatronToPromotion[]>([]);
 
