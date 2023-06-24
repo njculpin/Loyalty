@@ -196,145 +196,64 @@ export default function Account() {
             </Link>
           </div>
         </div>
-
-        <div className="mt-8 flow-root">
-          <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
-            <div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
-              <table className="min-w-full divide-y divide-gray-300">
-                <thead>
-                  <tr>
-                    <th
-                      scope="col"
-                      className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-0"
+        <div className="mt-8 grid grid-cols-1 gap-y-12 sm:grid-cols-2 sm:gap-x-6 xl:gap-x-8">
+          {promotions.map((promotion) => (
+            <div className="rounded-lg border p-4" key={promotion.id}>
+              <div className="mt-6">
+                <h1 className="w-full text-center font-bold">
+                  {promotion.reward}
+                </h1>
+                <div className="w-full flex justify-center items-center text-center my-6 font-bold"></div>
+                <div className="grid grid-cols-3 gap-2 text-center">
+                  <button className="relative flex items-center justify-center rounded-md border border-transparent bg-gray-100 px-8 py-2 text-sm font-medium text-gray-900 hover:bg-gray-200">
+                    Claim {promotion.points} PTS
+                    <span className="sr-only">, {promotion.points}</span>
+                  </button>
+                  <button className="relative flex items-center justify-center rounded-md border border-transparent bg-gray-100 px-8 py-2 text-sm font-medium text-gray-900 hover:bg-gray-200">
+                    Claim {promotion.coins} LYLT
+                    <span className="sr-only">, {promotion.coins}</span>
+                  </button>
+                  <button
+                    onClick={() => mintNFT(promotion.id)}
+                    className="relative flex items-center justify-center rounded-md border border-transparent bg-gray-100 px-8 py-2 text-sm font-medium text-gray-900 hover:bg-gray-200"
+                  >
+                    Mint
+                  </button>
+                  <p className="w-full">{promotion.pointsRequired} PTS req</p>
+                  <p className="w-full">{promotion.coinsRequired} LYLT req</p>
+                  <div className="flex justify-center items-center">
+                    <Switch
+                      checked={promotion.active}
+                      onChange={() =>
+                        updateActivePromotion(promotion.id, !promotion.active)
+                      }
+                      className="group relative inline-flex h-5 w-10 flex-shrink-0 cursor-pointer items-center justify-center rounded-full focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-offset-2"
                     >
-                      Reward
-                    </th>
-                    <th
-                      scope="col"
-                      className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
-                    >
-                      Points Required
-                    </th>
-                    <th
-                      scope="col"
-                      className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
-                    >
-                      Points Earned
-                    </th>
-                    <th
-                      scope="col"
-                      className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
-                    >
-                      LYLT Required
-                    </th>
-                    <th
-                      scope="col"
-                      className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
-                    >
-                      LYLT Earned
-                    </th>
-                    <th
-                      scope="col"
-                      className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
-                    >
-                      Claim Points
-                    </th>
-                    <th
-                      scope="col"
-                      className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
-                    >
-                      Mint NFT
-                    </th>
-                    <th
-                      scope="col"
-                      className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
-                    >
-                      Active
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-200">
-                  {promotions.map(function (promotion: Promotion) {
-                    return (
-                      <tr key={promotion.id}>
-                        <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-0">
-                          {promotion.reward}
-                        </td>
-                        <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                          {promotion.pointsRequired}
-                        </td>
-                        <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                          {promotion.points}
-                        </td>
-                        <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                          {promotion.coinsRequired}
-                        </td>
-                        <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                          {promotion.coins}
-                        </td>
-                        <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                          <button
-                            onClick={() =>
-                              claimPoints(promotion.id, promotion.points)
-                            }
-                            type="button"
-                            className="rounded-full bg-white px-4 py-2.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
-                          >
-                            Claim
-                          </button>
-                        </td>
-                        <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                          <button
-                            onClick={() => mintNFT(promotion.id)}
-                            type="button"
-                            className="rounded-full bg-white px-4 py-2.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
-                          >
-                            Mint
-                          </button>
-                        </td>
-                        <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-left text-sm font-medium sm:pr-0">
-                          <Switch
-                            checked={promotion.active}
-                            onChange={() =>
-                              updateActivePromotion(
-                                promotion.id,
-                                !promotion.active
-                              )
-                            }
-                            className="group relative inline-flex h-5 w-10 flex-shrink-0 cursor-pointer items-center justify-center rounded-full focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-offset-2"
-                          >
-                            <span className="sr-only">Active</span>
-                            <span
-                              aria-hidden="true"
-                              className="pointer-events-none absolute h-full w-full rounded-md bg-white"
-                            />
-                            <span
-                              aria-hidden="true"
-                              className={classNames(
-                                promotion.active
-                                  ? "bg-green-600"
-                                  : "bg-gray-200",
-                                "pointer-events-none absolute mx-auto h-4 w-9 rounded-full transition-colors duration-200 ease-in-out"
-                              )}
-                            />
-                            <span
-                              aria-hidden="true"
-                              className={classNames(
-                                promotion.active
-                                  ? "translate-x-5"
-                                  : "translate-x-0",
-                                "pointer-events-none absolute left-0 inline-block h-5 w-5 transform rounded-full border border-gray-200 bg-white shadow ring-0 transition-transform duration-200 ease-in-out"
-                              )}
-                            />
-                          </Switch>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+                      <span className="sr-only">Active</span>
+                      <span
+                        aria-hidden="true"
+                        className="pointer-events-none absolute h-full w-full rounded-md bg-white"
+                      />
+                      <span
+                        aria-hidden="true"
+                        className={classNames(
+                          promotion.active ? "bg-green-600" : "bg-gray-200",
+                          "pointer-events-none absolute mx-auto h-4 w-9 rounded-full transition-colors duration-200 ease-in-out"
+                        )}
+                      />
+                      <span
+                        aria-hidden="true"
+                        className={classNames(
+                          promotion.active ? "translate-x-5" : "translate-x-0",
+                          "pointer-events-none absolute left-0 inline-block h-5 w-5 transform rounded-full border border-gray-200 bg-white shadow ring-0 transition-transform duration-200 ease-in-out"
+                        )}
+                      />
+                    </Switch>
+                  </div>
+                </div>
+              </div>
             </div>
-          </div>
+          ))}
         </div>
       </div>
 

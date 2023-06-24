@@ -7,11 +7,17 @@ import Link from "next/link";
 import useStore from "@/lib/useStore";
 import useAuthStore from "@/lib/store";
 
-const navigation = [
+const loggedInNavigation = [
   { name: "Shop", href: "/shop" },
   { name: "Account", href: "/account" },
   { name: "Promotions", href: "/promotions" },
   { name: "Settings", href: "/settings" },
+  { name: "About", href: "/about" },
+];
+
+const landingNav = [
+  { name: "Shop", href: "/shop" },
+  { name: "Prices", href: "/prices" },
   { name: "Case Studies", href: "/cases" },
   { name: "About", href: "/about" },
 ];
@@ -60,9 +66,21 @@ export default function Nav() {
           </button>
         </div>
         <div className="hidden lg:flex lg:gap-x-12">
-          {store?.wallet && (
+          {store?.wallet ? (
             <>
-              {navigation.map((item) => (
+              {loggedInNavigation.map((item) => (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  className="text-sm font-semibold leading-6 text-gray-900"
+                >
+                  {item.name}
+                </Link>
+              ))}
+            </>
+          ) : (
+            <>
+              {landingNav.map((item) => (
                 <Link
                   key={item.name}
                   href={item.href}
@@ -117,9 +135,22 @@ export default function Nav() {
           <div className="mt-6 flow-root">
             <div className="-my-6 divide-y divide-gray-500/10">
               <div className="space-y-2 py-6">
-                {store?.wallet && (
+                {store?.wallet ? (
                   <>
-                    {navigation.map((item) => (
+                    {loggedInNavigation.map((item) => (
+                      <Link
+                        key={item.name}
+                        href={item.href}
+                        className="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50"
+                      >
+                        {item.name}
+                      </Link>
+                    ))}
+                  </>
+                ) : (
+                  <>
+                    {" "}
+                    {landingNav.map((item) => (
                       <Link
                         key={item.name}
                         href={item.href}
