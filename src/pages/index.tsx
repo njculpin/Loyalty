@@ -240,7 +240,7 @@ const Index = () => {
             <img
               className="col-span-2 max-h-16 w-full object-contain lg:col-span-1"
               src="/daydream.png"
-              alt="Day Dream"
+              alt="Hi Desert Day Dream"
               width={158}
               height={48}
             />
