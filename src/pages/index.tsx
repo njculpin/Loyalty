@@ -240,18 +240,17 @@ const Index = () => {
             <div className="mx-auto grid max-w-2xl grid-cols-1 gap-x-8 gap-y-16 sm:gap-y-20 lg:mx-0 lg:max-w-none lg:grid-cols-2 lg:items-center lg:gap-y-0">
               <div className="lg:row-start-2 lg:max-w-md">
                 <h2 className="text-3xl font-bold tracking-tight text-black sm:text-4xl">
-                  Boost your productivity.
+                  Boost your engagement.
                   <br />
-                  Start using our app today.
+                  Earn rewards.
                 </h2>
                 <p className="mt-6 text-lg leading-8 text-gray-900">
-                  Ac euismod vel sit maecenas id pellentesque eu sed
-                  consectetur. Malesuada adipiscing sagittis vel nulla. Ac
-                  euismod vel sit maecenas.
+                  LYLT provides a multi-directional loyalty program which
+                  rewards engagement between your business and your customers.
                 </p>
               </div>
               <img
-                src="https://tailwindui.com/img/component-images/dark-project-app-screenshot.png"
+                src="/stock-scan.jpeg"
                 alt="Product screenshot"
                 className="relative -z-20 min-w-full max-w-xl rounded-xl shadow-xl ring-1 ring-white/10 lg:row-span-4 lg:w-[64rem] lg:max-w-none"
                 width={2432}
