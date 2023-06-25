@@ -51,6 +51,7 @@ const Qr = () => {
   }, [store?.wallet, promotionId, key]);
 
   useEffect(() => {
+    console.log("2e0580f9-ecc8-4e8c-a70e-b95ef19c00a5", promotionId);
     if (store?.wallet && promotionId && key) {
       const q = doc(db, "promotions", `${promotionId}`);
       const unsubscribe = onSnapshot(q, (doc) => {
@@ -77,20 +78,30 @@ const Qr = () => {
         // update Card history
         const patronRef = doc(db, "cards", `${store?.wallet}_${promotionId}`);
         const docSnap = await getDoc(patronRef);
-        if (!docSnap.exists) {
+        if (!docSnap.exists()) {
+          console.log("creating new card");
           await setDoc(doc(db, "cards", `${store?.wallet}_${promotionId}`), {
+            businessCity: promotion.businessCity,
+            businessEmail: promotion.businessEmail,
+            businessName: promotion.businessName,
+            businessPhone: promotion.businessPhone,
+            businessPostalCode: promotion.businessPostalCode,
+            businessRegion: promotion.businessRegion,
+            businessStreetAddress: promotion.businessStreetAddress,
+            businessCountry: promotion.businessCountry,
             businessWallet: promotion.businessWallet,
             pointsRequired: promotion.pointsRequired,
             coinsRequired: promotion.coinsRequired,
             reward: promotion.reward,
             patronWallet: store?.wallet,
-            points: 0,
-            coins: 0,
+            points: promotion.pointsRequired > 0 ? 1 : 0,
+            coins: promotion.coinsRequired > 0 ? 1 : 0,
             createdAt: new Date().getTime(),
             updatedAt: new Date().getTime(),
             promotionId: promotionId,
           });
         } else {
+          console.log("updating old card");
           await runTransaction(db, async (transaction) => {
             const document = await transaction.get(patronRef);
             const oldData = document.data();

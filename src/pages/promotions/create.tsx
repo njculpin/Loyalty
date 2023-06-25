@@ -21,6 +21,17 @@ const Create = () => {
   const router = useRouter();
   const [openModal, setOpenModal] = useState<boolean>(false);
   const [selected, setSelected] = useState("");
+  const [vendor, setVendor] = useState<Vendor>({
+    businessCity: "",
+    businessEmail: "",
+    businessName: "",
+    businessPhone: "",
+    businessPostalCode: "",
+    businessRegion: "",
+    businessStreetAddress: "",
+    businessCountry: "",
+    businessWallet: "",
+  });
   const [promotion, setPromotion] = useState({
     pointsRequired: 0,
     coinsRequired: 0,
@@ -32,6 +43,19 @@ const Create = () => {
   });
   const store = useStore(useAuthStore, (state) => state);
 
+  useEffect(() => {
+    const queryVendor = async () => {
+      const vendorRef = doc(db, "vendors", `${store?.wallet}`);
+      const docSnap = await getDoc(vendorRef);
+      if (!docSnap.exists) {
+        return;
+      }
+      let vendorData = docSnap.data() as unknown as Vendor;
+      setVendor(vendorData);
+    };
+    queryVendor();
+  }, []);
+
   const handleChange = (event: any) => {
     setPromotion({
       ...promotion,
@@ -40,6 +64,8 @@ const Create = () => {
   };
 
   const createCard = async () => {
+    console.log("vendor", vendor);
+    console.log("promotion", promotion);
     if (store?.wallet) {
       const docRef = uuidv4();
       const key = uuidv4();
@@ -52,6 +78,14 @@ const Create = () => {
       const promoDetails = {
         active: true,
         businessWallet: store.wallet,
+        businessCity: vendor.businessCity,
+        businessEmail: vendor.businessEmail,
+        businessName: vendor.businessName,
+        businessPhone: vendor.businessPhone,
+        businessPostalCode: vendor.businessPostalCode,
+        businessRegion: vendor.businessRegion,
+        businessStreetAddress: vendor.businessStreetAddress,
+        businessCountry: vendor.businessCountry,
         pointsRequired: Number(promotion.pointsRequired),
         coinsRequired: Number(promotion.coinsRequired),
         coins: 0,
@@ -59,6 +93,9 @@ const Create = () => {
         reward: promotion.reward,
         key: key,
         qr: QRURL,
+        minted: false,
+        supply: 1,
+        price: 0,
       };
       await setDoc(doc(db, "promotions", docRef), {
         ...promoDetails,
