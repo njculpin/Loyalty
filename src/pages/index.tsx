@@ -187,13 +187,6 @@ const Index = () => {
                             SIMULATE SCAN
                           </p>
                         </Link>
-                        {promotion.minted && (
-                          <Link href={`qr/${promotion.id}/${promotion.key}`}>
-                            <p className="mt-8 border px-4 py-2 border-black">
-                              Invest
-                            </p>
-                          </Link>
-                        )}
                       </div>
                     </div>
                   );

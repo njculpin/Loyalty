@@ -63,8 +63,8 @@ const Shop = () => {
     if (store?.wallet) {
       const q = query(
         collection(db, "promotions"),
-        where("businessWallet", "==", store?.wallet),
-        where("minted", "==", true)
+        where("minted", "==", true),
+        where("supply", ">=", 1)
       );
       const unsubscribe = onSnapshot(q, (querySnapshot) => {
         const mapped = querySnapshot.docs.map(async function (doc) {
