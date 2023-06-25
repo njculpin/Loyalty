@@ -26,6 +26,7 @@ export type Promotion = {
   minted: boolean;
   price: number;
   supply: number;
+  totalSupply: number;
 };
 
 export type Card = {

@@ -99,6 +99,7 @@ const Create = () => {
       };
       await setDoc(doc(db, "promotions", docRef), {
         ...promoDetails,
+        createdAt: new Date().getTime(),
         updatedAt: new Date().getTime(),
       })
         .then(() => {

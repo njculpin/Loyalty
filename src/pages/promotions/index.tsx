@@ -9,7 +9,7 @@ import {
   where,
   onSnapshot,
   updateDoc,
-  runTransaction,
+  addDoc,
 } from "firebase/firestore";
 import Link from "next/link";
 import { Fragment, useEffect, useState } from "react";
@@ -48,32 +48,10 @@ export default function Account() {
     qRUrl: "",
     minted: false,
     supply: 1,
-    price: 0,
+    totalSupply: 1,
+    price: 1,
   });
   const [promotions, setPromotions] = useState<Promotion[]>([]);
-
-  const [vendor, setVendor] = useState<Vendor>({
-    businessCity: "",
-    businessEmail: "",
-    businessName: "",
-    businessPhone: "",
-    businessPostalCode: "",
-    businessRegion: "",
-    businessStreetAddress: "",
-    businessCountry: "",
-    businessWallet: "",
-  });
-
-  useEffect(() => {
-    if (store?.wallet) {
-      const q = doc(db, "vendors", `${store?.wallet}`);
-      const unsubscribe = onSnapshot(q, (doc) => {
-        const data = doc.data() as Vendor;
-        setVendor(data);
-      });
-      return unsubscribe;
-    }
-  }, [store?.wallet]);
 
   useEffect(() => {
     if (store?.wallet) {
@@ -113,6 +91,9 @@ export default function Account() {
   };
 
   const handleChange = (event: any) => {
+    if (event.target.value <= 0) {
+      return;
+    }
     setSelectedPromotion({
       ...selectedPromotion,
       [event.target.id]: event.target.value,
@@ -121,6 +102,44 @@ export default function Account() {
 
   const closeModal = () => {
     setOpenStatusModal(false);
+    return router.push(`/promotions`);
+  };
+
+  const Mint = async () => {
+    for (let i = 0; i < selectedPromotion.supply; i++) {
+      const docRef = await addDoc(collection(db, "nfts"), {
+        businessCity: selectedPromotion.businessCity,
+        businessEmail: selectedPromotion.businessEmail,
+        businessName: selectedPromotion.businessName,
+        businessPhone: selectedPromotion.businessPhone,
+        businessPostalCode: selectedPromotion.businessPostalCode,
+        businessRegion: selectedPromotion.businessRegion,
+        businessStreetAddress: selectedPromotion.businessStreetAddress,
+        businessCountry: selectedPromotion.businessCountry,
+        businessWallet: selectedPromotion.businessWallet,
+        points: Number(selectedPromotion.points),
+        coins: Number(selectedPromotion.coins),
+        reward: selectedPromotion.reward,
+        price: Number(selectedPromotion.price),
+        owner: store?.wallet,
+        createdAt: new Date().getTime(),
+      });
+      console.log("transactions written with ID: ", docRef.id);
+    }
+    await updateDoc(doc(db, "promotions", `${selectedPromotion.id}`), {
+      minted: true,
+      supply: Number(selectedPromotion.supply),
+      totalSupply: Number(selectedPromotion.supply),
+      price: Number(selectedPromotion.price),
+      updatedAt: new Date().getTime(),
+    })
+      .then(() => {
+        setOpenStatusModal(true);
+      })
+      .catch((e) => {
+        console.log(e);
+      });
+    setSellPromotionModal(false);
     return router.push(`/promotions`);
   };
 
@@ -207,12 +226,18 @@ export default function Account() {
                   {promotion.coinsRequired > 0 && (
                     <p className="">{promotion.coins} LYLT Earned</p>
                   )}
-                  <button
-                    onClick={() => sellPromotionNft(promotion)}
-                    className="relative flex items-center justify-center rounded-md border border-transparent bg-gray-100 px-8 py-2 text-sm font-medium text-gray-900 hover:bg-gray-200"
-                  >
-                    Sell
-                  </button>
+                  {promotion.minted === true ? (
+                    <p className="bg-purple-600 px-4 py-2 text-white rounded-full shadow-inner">
+                      Minted
+                    </p>
+                  ) : (
+                    <button
+                      onClick={() => sellPromotionNft(promotion)}
+                      className="rounded-full bg-green-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-green-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600"
+                    >
+                      Sell
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
@@ -274,8 +299,8 @@ export default function Account() {
                           </h3>
                           <p className="font-xs italic text-gray-900 mt-2">
                             Estimated earning is $
-                            {(1 / selectedPromotion.supply).toFixed(8)} LYLT per
-                            registered scan per holder
+                            {(1 / selectedPromotion.totalSupply).toFixed(8)}{" "}
+                            LYLT per registered scan per holder
                           </p>
                         </section>
                         <section
@@ -286,7 +311,7 @@ export default function Account() {
                             Product options
                           </h3>
                           <label
-                            htmlFor="supply"
+                            htmlFor="totalSupply"
                             className="block text-sm font-medium leading-6 text-black"
                           >
                             Supply
@@ -294,13 +319,13 @@ export default function Account() {
                           <div className="mt-2">
                             <input
                               onChange={handleChange}
-                              id="supply"
-                              name="supply"
+                              id="totalSupply"
+                              name="totalSupply"
                               type="number"
                               pattern="[0-9]*"
                               required
                               className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-green-600 sm:text-sm sm:leading-6"
-                              value={selectedPromotion.supply}
+                              value={selectedPromotion.totalSupply}
                             />
                           </div>
                           <label
@@ -321,14 +346,12 @@ export default function Account() {
                               value={selectedPromotion.price}
                             />
                           </div>
-                          <form>
-                            <button
-                              type="submit"
-                              className="mt-8 flex w-full items-center justify-center rounded-md border border-transparent bg-green-600 px-8 py-3 text-base font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
-                            >
-                              Mint for $10 USD
-                            </button>
-                          </form>
+                          <button
+                            onClick={() => Mint()}
+                            className="mt-8 flex w-full items-center justify-center rounded-md border border-transparent bg-green-600 px-8 py-3 text-base font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+                          >
+                            Mint for ${selectedPromotion.supply * 10} USD
+                          </button>
                         </section>
                       </div>
                     </div>
