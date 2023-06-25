@@ -44,13 +44,21 @@ export default function Settings() {
   };
 
   const save = async () => {
-    await setDoc(doc(db, "vendors", `${store?.wallet}`), {
-      ...vendor,
-      businessWallet: `${store?.wallet}`,
+    await setDoc(doc(db, "wallets", `${store?.wallet}`), {
       updatedAt: new Date().getTime(),
     })
-      .then(() => {
-        setOpenModal(true);
+      .then(async () => {
+        await setDoc(doc(db, "vendors", `${store?.wallet}`), {
+          ...vendor,
+          businessWallet: `${store?.wallet}`,
+          updatedAt: new Date().getTime(),
+        })
+          .then(() => {
+            setOpenModal(true);
+          })
+          .catch((e) => {
+            console.log(e);
+          });
       })
       .catch((e) => {
         console.log(e);

@@ -65,9 +65,6 @@ const Qr = () => {
   useEffect(() => {
     const issuePoints = async () => {
       try {
-        if (wallet && wallet.coins != promotion?.coinsRequired) {
-          throw "not enough coins for this promotion";
-        }
         if (!promotion) {
           throw "missing promotion";
         }
@@ -101,7 +98,6 @@ const Qr = () => {
             promotionId: promotionId,
           });
         } else {
-          console.log("updating old card");
           await runTransaction(db, async (transaction) => {
             const document = await transaction.get(patronRef);
             const oldData = document.data();
@@ -129,6 +125,7 @@ const Qr = () => {
         if (!promotionId && !promotion) {
           return console.log("missing promotion");
         }
+
         const newKey = uuidv4();
         const qr = await QRCode.toDataURL(
           `loyalty-iota.vercel.app/qr/${newKey}`
@@ -150,10 +147,11 @@ const Qr = () => {
             key: newKey,
             qr: QRURL,
           });
-        }).then((res) => console.log(res));
+        });
 
         // update business wallet
         let businessWallet = promotion.businessWallet;
+        console.log("businessWallet", businessWallet);
         const bWalletRef = doc(db, "wallets", `${businessWallet}`);
         await runTransaction(db, async (transaction) => {
           const doc = await transaction.get(bWalletRef);
@@ -161,13 +159,14 @@ const Qr = () => {
             throw "Document does not exist!";
           }
           const oldData = doc.data();
-          const oldPoints = oldData.points;
+          const oldPoints = oldData.points ? oldPoints.points : 0;
           const newPoints = oldPoints + 1;
-          transaction.update(promotionRef, {
+          console.log("updating");
+          transaction.update(bWalletRef, {
             points: newPoints,
             updatedAt: currentTime,
           });
-        }).then((res) => console.log(res));
+        }).then((res) => console.log("wallet updated", res));
 
         // TODO: Firebase - Record Event
       } catch (e) {
