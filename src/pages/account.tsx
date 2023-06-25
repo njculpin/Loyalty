@@ -76,8 +76,8 @@ export default function Account() {
           return;
         }
         const oldData = document.data();
-        const oldPoint = oldData.points;
-        const oldCoins = oldData.coins;
+        const oldPoint = oldData.points ? oldData.points : 0;
+        const oldCoins = oldData.coins ? oldData.coins : 0;
         let newCoin = oldCoins + oldPoint;
         transaction.update(walletRef, {
           address: store?.wallet,

@@ -158,8 +158,8 @@ const Qr = () => {
           if (!doc.exists()) {
             throw "Document does not exist!";
           }
-          const oldData = doc.data();
-          const oldPoints = oldData.points ? oldPoints.points : 0;
+          const oldData = doc.data() as unknown as Wallet;
+          const oldPoints = oldData.points ? oldData.points : 0;
           const newPoints = oldPoints + 1;
           console.log("updating");
           transaction.update(bWalletRef, {
