@@ -157,26 +157,31 @@ const Index = () => {
                       key={index}
                     >
                       <div className="h-full p-8 text-center sm:rounded-3xl grid grid-cols-1 justify-between">
-                        <div className="w-full flex flex-col justify-center items-center">
-                          <img
-                            style={{ height: "256", width: "256" }}
-                            src={promotion.qRUrl}
-                            alt="qr code"
-                          />
+                        <div className="flex justify-between items-center">
+                          <div className="w-full">
+                            <h1 className="text-3xl tracking-tight text-left font-extrabold text-black">
+                              {promotion.reward}
+                            </h1>
+                            {promotion.pointsRequired > 0 && (
+                              <h1 className="text-xl tracking-tight text-left font-extrabold w-full text-gray-600">
+                                {promotion.pointsRequired} Points required
+                              </h1>
+                            )}
+                            {promotion.coinsRequired > 0 && (
+                              <h1 className="text-xl tracking-tight text-left font-extrabold w-full text-gray-600">
+                                {promotion.coinsRequired} LYLT required
+                              </h1>
+                            )}
+                          </div>
+                          <div className="w-128 flex flex-col justify-center items-center">
+                            <img
+                              style={{ height: "256", width: "256" }}
+                              src={promotion.qRUrl}
+                              alt="qr code"
+                            />
+                          </div>
                         </div>
-                        <h1 className="text-3xl tracking-tight text-left font-extrabold text-red-500">
-                          {promotion.reward}
-                        </h1>
-                        {promotion.pointsRequired > 0 && (
-                          <h1 className="text-xl tracking-tight text-left font-extrabold w-full text-blue-500">
-                            {promotion.pointsRequired} Points required
-                          </h1>
-                        )}
-                        {promotion.coinsRequired > 0 && (
-                          <h1 className="text-xl tracking-tight text-left font-extrabold w-full text-blue-500">
-                            {promotion.coinsRequired} LYLT required
-                          </h1>
-                        )}
+
                         <Link href={`qr/${promotion.id}/${promotion.key}`}>
                           <p className="mt-8 border px-4 py-2 border-black">
                             SIMULATE SCAN

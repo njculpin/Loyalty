@@ -1,25 +1,27 @@
 import useStore from "@/lib/useStore";
 import useAuthStore from "@/lib/store";
 import { useRouter } from "next/router";
-import { db } from "../firebase";
+import { db } from "../../firebase";
 import { collection, query, where, onSnapshot } from "firebase/firestore";
 import { useEffect, useState } from "react";
-import { PatronToPromotion } from "../types";
+import { Card } from "../../types";
 
 export default function Customers() {
+  const router = useRouter();
+  const { customerId } = router.query;
   const store = useStore(useAuthStore, (state) => state);
-  const [patrons, setPatrons] = useState<PatronToPromotion[]>([]);
+  const [patrons, setPatrons] = useState<Card[]>([]);
 
   useEffect(() => {
     if (store?.wallet) {
       const q = query(
-        collection(db, "patronToPromotions"),
+        collection(db, "cards"),
         where("businessWallet", "==", store?.wallet)
       );
       const unsubscribe = onSnapshot(q, (querySnapshot) => {
         const mapped = querySnapshot.docs.map(async function (doc) {
           const data = doc.data();
-          return { ...data, id: doc.id } as unknown as PatronToPromotion;
+          return { ...data, id: doc.id } as unknown as Card;
         });
         Promise.all(mapped).then((result) => {
           setPatrons(result);
@@ -29,16 +31,20 @@ export default function Customers() {
     }
   }, [store?.wallet]);
 
+  const convertTime = (time: number) => {
+    return new Date(time).toLocaleDateString("en-US");
+  };
+
   return (
     <div className="mx-auto max-w-7xl p-16">
       <div className="mt-16">
         <div className="mt-8 sm:flex sm:items-center">
           <div className="sm:flex-auto">
             <h1 className="text-base font-semibold leading-6 text-gray-900">
-              Customers
+              Customer
             </h1>
             <p className="mt-2 text-sm text-gray-700">
-              A list of customers with promotion claim history
+              Transaction history for this specific customer
             </p>
           </div>
         </div>
@@ -88,14 +94,14 @@ export default function Customers() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
-                  {patrons.map(function (patron: PatronToPromotion) {
+                  {patrons.map(function (patron: Card) {
                     return (
                       <tr key={patron.id}>
                         <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-0">
-                          {patron.createdAt}
+                          {convertTime(patron.createdAt)}
                         </td>
                         <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-0">
-                          {patron.updatedAt}
+                          {convertTime(patron.updatedAt)}
                         </td>
                         <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
                           {patron.patronWallet}

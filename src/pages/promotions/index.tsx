@@ -3,6 +3,7 @@ import useAuthStore from "@/lib/store";
 import { useRouter } from "next/router";
 import { db } from "../../firebase";
 import {
+  addDoc,
   doc,
   collection,
   query,
@@ -25,8 +26,9 @@ function classNames(...classes: any) {
 export default function Account() {
   const router = useRouter();
   const store = useStore(useAuthStore, (state) => state);
-  const [openModal, setOpenModal] = useState<boolean>(false);
+  const [openStatusModal, setOpenStatusModal] = useState<boolean>(false);
   const [promotions, setPromotions] = useState<Promotion[]>([]);
+
   const [vendor, setVendor] = useState<Vendor>({
     businessCity: "",
     businessEmail: "",
@@ -75,17 +77,14 @@ export default function Account() {
       updatedAt: new Date().getTime(),
     })
       .then(() => {
-        setOpenModal(true);
+        setOpenStatusModal(true);
       })
       .catch((e) => {
         console.log(e);
       });
   };
 
-  const claimPoints = async (promotionId: string, amount: number) => {
-    if (amount <= 0) {
-      return;
-    }
+  const claimCoins = async () => {
     const currentTime = new Date().getTime();
     const vendorRef = doc(db, "wallets", `${store?.wallet}`);
     await runTransaction(db, async (transaction) => {
@@ -95,82 +94,28 @@ export default function Account() {
       }
       let last = doc.data() as Wallet;
       let lastPoint = last.points;
+      let lastCoin = last.coins;
       transaction.update(vendorRef, {
-        points: lastPoint + amount,
+        points: 0,
+        coins: lastCoin + lastPoint,
         updatedAt: currentTime,
       });
     })
-      .then(async () => {
-        const promotionRef = doc(db, "promotions", `${promotionId}`);
-        await runTransaction(db, async (transaction) => {
-          const doc = await transaction.get(promotionRef);
-          if (!doc.exists()) {
-            throw "Document does not exist!";
-          }
-          transaction.update(promotionRef, {
-            points: 0,
-            updatedAt: currentTime,
-          });
-        })
-          .then(() => {
-            setOpenModal(true);
-          })
-          .catch((e) => {
-            console.log(e);
-          });
+      .then(async (res) => {
+        console.log(res);
+        // TODO: Firebase - Record Event
+        return console.log("coin claim complete");
       })
       .catch((e) => {
-        console.log(e);
-      });
-  };
-
-  const claimCoins = async (promotionId: string, amount: number) => {
-    if (amount <= 0) {
-      return;
-    }
-    const currentTime = new Date().getTime();
-    const vendorRef = doc(db, "wallets", `${store?.wallet}`);
-    await runTransaction(db, async (transaction) => {
-      const doc = await transaction.get(vendorRef);
-      if (!doc.exists()) {
-        throw "Document does not exist!";
-      }
-      let last = doc.data() as Wallet;
-      let lastPoint = last.coins;
-      transaction.update(vendorRef, {
-        coins: lastPoint + amount,
-        updatedAt: currentTime,
-      });
-    })
-      .then(async () => {
-        const promotionRef = doc(db, "promotions", `${promotionId}`);
-        await runTransaction(db, async (transaction) => {
-          const doc = await transaction.get(promotionRef);
-          if (!doc.exists()) {
-            throw "Document does not exist!";
-          }
-          transaction.update(promotionRef, {
-            coins: 0,
-            updatedAt: currentTime,
-          });
-        })
-          .then(() => {
-            setOpenModal(true);
-          })
-          .catch((e) => {
-            console.log(e);
-          });
-      })
-      .catch((e) => {
-        console.log(e);
+        console.log("coin claim error", e);
       });
   };
 
   const mintNFT = async (id: string) => {};
 
   const closeModal = () => {
-    setOpenModal(false);
-    return router.push(`/account`);
+    setOpenStatusModal(false);
+    return router.push(`/promotions`);
   };
 
   return (
@@ -196,32 +141,30 @@ export default function Account() {
             </Link>
           </div>
         </div>
-        <div className="mt-8 grid grid-cols-1 gap-y-12 sm:grid-cols-2 sm:gap-x-6 xl:gap-x-8">
+        <div className="mt-8 grid grid-cols-1 gap-y-12 sm:grid-cols-3 sm:gap-x-6 xl:gap-x-8">
           {promotions.map((promotion) => (
             <div className="rounded-lg border p-4" key={promotion.id}>
-              <div className="mt-6">
-                <h1 className="w-full text-center font-bold">
-                  {promotion.reward}
-                </h1>
-                <div className="w-full flex justify-center items-center text-center my-6 font-bold"></div>
-                <div className="grid grid-cols-3 gap-2 text-center">
-                  <button className="relative flex items-center justify-center rounded-md border border-transparent bg-gray-100 px-8 py-2 text-sm font-medium text-gray-900 hover:bg-gray-200">
-                    Claim {promotion.points} PTS
-                    <span className="sr-only">, {promotion.points}</span>
-                  </button>
-                  <button className="relative flex items-center justify-center rounded-md border border-transparent bg-gray-100 px-8 py-2 text-sm font-medium text-gray-900 hover:bg-gray-200">
-                    Claim {promotion.coins} LYLT
-                    <span className="sr-only">, {promotion.coins}</span>
-                  </button>
-                  <button
-                    onClick={() => mintNFT(promotion.id)}
-                    className="relative flex items-center justify-center rounded-md border border-transparent bg-gray-100 px-8 py-2 text-sm font-medium text-gray-900 hover:bg-gray-200"
-                  >
-                    Mint
-                  </button>
-                  <p className="w-full">{promotion.pointsRequired} PTS req</p>
-                  <p className="w-full">{promotion.coinsRequired} LYLT req</p>
-                  <div className="flex justify-center items-center">
+              <div className="m-2 space-y-2">
+                <div className="flex justify-between items-center">
+                  <div>
+                    <h1 className="w-full text-left font-bold text-lg">
+                      {promotion.reward}
+                    </h1>
+                    {promotion.pointsRequired > 0 && (
+                      <p className="text-gray-600">
+                        {promotion.pointsRequired} Points Required
+                      </p>
+                    )}
+                    {promotion.coinsRequired > 0 && (
+                      <p className="text-gray-600">
+                        {promotion.coinsRequired} LYLT Required
+                      </p>
+                    )}
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <p className="text-xs mr-4">
+                      {promotion.active ? "Active" : "Inactive"}
+                    </p>
                     <Switch
                       checked={promotion.active}
                       onChange={() =>
@@ -251,14 +194,25 @@ export default function Account() {
                     </Switch>
                   </div>
                 </div>
+                <div className="w-full flex justify-between items-center text-center font-bold">
+                  {promotion.pointsRequired > 0 && (
+                    <p className="">{promotion.points} Points Earned</p>
+                  )}
+                  {promotion.coinsRequired > 0 && (
+                    <p className="">{promotion.coins} LYLT Earned</p>
+                  )}
+                  <button className="relative flex items-center justify-center rounded-md border border-transparent bg-gray-100 px-8 py-2 text-sm font-medium text-gray-900 hover:bg-gray-200">
+                    Sell
+                  </button>
+                </div>
               </div>
             </div>
           ))}
         </div>
       </div>
 
-      <Transition.Root show={openModal} as={Fragment}>
-        <Dialog as="div" className="relative z-10" onClose={setOpenModal}>
+      <Transition.Root show={openStatusModal} as={Fragment}>
+        <Dialog as="div" className="relative z-10" onClose={setOpenStatusModal}>
           <Transition.Child
             as={Fragment}
             enter="ease-out duration-300"

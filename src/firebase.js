@@ -60,3 +60,34 @@ export const logoutFirebase = async () => {
       console.log("firebase logout error", error);
     });
 };
+
+export const recordEvent = async (
+  transactionType,
+  amount,
+  reciever,
+  sender
+) => {
+  try {
+    /*
+    mint_nft
+    list_nft
+    unlist_nft
+    transfer_nft
+
+    transfer_point
+    transfer_coin
+    
+    create_promotion
+    */
+    const docRef = await addDoc(collection(db, "transactions"), {
+      transactionType: transactionType,
+      amount: amount,
+      reciever: reciever,
+      sender: sender,
+      createdAt: new Date().toString(),
+    });
+    console.log("transactions written with ID: ", docRef.id);
+  } catch (e) {
+    console.log(e);
+  }
+};

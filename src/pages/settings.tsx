@@ -46,6 +46,7 @@ export default function Settings() {
   const save = async () => {
     await setDoc(doc(db, "vendors", `${store?.wallet}`), {
       ...vendor,
+      businessWallet: `${store?.wallet}`,
       updatedAt: new Date().getTime(),
     })
       .then(() => {
@@ -59,6 +60,35 @@ export default function Settings() {
   return (
     <div className="mx-auto max-w-7xl p-16">
       <div className="space-y-12">
+        <div className="border-b border-gray-900/10 pb-12">
+          <h2 className="text-base font-semibold leading-7 text-gray-900">
+            Personal Information
+          </h2>
+          <p className="mt-1 text-sm leading-6 text-gray-600">
+            This information is used to help you find local participating
+            business. It is optional and not shared.
+          </p>
+          <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+            <div className="sm:col-span-2">
+              <label
+                htmlFor="businessPostalCode"
+                className="block text-sm font-medium leading-6 text-gray-900"
+              >
+                ZIP / Postal code
+              </label>
+              <div className="mt-2">
+                <input
+                  onChange={handleChange}
+                  type="text"
+                  name="businessPostalCode"
+                  id="businessPostalCode"
+                  value={vendor.businessPostalCode}
+                  className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-green-600 sm:text-sm sm:leading-6"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
         <div className="border-b border-gray-900/10 pb-12">
           <h2 className="text-base font-semibold leading-7 text-gray-900">
             Business Information

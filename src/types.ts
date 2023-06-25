@@ -7,14 +7,6 @@ export type Wallet = {
 export type Promotion = {
   id: string;
   active: boolean;
-  businessCity: string;
-  businessEmail: string;
-  businessName: string;
-  businessPhone: string;
-  businessPostalCode: string;
-  businessRegion: string;
-  businessStreetAddress: string;
-  businessCountry: string;
   businessWallet: string;
   pointsRequired: number;
   coinsRequired: number;
@@ -25,17 +17,9 @@ export type Promotion = {
   qRUrl: string;
 };
 
-export type PatronToPromotion = {
+export type Card = {
   id: string;
-  key: string;
-  businessCity: string;
-  businessEmail: string;
-  businessName: string;
-  businessPhone: string;
-  businessPostalCode: string;
-  businessRegion: string;
-  businessStreetAddress: string;
-  businessCountry: string;
+  active: boolean;
   businessWallet: string;
   patronWallet: string;
   pointsRequired: number;

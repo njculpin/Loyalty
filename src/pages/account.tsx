@@ -27,7 +27,7 @@ export default function Account() {
   useEffect(() => {
     if (store?.wallet) {
       const q = query(
-        collection(db, "patronToPromotions"),
+        collection(db, "cards"),
         where("businessWallet", "==", store?.wallet)
       );
       const unsubscribe = onSnapshot(q, (querySnapshot) => {
@@ -79,7 +79,7 @@ export default function Account() {
         const oldPoint = oldData.points;
         const oldCoins = oldData.coins;
         let newCoin = oldCoins + oldPoint;
-        await setDoc(doc(db, "wallets", `${store?.wallet}`), {
+        transaction.update(walletRef, {
           address: store?.wallet,
           points: 0,
           coins: newCoin,

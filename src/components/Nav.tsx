@@ -149,7 +149,6 @@ export default function Nav() {
                   </>
                 ) : (
                   <>
-                    {" "}
                     {landingNav.map((item) => (
                       <Link
                         key={item.name}

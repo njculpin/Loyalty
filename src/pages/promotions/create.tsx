@@ -30,36 +30,7 @@ const Create = () => {
     key: "",
     qRUrl: "",
   });
-  const [vendor, setVendor] = useState({
-    businessCity: "",
-    businessEmail: "",
-    businessName: "",
-    businessPhone: "",
-    businessPostalCode: "",
-    businessRegion: "",
-    businessStreetAddress: "",
-    businessCountry: "",
-    businessWallet: "",
-  });
   const store = useStore(useAuthStore, (state) => state);
-
-  useEffect(() => {
-    const getData = async () => {
-      try {
-        const docRef = doc(db, "vendors", `${store?.wallet}`);
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-          const data = docSnap.data() as Vendor;
-          setVendor(data);
-        } else {
-          console.log("No such document!");
-        }
-      } catch (e) {
-        console.log(e);
-      }
-    };
-    getData();
-  }, [store?.wallet]);
 
   const handleChange = (event: any) => {
     setPromotion({
@@ -78,30 +49,23 @@ const Create = () => {
       const storageRef = ref(storage, `qr/${docRef}.png`);
       const uploadTask = await uploadString(storageRef, qr, "data_url");
       const QRURL = uploadTask.metadata.fullPath;
-      const cardDetails = {
+      const promoDetails = {
         active: true,
-        businessCity: vendor.businessCity,
-        businessEmail: vendor.businessEmail,
-        businessName: vendor.businessName,
-        businessPhone: vendor.businessPhone,
-        businessPostalCode: vendor.businessPostalCode,
-        businessRegion: vendor.businessRegion,
-        businessStreetAddress: vendor.businessStreetAddress,
-        businessCountry: vendor.businessCountry,
         businessWallet: store.wallet,
-        points: 0,
-        coins: 0,
         pointsRequired: Number(promotion.pointsRequired),
         coinsRequired: Number(promotion.coinsRequired),
+        coins: 0,
+        points: 0,
         reward: promotion.reward,
-        qr: QRURL,
         key: key,
+        qr: QRURL,
       };
       await setDoc(doc(db, "promotions", docRef), {
-        ...cardDetails,
+        ...promoDetails,
         updatedAt: new Date().getTime(),
       })
         .then(() => {
+          // TODO: Firebase - Record Event
           setOpenModal(true);
         })
         .catch((e) => {
