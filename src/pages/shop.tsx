@@ -38,24 +38,21 @@ const Shop = () => {
       <div className="mx-auto overflow-hidden px-4 lg:px-8">
         <h2 className="sr-only">Products</h2>
         {/* NFT Sales */}
-        <div className="-mx-px grid grid-cols-2 border-l border-gray-200 sm:mx-0 md:grid-cols-3 lg:grid-cols-4">
-          {promotions.map((product) => (
-            <div
-              key={product.id}
-              className="group relative border-b border-r border-gray-200 p-4 sm:p-6"
-            >
-              <div className="pb-4 pt-10 text-center space-y-4">
+        <div className="mt-8 grid grid-cols-1 gap-y-12 sm:grid-cols-3 sm:gap-x-6 xl:gap-x-8">
+          {promotions.map((promotion) => (
+            <div className="rounded-lg border p-4" key={promotion.id}>
+              <div className="m-2 text-center space-y-4">
                 <h3 className="text-2xl font-bold text-gray-900">
-                  {product.reward} NFT
+                  {promotion.reward} NFT
                 </h3>
                 <p className="mt-1 text-sm text-gray-500">
-                  earn ${(1 / product.totalSupply).toFixed(8)} LYLT per tx.
+                  earn ${(1 / promotion.totalSupply).toFixed(8)} LYLT per tx.
                 </p>
                 <p className="mt-4 text-base font-medium text-gray-900">
-                  {product.supply} / {product.totalSupply} remaining
+                  {promotion.supply} / {promotion.totalSupply} remaining
                 </p>
                 <button className="rounded-md bg-green-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-green-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600">
-                  Buy {product.price} LYLT
+                  Buy {promotion.price} LYLT
                 </button>
               </div>
             </div>

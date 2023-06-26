@@ -227,7 +227,7 @@ export default function Account() {
                     <p className="">{promotion.coins} LYLT Earned</p>
                   )}
                   {promotion.minted === true ? (
-                    <p className="bg-purple-600 px-4 py-2 text-white rounded-full shadow-inner">
+                    <p className="bg-purple-600 px-2 py-1 text-white text-xs rounded-full shadow-inner">
                       Minted
                     </p>
                   ) : (
