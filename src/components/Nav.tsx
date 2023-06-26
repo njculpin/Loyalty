@@ -120,14 +120,16 @@ export default function Nav() {
           )}
         </div>
         <div className="hidden lg:flex lg:flex-1 lg:justify-end">
-          <div className="flex justify-between space-x-2 mr-8">
-            <p className="px-2 py-1 rounded-full bg-gray-100">
-              {wallet.points} Points
-            </p>
-            <p className="px-2 py-1 rounded-full bg-black text-white">
-              {wallet.coins} LYLT
-            </p>
-          </div>
+          {store?.wallet && (
+            <div className="flex justify-between space-x-2 mr-8">
+              <p className="px-2 py-1 rounded-full bg-gray-100">
+                {wallet.points} Points
+              </p>
+              <p className="px-2 py-1 rounded-full bg-black text-white">
+                {wallet.coins} LYLT
+              </p>
+            </div>
+          )}
           <Suspense fallback={<div>Loading...</div>}>
             <SocialLoginDynamic />
           </Suspense>
