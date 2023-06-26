@@ -6,12 +6,9 @@ import {
   onSnapshot,
   runTransaction,
   doc,
-  getDocs,
-  limit,
   updateDoc,
 } from "firebase/firestore";
-import { db, storage } from "../firebase";
-import { ref, getDownloadURL } from "firebase/storage";
+import { db } from "../firebase";
 import useStore from "@/lib/useStore";
 import useAuthStore from "@/lib/store";
 import { NFT } from "../types";

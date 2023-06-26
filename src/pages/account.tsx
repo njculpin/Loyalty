@@ -7,22 +7,67 @@ import {
   query,
   where,
   runTransaction,
-  setDoc,
+  updateDoc,
   onSnapshot,
 } from "firebase/firestore";
-import { useEffect, useState } from "react";
+import { Dialog, Transition } from "@headlessui/react";
+import { Fragment, useEffect, useState } from "react";
+import { XMarkIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
-import { Wallet } from "../types";
+import { Wallet, NFT } from "../types";
 
 export default function Account() {
   const store = useStore(useAuthStore, (state) => state);
   const [patronCount, setPatronCount] = useState<number>(0);
   const [promotionsCount, setPromotionsCount] = useState<number>(0);
+  const [selectedNft, setSelectedNft] = useState<NFT>({
+    id: "",
+    promotionId: "",
+    businessCity: "",
+    businessEmail: "",
+    businessName: "",
+    businessPhone: "",
+    businessPostalCode: "",
+    businessRegion: "",
+    businessStreetAddress: "",
+    businessCountry: "",
+    businessWallet: "",
+    points: 0,
+    coins: 0,
+    reward: "",
+    price: 0,
+    owner: "",
+    totalSupply: 0,
+    createdAt: 0,
+    forSale: false,
+  });
+  const [nfts, setNFTS] = useState<NFT[]>([]);
   const [wallet, setWallet] = useState<Wallet>({
     address: "",
     coins: 0,
     points: 0,
   });
+  const [sellNFTModal, setSellNFTModal] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (store?.wallet) {
+      const q = query(
+        collection(db, "nfts"),
+        where("forSale", "==", false),
+        where("owner", "==", store?.wallet)
+      );
+      const unsubscribe = onSnapshot(q, (querySnapshot) => {
+        const mapped = querySnapshot.docs.map(async function (doc) {
+          const data = doc.data();
+          return { ...data, id: doc.id } as unknown as NFT;
+        });
+        Promise.all(mapped).then((result) => {
+          setNFTS(result);
+        });
+      });
+      return unsubscribe;
+    }
+  }, [store?.wallet]);
 
   useEffect(() => {
     if (store?.wallet) {
@@ -91,6 +136,33 @@ export default function Account() {
   };
 
   const showAddressInformation = () => {};
+
+  const handleChange = (event: any) => {
+    setSelectedNft({
+      ...selectedNft,
+      [event.target.id]: event.target.value,
+    });
+  };
+
+  const showSelectedNft = (nft: NFT) => {
+    setSellNFTModal(true);
+    setSelectedNft(nft);
+  };
+
+  const sellNFT = async (nftId: string, price: number) => {
+    await updateDoc(doc(db, "nfts", `${nftId}`), {
+      price: price,
+      forSale: true,
+      updatedAt: new Date().getTime(),
+    })
+      .then(() => {
+        console.log("complete");
+        setSellNFTModal(false);
+      })
+      .catch((e) => {
+        console.log(e);
+      });
+  };
 
   return (
     <div className="mx-auto max-w-7xl p-16">
@@ -197,7 +269,117 @@ export default function Account() {
         <h3 className="text-base font-semibold leading-6 text-gray-900">
           NFTs
         </h3>
+        <div className="mt-8 grid grid-cols-1 gap-y-12 sm:grid-cols-3 sm:gap-x-6 xl:gap-x-8">
+          {nfts.map((nft) => (
+            <div className="rounded-lg border p-4" key={nft.id}>
+              <div className="m-2 text-center space-y-2">
+                <p className="text-xs text-gray-600 italic">{nft.id}</p>
+                <h3 className="text-2xl font-bold text-gray-900">
+                  {nft.reward} NFT
+                </h3>
+                <button
+                  onClick={() => showSelectedNft(nft)}
+                  className="rounded-md bg-green-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-green-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600"
+                >
+                  Sell LYLT
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
+      <Transition.Root show={sellNFTModal} as={Fragment}>
+        <Dialog as="div" className="relative z-10" onClose={setSellNFTModal}>
+          <Transition.Child
+            as={Fragment}
+            enter="ease-out duration-300"
+            enterFrom="opacity-0"
+            enterTo="opacity-100"
+            leave="ease-in duration-200"
+            leaveFrom="opacity-100"
+            leaveTo="opacity-0"
+          >
+            <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
+          </Transition.Child>
+
+          <div className="fixed inset-0 z-10 overflow-y-auto">
+            <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+              <Transition.Child
+                as={Fragment}
+                enter="ease-out duration-300"
+                enterFrom="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                enterTo="opacity-100 translate-y-0 sm:scale-100"
+                leave="ease-in duration-200"
+                leaveFrom="opacity-100 translate-y-0 sm:scale-100"
+                leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+              >
+                <Dialog.Panel className="relative transform overflow-hidden rounded-lg bg-white px-4 pb-4 pt-5 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-sm sm:p-6">
+                  <div className="relative flex w-full items-center overflow-hidden px-4 pb-8 pt-14 sm:px-6 sm:pt-8 md:p-6 lg:p-8">
+                    <button
+                      type="button"
+                      className="absolute right-4 top-4 text-gray-400 hover:text-gray-500 sm:right-6 sm:top-8 md:right-6 md:top-6 lg:right-8 lg:top-8"
+                      onClick={() => setSellNFTModal(false)}
+                    >
+                      <span className="sr-only">Close</span>
+                      <XMarkIcon className="h-6 w-6" aria-hidden="true" />
+                    </button>
+
+                    <div className="grid w-full grid-cols-1 items-start gap-x-6 gap-y-8 lg:items-center lg:gap-x-8">
+                      <div className="sm:col-span-8 lg:col-span-7">
+                        <h2 className="text-xl font-medium text-gray-900 sm:pr-12">
+                          {selectedNft.reward} NFT
+                        </h2>
+                        <section
+                          aria-labelledby="information-heading"
+                          className="mt-1"
+                        >
+                          <h3 id="information-heading" className="sr-only">
+                            Product information
+                          </h3>
+                        </section>
+                        <section
+                          aria-labelledby="options-heading"
+                          className="mt-8"
+                        >
+                          <h3 id="options-heading" className="sr-only">
+                            Product options
+                          </h3>
+                          <label
+                            htmlFor="price"
+                            className="block text-sm font-medium leading-6 text-black mt-4"
+                          >
+                            LYLT Price
+                          </label>
+                          <div className="mt-2">
+                            <input
+                              onChange={handleChange}
+                              id="price"
+                              name="price"
+                              type="number"
+                              pattern="[0-9]*"
+                              required
+                              className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-green-600 sm:text-sm sm:leading-6"
+                              value={selectedNft.price}
+                            />
+                          </div>
+                          <button
+                            onClick={() =>
+                              sellNFT(selectedNft.id, selectedNft.price)
+                            }
+                            className="mt-8 flex w-full items-center justify-center rounded-md border border-transparent bg-green-600 px-8 py-3 text-base font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+                          >
+                            Sell
+                          </button>
+                        </section>
+                      </div>
+                    </div>
+                  </div>
+                </Dialog.Panel>
+              </Transition.Child>
+            </div>
+          </div>
+        </Dialog>
+      </Transition.Root>
     </div>
   );
 }
