@@ -1,11 +1,16 @@
 import "@biconomy/web3-auth/dist/src/style.css";
 
 import dynamic from "next/dynamic";
-import { Suspense, useState } from "react";
+import { Suspense, useState, useEffect } from "react";
 import { Dialog } from "@headlessui/react";
 import Link from "next/link";
 import useStore from "@/lib/useStore";
 import useAuthStore from "@/lib/store";
+
+import { db } from "../firebase";
+import { doc, onSnapshot } from "firebase/firestore";
+
+import { Wallet } from "@/types";
 
 const loggedInNavigation = [
   { name: "Shop", href: "/shop" },
@@ -25,12 +30,34 @@ const landingNav = [
 export default function Nav() {
   const store = useStore(useAuthStore, (state) => state);
   const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
+
+  const [wallet, setWallet] = useState<Wallet>({
+    address: "",
+    coins: 0,
+    points: 0,
+  });
+
   const SocialLoginDynamic = dynamic(
     () => import("../components/Auth").then((res) => res.default),
     {
       ssr: false,
     }
   );
+
+  useEffect(() => {
+    const queryBalance = async () => {
+      const q = doc(db, "wallets", `${store?.wallet}`);
+      const unsubscribe = onSnapshot(q, async (document) => {
+        if (document.exists()) {
+          const data = document.data() as Wallet;
+          setWallet(data);
+        }
+      });
+      return unsubscribe;
+    };
+    queryBalance();
+  }, [store?.wallet]);
+
   return (
     <header className="">
       <nav
@@ -93,6 +120,14 @@ export default function Nav() {
           )}
         </div>
         <div className="hidden lg:flex lg:flex-1 lg:justify-end">
+          <div className="flex justify-between space-x-2 mr-8">
+            <p className="px-4 py-2 rounded-full bg-gray-100">
+              {wallet.points} Points
+            </p>
+            <p className="px-4 py-2 rounded-full bg-green-600">
+              {wallet.coins} LYLT
+            </p>
+          </div>
           <Suspense fallback={<div>Loading...</div>}>
             <SocialLoginDynamic />
           </Suspense>
