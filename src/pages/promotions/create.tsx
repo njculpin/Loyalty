@@ -64,51 +64,52 @@ const Create = () => {
   };
 
   const createCard = async () => {
-    console.log("vendor", vendor);
-    console.log("promotion", promotion);
-    if (store?.wallet) {
-      const docRef = uuidv4();
-      const key = uuidv4();
-      const qr = await QRCode.toDataURL(
-        `loyalty-iota.vercel.app/qr/${docRef}/${key}`
-      );
-      const storageRef = ref(storage, `qr/${docRef}.png`);
-      const uploadTask = await uploadString(storageRef, qr, "data_url");
-      const QRURL = uploadTask.metadata.fullPath;
-      const promoDetails = {
-        active: true,
-        businessWallet: store.wallet,
-        businessCity: vendor.businessCity,
-        businessEmail: vendor.businessEmail,
-        businessName: vendor.businessName,
-        businessPhone: vendor.businessPhone,
-        businessPostalCode: vendor.businessPostalCode,
-        businessRegion: vendor.businessRegion,
-        businessStreetAddress: vendor.businessStreetAddress,
-        businessCountry: vendor.businessCountry,
-        pointsRequired: Number(promotion.pointsRequired),
-        coinsRequired: Number(promotion.coinsRequired),
-        coins: 0,
-        points: 0,
-        reward: promotion.reward,
-        key: key,
-        qr: QRURL,
-        minted: false,
-        supply: 1,
-        price: 0,
-      };
-      await setDoc(doc(db, "promotions", docRef), {
-        ...promoDetails,
-        createdAt: new Date().getTime(),
-        updatedAt: new Date().getTime(),
-      })
-        .then(() => {
-          // TODO: Firebase - Record Event
-          setOpenModal(true);
+    try {
+      if (store?.wallet) {
+        const docRef = uuidv4();
+        const key = uuidv4();
+        const qr = await QRCode.toDataURL(
+          `loyalty-iota.vercel.app/qr/${docRef}/${key}`
+        );
+        const storageRef = ref(storage, `qr/${docRef}.png`);
+        const uploadTask = await uploadString(storageRef, qr, "data_url");
+        const QRURL = uploadTask.metadata.fullPath;
+        const promoDetails = {
+          active: true,
+          businessWallet: store.wallet,
+          businessCity: vendor.businessCity,
+          businessEmail: vendor.businessEmail,
+          businessName: vendor.businessName,
+          businessPhone: vendor.businessPhone,
+          businessPostalCode: vendor.businessPostalCode,
+          businessRegion: vendor.businessRegion,
+          businessStreetAddress: vendor.businessStreetAddress,
+          businessCountry: vendor.businessCountry,
+          pointsRequired: Number(promotion.pointsRequired),
+          coinsRequired: Number(promotion.coinsRequired),
+          coins: 0,
+          points: 0,
+          reward: promotion.reward,
+          key: key,
+          qr: QRURL,
+          minted: false,
+          price: 0,
+        };
+        await setDoc(doc(db, "promotions", docRef), {
+          ...promoDetails,
+          createdAt: new Date().getTime(),
+          updatedAt: new Date().getTime(),
         })
-        .catch((e) => {
-          console.log(e);
-        });
+          .then(() => {
+            // TODO: Firebase - Record Event
+            setOpenModal(true);
+          })
+          .catch((e) => {
+            console.log(e);
+          });
+      }
+    } catch (e) {
+      console.log(e);
     }
   };
 

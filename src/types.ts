@@ -4,6 +4,28 @@ export type Wallet = {
   coins: number;
 };
 
+export type NFT = {
+  id: string;
+  promotionId: string;
+  businessCity: string;
+  businessEmail: string;
+  businessName: string;
+  businessPhone: string;
+  businessPostalCode: string;
+  businessRegion: string;
+  businessStreetAddress: string;
+  businessCountry: string;
+  businessWallet: string;
+  points: number;
+  coins: number;
+  reward: string;
+  price: number;
+  owner: string;
+  totalSupply: number;
+  createdAt: number;
+  forSale: boolean;
+};
+
 export type Promotion = {
   id: string;
   active: boolean;
@@ -25,7 +47,6 @@ export type Promotion = {
   qRUrl: string;
   minted: boolean;
   price: number;
-  supply: number;
   totalSupply: number;
   forSale: boolean;
 };

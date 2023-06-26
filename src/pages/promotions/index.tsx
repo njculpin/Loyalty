@@ -16,7 +16,7 @@ import { Fragment, useEffect, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { CheckIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import { Switch } from "@headlessui/react";
-import { Wallet, Vendor, Promotion } from "../../types";
+import { Promotion } from "../../types";
 
 function classNames(...classes: any) {
   return classes.filter(Boolean).join(" ");
@@ -47,7 +47,6 @@ export default function Account() {
     key: "",
     qRUrl: "",
     minted: false,
-    supply: 1,
     totalSupply: 1,
     price: 1,
     forSale: false,
@@ -107,7 +106,7 @@ export default function Account() {
   };
 
   const Mint = async () => {
-    for (let i = 0; i < selectedPromotion.supply; i++) {
+    for (let i = 0; i < selectedPromotion.totalSupply; i++) {
       const docRef = await addDoc(collection(db, "nfts"), {
         promotionId: selectedPromotion.id,
         businessCity: selectedPromotion.businessCity,
@@ -121,6 +120,7 @@ export default function Account() {
         businessWallet: selectedPromotion.businessWallet,
         points: Number(selectedPromotion.points),
         coins: Number(selectedPromotion.coins),
+        totalSupply: Number(selectedPromotion.totalSupply),
         reward: selectedPromotion.reward,
         price: Number(selectedPromotion.price),
         owner: store?.wallet,
@@ -131,8 +131,7 @@ export default function Account() {
     }
     await updateDoc(doc(db, "promotions", `${selectedPromotion.id}`), {
       minted: true,
-      supply: Number(selectedPromotion.supply),
-      totalSupply: Number(selectedPromotion.supply),
+      totalSupply: Number(selectedPromotion.totalSupply),
       price: Number(selectedPromotion.price),
       updatedAt: new Date().getTime(),
     })
@@ -317,7 +316,7 @@ export default function Account() {
                             htmlFor="totalSupply"
                             className="block text-sm font-medium leading-6 text-black"
                           >
-                            Supply
+                            Total Supply
                           </label>
                           <div className="mt-2">
                             <input
@@ -353,7 +352,7 @@ export default function Account() {
                             onClick={() => Mint()}
                             className="mt-8 flex w-full items-center justify-center rounded-md border border-transparent bg-green-600 px-8 py-3 text-base font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
                           >
-                            Mint for ${selectedPromotion.supply * 10} USD
+                            Mint for ${selectedPromotion.totalSupply * 10} USD
                           </button>
                         </section>
                       </div>
