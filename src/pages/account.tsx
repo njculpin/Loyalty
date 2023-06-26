@@ -151,7 +151,7 @@ export default function Account() {
 
   const sellNFT = async (nftId: string, price: number) => {
     await updateDoc(doc(db, "nfts", `${nftId}`), {
-      price: price,
+      price: Number(price),
       forSale: true,
       updatedAt: new Date().getTime(),
     })
