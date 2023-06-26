@@ -50,6 +50,7 @@ export default function Account() {
     supply: 1,
     totalSupply: 1,
     price: 1,
+    forSale: false,
   });
   const [promotions, setPromotions] = useState<Promotion[]>([]);
 
@@ -108,6 +109,7 @@ export default function Account() {
   const Mint = async () => {
     for (let i = 0; i < selectedPromotion.supply; i++) {
       const docRef = await addDoc(collection(db, "nfts"), {
+        promotionId: selectedPromotion.id,
         businessCity: selectedPromotion.businessCity,
         businessEmail: selectedPromotion.businessEmail,
         businessName: selectedPromotion.businessName,
@@ -123,6 +125,7 @@ export default function Account() {
         price: Number(selectedPromotion.price),
         owner: store?.wallet,
         createdAt: new Date().getTime(),
+        forSale: true,
       });
       console.log("transactions written with ID: ", docRef.id);
     }

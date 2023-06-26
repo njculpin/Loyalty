@@ -7,15 +7,15 @@ export type Wallet = {
 export type Promotion = {
   id: string;
   active: boolean;
-  businessCity: "";
-  businessEmail: "";
-  businessName: "";
-  businessPhone: "";
-  businessPostalCode: "";
-  businessRegion: "";
-  businessStreetAddress: "";
-  businessCountry: "";
-  businessWallet: "";
+  businessCity: string;
+  businessEmail: string;
+  businessName: string;
+  businessPhone: string;
+  businessPostalCode: string;
+  businessRegion: string;
+  businessStreetAddress: string;
+  businessCountry: string;
+  businessWallet: string;
   pointsRequired: number;
   coinsRequired: number;
   coins: number;
@@ -27,6 +27,7 @@ export type Promotion = {
   price: number;
   supply: number;
   totalSupply: number;
+  forSale: boolean;
 };
 
 export type Card = {

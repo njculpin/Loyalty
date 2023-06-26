@@ -1,5 +1,15 @@
 import { useEffect, useState } from "react";
-import { collection, query, where, onSnapshot } from "firebase/firestore";
+import {
+  collection,
+  query,
+  where,
+  onSnapshot,
+  runTransaction,
+  doc,
+  getDocs,
+  limit,
+  updateDoc,
+} from "firebase/firestore";
 import { db, storage } from "../firebase";
 import { ref, getDownloadURL } from "firebase/storage";
 import useStore from "@/lib/useStore";
@@ -33,6 +43,43 @@ const Shop = () => {
     }
   }, [store?.wallet]);
 
+  const buyNFT = async (promotionId: string, price: number) => {
+    const currentTime = new Date().getTime();
+    const promotionRef = doc(db, "promotions", `${promotionId}`);
+    await runTransaction(db, async (transaction) => {
+      const doc = await transaction.get(promotionRef);
+      if (!doc.exists()) {
+        throw "Document does not exist!";
+      }
+      const oldData = doc.data().supply;
+      transaction.update(promotionRef, {
+        supply: oldData - 1,
+        updatedAt: currentTime,
+      });
+    });
+    const q = query(
+      collection(db, "nfts"),
+      where("promotionId", "==", promotionId),
+      where("forSale", "==", true),
+      limit(1)
+    );
+    const querySnapshot = await getDocs(q);
+    querySnapshot.forEach(async (nft) => {
+      console.log("nft", nft.id);
+      await updateDoc(doc(db, "nfts", `${nft.id}`), {
+        owner: `${store?.wallet}`,
+        forSale: false,
+        updatedAt: new Date().getTime(),
+      })
+        .then(() => {
+          console.log("complete");
+        })
+        .catch((e) => {
+          console.log(e);
+        });
+    });
+  };
+
   return (
     <div className="mx-auto max-w-7xl overflow-hidden sm:px-6 lg:px-8">
       <div className="mx-auto overflow-hidden px-4 lg:px-8">
@@ -51,7 +98,10 @@ const Shop = () => {
                 <p className="mt-4 text-base font-medium text-gray-900">
                   {promotion.supply} / {promotion.totalSupply} remaining
                 </p>
-                <button className="rounded-md bg-green-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-green-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600">
+                <button
+                  onClick={() => buyNFT(promotion.id, promotion.price)}
+                  className="rounded-md bg-green-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-green-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600"
+                >
                   Buy {promotion.price} LYLT
                 </button>
               </div>
