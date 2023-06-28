@@ -17,7 +17,7 @@ import {
 import QRCode from "qrcode";
 import { v4 as uuidv4 } from "uuid";
 import { ref, uploadString } from "firebase/storage";
-import { Promotion, Card, Wallet } from "../../../types";
+import { Promotion, Card, Wallet, NFT } from "../../../types";
 
 const Qr = () => {
   const [loading, setLoading] = useState<boolean>(false);
@@ -162,10 +162,11 @@ const Qr = () => {
         const percentageOfOne = 1 / docLength;
         querySnapshot.forEach(async (document) => {
           console.log(document.id, " => ", document.data());
-          const prev = document.data() as unknown as Promotion;
+          const prev = document.data() as unknown as NFT;
           const pPoints = prev.points;
-          await setDoc(doc(db, "cards", document.id), {
-            coins: pPoints + percentageOfOne,
+          const owner = prev.owner;
+          await setDoc(doc(db, "wallets", owner), {
+            points: pPoints + percentageOfOne,
             updatedAt: new Date().getTime(),
           });
         });
