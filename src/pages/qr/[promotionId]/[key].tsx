@@ -153,29 +153,7 @@ const Qr = () => {
           });
         });
 
-        const qNfts = query(
-          collection(db, "nfts"),
-          where("promotionId", "==", `${promotionId}`)
-        );
-        const querySnapshot = await getDocs(qNfts);
-        const docLength = querySnapshot.docs.length;
-        const percentageOfOne = 1 / docLength;
-        querySnapshot.forEach(async (document) => {
-          console.log(document.id, " => ", document.data());
-          const prev = document.data() as unknown as NFT;
-          const pPoints = prev.points;
-          const owner = prev.owner;
-          await setDoc(doc(db, "nfts", document.id), {
-            points: pPoints + percentageOfOne,
-            updatedAt: new Date().getTime(),
-          });
-          await setDoc(doc(db, "wallets", owner), {
-            points: pPoints + percentageOfOne,
-            updatedAt: new Date().getTime(),
-          });
-        });
-
-        // update business wallet
+        // update business wallet // move to firebase on update function
         let businessWallet = promotion.businessWallet;
         console.log("businessWallet", businessWallet);
         const bWalletRef = doc(db, "wallets", `${businessWallet}`);
@@ -185,9 +163,10 @@ const Qr = () => {
             throw "Document does not exist!";
           }
           const oldData = doc.data() as unknown as Wallet;
-          const oldPoints = oldData.points ? oldData.points : 0;
+          const oldPoints = oldData.points;
+          console.log("oldPoints", oldPoints);
           const newPoints = oldPoints + 1;
-          console.log("updating");
+          console.log("newPoints", newPoints);
           transaction.update(bWalletRef, {
             points: newPoints,
             updatedAt: currentTime,
