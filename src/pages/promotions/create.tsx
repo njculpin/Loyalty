@@ -51,6 +51,7 @@ const Create = () => {
         return;
       }
       let vendorData = docSnap.data() as unknown as Vendor;
+      console.log("vendor", vendorData);
       setVendor(vendorData);
     };
     queryVendor();
