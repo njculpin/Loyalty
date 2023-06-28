@@ -1,7 +1,7 @@
 import { useEffect, Fragment, useState } from "react";
 import { useRouter } from "next/router";
 import { storage, db } from "../../firebase";
-import { doc, getDoc, setDoc } from "firebase/firestore";
+import { doc, onSnapshot, setDoc } from "firebase/firestore";
 import { ref, uploadString } from "firebase/storage";
 import { Dialog, Transition } from "@headlessui/react";
 import { CheckIcon } from "@heroicons/react/24/outline";
@@ -44,18 +44,20 @@ const Create = () => {
   const store = useStore(useAuthStore, (state) => state);
 
   useEffect(() => {
-    const queryVendor = async () => {
-      console.log("store?.wallet", store?.wallet);
-      const vendorRef = doc(db, "vendors", `${store?.wallet}`);
-      const docSnap = await getDoc(vendorRef);
-      if (!docSnap.exists) {
-        return;
-      }
-      let vendorData = docSnap.data() as unknown as Vendor;
-      console.log("vendor", vendorData);
-      setVendor(vendorData);
-    };
-    queryVendor();
+    if (store?.wallet) {
+      const q = doc(db, "vendors", `${store?.wallet}`);
+      const unsubscribe = onSnapshot(q, (doc) => {
+        if (!doc.exists) {
+          return;
+        }
+        const data = doc.data() as Vendor;
+        if (data) {
+          console.log(data);
+          setVendor(data);
+        }
+      });
+      return unsubscribe;
+    }
   }, [store?.wallet]);
 
   const handleChange = (event: any) => {
