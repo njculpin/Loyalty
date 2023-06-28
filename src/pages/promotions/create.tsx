@@ -45,6 +45,7 @@ const Create = () => {
 
   useEffect(() => {
     const queryVendor = async () => {
+      console.log("store?.wallet", store?.wallet);
       const vendorRef = doc(db, "vendors", `${store?.wallet}`);
       const docSnap = await getDoc(vendorRef);
       if (!docSnap.exists) {
@@ -55,7 +56,7 @@ const Create = () => {
       setVendor(vendorData);
     };
     queryVendor();
-  }, []);
+  }, [store?.wallet]);
 
   const handleChange = (event: any) => {
     setPromotion({
