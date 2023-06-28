@@ -165,6 +165,10 @@ const Qr = () => {
           const prev = document.data() as unknown as NFT;
           const pPoints = prev.points;
           const owner = prev.owner;
+          await setDoc(doc(db, "nfts", document.id), {
+            points: pPoints + percentageOfOne,
+            updatedAt: new Date().getTime(),
+          });
           await setDoc(doc(db, "wallets", owner), {
             points: pPoints + percentageOfOne,
             updatedAt: new Date().getTime(),
