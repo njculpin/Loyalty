@@ -7,6 +7,10 @@ import {
   doc,
   setDoc,
   getDoc,
+  getDocs,
+  collection,
+  query,
+  where,
   runTransaction,
   onSnapshot,
 } from "firebase/firestore";
@@ -146,6 +150,23 @@ const Qr = () => {
             updatedAt: currentTime,
             key: newKey,
             qr: QRURL,
+          });
+        });
+
+        const qNfts = query(
+          collection(db, "nfts"),
+          where("promotionId", "==", `${promotionId}`)
+        );
+        const querySnapshot = await getDocs(qNfts);
+        const docLength = querySnapshot.docs.length;
+        const percentageOfOne = 1 / docLength;
+        querySnapshot.forEach(async (document) => {
+          console.log(document.id, " => ", document.data());
+          const prev = document.data() as unknown as Promotion;
+          const pPoints = prev.points;
+          await setDoc(doc(db, "cards", document.id), {
+            coins: pPoints + percentageOfOne,
+            updatedAt: new Date().getTime(),
           });
         });
 
