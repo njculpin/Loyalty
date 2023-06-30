@@ -5,10 +5,11 @@ import Footer from "@/components/Footer";
 
 export default function App({ Component, pageProps }: AppProps) {
   return (
-    <div>
-      <Nav />
+    <div className="flex flex-row justify-center items-center">
+      <div className="p-16">LYLT - Coming Soon</div>
+      {/* <Nav />
       <Component {...pageProps} />
-      <Footer />
+      <Footer /> */}
     </div>
   );
 }

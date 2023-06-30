@@ -43,6 +43,9 @@ const Shop = () => {
           throw "Document does not exist!";
         }
         const oldData = doc.data().coins;
+        if (oldData < price) {
+          throw "not enough coins";
+        }
         const newCoins = oldData - price;
         transaction.update(walletRef, {
           coins: newCoins,
@@ -56,23 +59,27 @@ const Shop = () => {
           throw "Document does not exist!";
         }
         const oldData = doc.data().coins;
+        if (oldData < price) {
+          throw "not enough coins";
+        }
         const newCoins = oldData + price;
         transaction.update(sellerRef, {
           coins: newCoins,
           updatedAt: currentTime,
         });
-      });
-      await updateDoc(doc(db, "nfts", `${nftId}`), {
-        owner: `${store?.wallet}`,
-        forSale: false,
-        updatedAt: new Date().getTime(),
-      })
-        .then(() => {
-          console.log("complete");
+      }).then(async () => {
+        await updateDoc(doc(db, "nfts", `${nftId}`), {
+          owner: `${store?.wallet}`,
+          forSale: false,
+          updatedAt: new Date().getTime(),
         })
-        .catch((e) => {
-          console.log(e);
-        });
+          .then(() => {
+            console.log("complete");
+          })
+          .catch((e) => {
+            console.log(e);
+          });
+      });
     } catch (e) {
       console.log(e);
     }

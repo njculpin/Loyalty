@@ -64,7 +64,7 @@ const caseStudies = [
     icon: "/bacon.png",
   },
   {
-    name: "Roaming Traveler",
+    name: "Roaming Travelers",
     description: "A brick and mortor clothing store.",
     href: "/cases/roaming",
     icon: "/roamingtravelers.png",

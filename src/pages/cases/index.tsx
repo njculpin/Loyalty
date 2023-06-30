@@ -11,7 +11,7 @@ const clients = [
   },
   {
     id: 3,
-    name: "Roaming Traveler",
+    name: "Roaming Travelers",
     imageUrl: "/roamingtravelers.png",
   },
 ];

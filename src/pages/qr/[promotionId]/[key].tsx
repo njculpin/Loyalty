@@ -7,10 +7,6 @@ import {
   doc,
   setDoc,
   getDoc,
-  getDocs,
-  collection,
-  query,
-  where,
   runTransaction,
   onSnapshot,
 } from "firebase/firestore";
