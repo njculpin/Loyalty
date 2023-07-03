@@ -204,7 +204,7 @@ export default function Account() {
               <dd className="mt-1">
                 <div className="flex justify-between items-center">
                   <h1 className="text-3xl font-semibold tracking-tight text-gray-900">
-                    {wallet.points}
+                    {wallet.points.toFixed(2)}
                   </h1>
                   <button
                     type="button"
@@ -223,7 +223,7 @@ export default function Account() {
               <dd className="mt-1">
                 <div className="flex justify-between items-center">
                   <h1 className="text-3xl font-semibold tracking-tight text-gray-900">
-                    {wallet.coins}
+                    {wallet.coins.toFixed(2)}
                   </h1>
                   <button
                     type="button"

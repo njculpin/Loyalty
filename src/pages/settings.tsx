@@ -44,10 +44,16 @@ export default function Settings() {
   };
 
   const save = async () => {
+    if (!store?.wallet) {
+      return;
+    }
     await setDoc(doc(db, "wallets", store?.wallet), {
       updatedAt: new Date().getTime(),
     })
       .then(async () => {
+        if (!store?.wallet) {
+          return;
+        }
         await setDoc(doc(db, "vendors", store?.wallet), {
           ...vendor,
           businessWallet: store?.wallet,
