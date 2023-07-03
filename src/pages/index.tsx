@@ -21,6 +21,7 @@ import {
   LockClosedIcon,
   ServerIcon,
 } from "@heroicons/react/20/solid";
+import NewsSignup from "@/components/NewsSignup";
 
 const features = [
   {
@@ -119,7 +120,10 @@ const Index = () => {
   useEffect(() => {
     const getData = async () => {
       try {
-        const docRef = doc(db, "vendors", `${store?.wallet}`);
+        if (!store?.wallet) {
+          return;
+        }
+        const docRef = doc(db, "vendors", store?.wallet);
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
           const data = docSnap.data() as Vendor;
@@ -413,6 +417,7 @@ const Index = () => {
               </div>
             </div>
           </div>
+          <NewsSignup />
         </>
       )}
     </div>

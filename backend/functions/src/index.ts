@@ -9,6 +9,11 @@
 
 const { initializeApp, applicationDefault } = require("firebase-admin/app");
 const { getFirestore } = require("firebase-admin/firestore");
+
+const { onTaskDispatched } = require("firebase-functions/v2/tasks");
+const { GoogleAuth } = require("google-auth-library");
+const { getFunctions } = require("firebase-admin/functions");
+
 import { https } from "firebase-functions/v2";
 import * as logger from "firebase-functions/logger";
 
@@ -35,3 +40,103 @@ export const getPointBalance = https.onRequest(
     }
   }
 );
+
+export const pointTransactionQueue = onTaskDispatched(
+  {
+    retryConfig: {
+      maxAttempts: 5,
+      minBackoffSeconds: 60,
+    },
+    rateLimits: {
+      maxConcurrentDispatches: 6,
+    },
+  },
+  async (request: any) => {
+    try {
+      const data = request.data;
+      const collection = data.collection;
+      const document = data.document;
+      const key = data.key;
+      const value = data.value;
+      logger.info(
+        `update ${document} from ${collection} with ${key} to ${value}`
+      );
+      const docRef = db.collection(collection).doc(document);
+      const res = await docRef.update({
+        [key]: value,
+        updatedAt: new Date().getTime(),
+      });
+      logger.info(res);
+    } catch (e) {
+      logger.error("error", e);
+    }
+  }
+);
+
+export const addPointTransactionToQueue = https.onRequest(
+  { cors: true },
+  async (request: any, response) => {
+    try {
+      const queue = getFunctions().taskQueue("pointTransactionQueue");
+      const targetUri = await getFunctionUrl("pointTransactionQueue");
+      const body = request.body.data;
+      const documentKey = body.key; // points || coins
+      const promotionId = body.promotionId;
+      const value = body.value;
+      const enqueues: any = [];
+      const nftRef = db.collection("nfts");
+      const snapshot = await nftRef
+        .where("promotionId", "==", promotionId)
+        .get();
+      if (snapshot.empty) {
+        console.log("No matching documents.");
+        response.status(200).json({ message: "success but missing documents" });
+      }
+      snapshot.forEach((doc: any) => {
+        enqueues.push(
+          queue.enqueue(
+            {
+              collection: "nfts",
+              document: doc.id,
+              key: documentKey,
+              value: value,
+            },
+            {
+              uri: targetUri,
+            }
+          )
+        );
+      });
+      await Promise.all(enqueues);
+      response.send({
+        status: "success",
+        data: { promotion: promotionId },
+      });
+    } catch (e) {
+      logger.error("error", e);
+      response.send({
+        status: "error",
+        data: "error",
+      });
+    }
+  }
+);
+
+// HELPER FUNCTIONS
+async function getFunctionUrl(name: string, location = "us-central1") {
+  let auth = new GoogleAuth({
+    scopes: "https://www.googleapis.com/auth/cloud-platform",
+  });
+  const projectId = await auth.getProjectId();
+  const url =
+    "https://cloudfunctions.googleapis.com/v2beta/" +
+    `projects/${projectId}/locations/${location}/functions/${name}`;
+
+  const client = await auth.getClient();
+  const res = await client.request({ url });
+  const uri = res.data?.serviceConfig?.uri;
+  if (!uri) {
+    throw new Error(`Unable to retreive uri for function at ${url}`);
+  }
+  return uri;
+}

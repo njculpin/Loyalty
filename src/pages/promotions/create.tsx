@@ -45,7 +45,7 @@ const Create = () => {
 
   useEffect(() => {
     if (store?.wallet) {
-      const q = doc(db, "vendors", `${store?.wallet}`);
+      const q = doc(db, "vendors", store?.wallet);
       const unsubscribe = onSnapshot(q, (doc) => {
         if (!doc.exists) {
           return;

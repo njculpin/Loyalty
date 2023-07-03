@@ -24,7 +24,7 @@ export default function Settings() {
 
   useEffect(() => {
     if (store?.wallet) {
-      const q = doc(db, "vendors", `${store?.wallet}`);
+      const q = doc(db, "vendors", store?.wallet);
       const unsubscribe = onSnapshot(q, (doc) => {
         if (!doc.exists) {
           return;
@@ -44,13 +44,13 @@ export default function Settings() {
   };
 
   const save = async () => {
-    await setDoc(doc(db, "wallets", `${store?.wallet}`), {
+    await setDoc(doc(db, "wallets", store?.wallet), {
       updatedAt: new Date().getTime(),
     })
       .then(async () => {
-        await setDoc(doc(db, "vendors", `${store?.wallet}`), {
+        await setDoc(doc(db, "vendors", store?.wallet), {
           ...vendor,
-          businessWallet: `${store?.wallet}`,
+          businessWallet: store?.wallet,
           updatedAt: new Date().getTime(),
         })
           .then(() => {

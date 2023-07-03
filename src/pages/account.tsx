@@ -99,7 +99,10 @@ export default function Account() {
 
   useEffect(() => {
     const queryBalance = async () => {
-      const q = doc(db, "wallets", `${store?.wallet}`);
+      if (!store?.wallet) {
+        return;
+      }
+      const q = doc(db, "wallets", store?.wallet);
       const unsubscribe = onSnapshot(q, async (document) => {
         if (document.exists()) {
           const data = document.data() as Wallet;
@@ -113,8 +116,11 @@ export default function Account() {
 
   const convertToLoyalty = async () => {
     try {
+      if (!store?.wallet) {
+        return;
+      }
       const currentTime = new Date().getTime();
-      const walletRef = doc(db, "wallets", `${store?.wallet}`);
+      const walletRef = doc(db, "wallets", store?.wallet);
       await runTransaction(db, async (transaction) => {
         const document = await transaction.get(walletRef);
         if (!document.exists()) {

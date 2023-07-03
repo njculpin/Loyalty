@@ -35,8 +35,11 @@ const Shop = () => {
 
   const buyNFT = async (nftId: string, seller: string, price: number) => {
     try {
+      if (!store?.wallet) {
+        return;
+      }
       const currentTime = new Date().getTime();
-      const walletRef = doc(db, "wallets", `${store?.wallet}`);
+      const walletRef = doc(db, "wallets", store?.wallet);
       await runTransaction(db, async (transaction) => {
         const doc = await transaction.get(walletRef);
         if (!doc.exists()) {
@@ -69,7 +72,7 @@ const Shop = () => {
         });
       }).then(async () => {
         await updateDoc(doc(db, "nfts", `${nftId}`), {
-          owner: `${store?.wallet}`,
+          owner: store?.wallet,
           forSale: false,
           updatedAt: new Date().getTime(),
         })
@@ -94,13 +97,15 @@ const Shop = () => {
           {nfts.map((promotion) => (
             <div className="rounded-lg border p-4" key={promotion.id}>
               <div className="m-2 text-center space-y-2">
-                <p className="text-xs text-gray-600 italic">{promotion.id}</p>
+                <p className="text-xs text-gray-600 italic">
+                  {promotion.points} life time points
+                </p>
                 <h3 className="text-2xl font-bold text-gray-900">
                   {promotion.reward} NFT
                 </h3>
-                <p className="mt-1 text-sm text-gray-500">
-                  earn ${(1 / promotion.totalSupply).toFixed(8)} LYLT per tx.
-                </p>
+                <h4 className="text-xl text-gray-900">
+                  from {promotion.businessName}
+                </h4>
                 <button
                   onClick={() =>
                     buyNFT(
@@ -113,6 +118,9 @@ const Shop = () => {
                 >
                   Buy {promotion.price} LYLT
                 </button>
+                <p className="mt-1 text-sm text-gray-500">
+                  earn ${(1 / promotion.totalSupply).toFixed(8)} LYLT per tx.
+                </p>
               </div>
             </div>
           ))}

@@ -46,7 +46,10 @@ export default function Nav() {
 
   useEffect(() => {
     const queryBalance = async () => {
-      const q = doc(db, "wallets", `${store?.wallet}`);
+      if (!store?.wallet) {
+        return;
+      }
+      const q = doc(db, "wallets", store?.wallet);
       const unsubscribe = onSnapshot(q, async (document) => {
         if (document.exists()) {
           const data = document.data() as Wallet;
