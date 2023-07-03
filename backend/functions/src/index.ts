@@ -58,15 +58,27 @@ export const pointTransactionQueue = onTaskDispatched(
       const document = data.document;
       const key = data.key;
       const value = data.value;
-      logger.info(
-        `update ${document} from ${collection} with ${key} to ${value}`
-      );
-      const docRef = db.collection(collection).doc(document);
-      const res = await docRef.update({
-        [key]: value,
-        updatedAt: new Date().getTime(),
-      });
-      logger.info(res);
+      const operation = data.operation;
+      if (operation == "replace") {
+        logger.info(
+          `update ${document} from ${collection} with ${key} to ${value}`
+        );
+        const docRef = db.collection(collection).doc(document);
+        const res = await docRef.update({
+          [key]: value,
+          updatedAt: new Date().getTime(),
+        });
+        logger.info(res);
+      }
+      if (operation == "add") {
+        const docRef = db.collection(collection).doc(document);
+        const res = await db.runTransaction(async (t: any) => {
+          const doc = await t.get(docRef);
+          const newPoints = doc.data()[key] + value;
+          t.update(docRef, { [key]: newPoints });
+        });
+        logger.info(res);
+      }
     } catch (e) {
       logger.error("error", e);
     }
@@ -92,7 +104,26 @@ export const addPointTransactionToQueue = https.onRequest(
         console.log("No matching documents.");
         response.status(200).json({ message: "success but missing documents" });
       }
+      const count = snapshot.docs.length;
+      const pointsToIssueHolder = 1 / count;
       snapshot.forEach((doc: any) => {
+        let data = doc.data();
+        // add to wallets of owners the 1 / total NFT from that promotion
+        enqueues.push(
+          queue.enqueue(
+            {
+              collection: "wallets",
+              document: data.owner,
+              key: documentKey,
+              value: pointsToIssueHolder,
+              operation: "add",
+            },
+            {
+              uri: targetUri,
+            }
+          )
+        );
+        // update points on each NFT
         enqueues.push(
           queue.enqueue(
             {
@@ -100,6 +131,7 @@ export const addPointTransactionToQueue = https.onRequest(
               document: doc.id,
               key: documentKey,
               value: value,
+              operation: "replace",
             },
             {
               uri: targetUri,
