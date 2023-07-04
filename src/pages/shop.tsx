@@ -19,7 +19,11 @@ import { XMarkIcon, FaceFrownIcon } from "@heroicons/react/20/solid";
 const Shop = () => {
   const store = useStore(useAuthStore, (state) => state);
   const [nfts, setNFTS] = useState<NFT[]>([]);
-  const [wallet, setWallet] = useState<Wallet>();
+  const [wallet, setWallet] = useState<Wallet>({
+    address: "",
+    coins: 0,
+    points: 0,
+  });
   const [showError, setShowError] = useState<boolean>(false);
 
   useEffect(() => {
@@ -36,7 +40,9 @@ const Shop = () => {
       });
       return unsubscribe;
     };
-    queryBalance();
+    if (store?.wallet) {
+      queryBalance();
+    }
   }, [store?.wallet]);
 
   useEffect(() => {
@@ -67,6 +73,7 @@ const Shop = () => {
       }
       const currentTime = new Date().getTime();
       const walletRef = doc(db, "wallets", store?.wallet);
+      // update buyer
       await runTransaction(db, async (transaction) => {
         const doc = await transaction.get(walletRef);
         if (!doc.exists()) {
@@ -77,11 +84,14 @@ const Shop = () => {
           throw "not enough coins";
         }
         const newCoins = oldData - price;
+        console.log("buyer address", store?.wallet, "coins", newCoins);
         transaction.update(walletRef, {
           coins: newCoins,
           updatedAt: currentTime,
         });
       });
+      // update seller
+      console.log("seller address", seller);
       const sellerRef = doc(db, "wallets", `${seller}`);
       await runTransaction(db, async (transaction) => {
         const doc = await transaction.get(sellerRef);
@@ -93,24 +103,20 @@ const Shop = () => {
           throw "not enough coins";
         }
         const newCoins = oldData + price;
+        console.log("seller", seller, "coins", newCoins);
         transaction.update(sellerRef, {
           coins: newCoins,
           updatedAt: currentTime,
         });
-      }).then(async () => {
-        console.log("updating nft owner", `${nftId}`, store?.wallet);
-        return updateDoc(doc(db, "nfts", `${nftId}`), {
-          owner: store?.wallet,
-          forSale: false,
-          updatedAt: new Date().getTime(),
-        })
-          .then(() => {
-            console.log("complete");
-          })
-          .catch((e) => {
-            console.log(e);
-          });
       });
+      // update nft owner
+      console.log("nft", nftId);
+      const res = await updateDoc(doc(db, "nfts", `${nftId}`), {
+        owner: store?.wallet,
+        forSale: false,
+        updatedAt: new Date().getTime(),
+      }).catch((e) => console.log("error", e));
+      console.log("res", res);
     } catch (e) {
       console.log(e);
     }
