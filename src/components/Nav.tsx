@@ -45,6 +45,16 @@ export default function Nav() {
   );
 
   useEffect(() => {
+    const confirmAccount = async () => {
+      // check if the wallet exists
+      // create if it does not
+    };
+    if (store?.wallet) {
+      confirmAccount();
+    }
+  }, [store?.wallet]);
+
+  useEffect(() => {
     const queryBalance = async () => {
       if (!store?.wallet) {
         return;
@@ -58,7 +68,9 @@ export default function Nav() {
       });
       return unsubscribe;
     };
-    queryBalance();
+    if (store?.wallet) {
+      queryBalance();
+    }
   }, [store?.wallet]);
 
   return (

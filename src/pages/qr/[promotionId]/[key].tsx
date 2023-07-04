@@ -14,7 +14,7 @@ import {
 import QRCode from "qrcode";
 import { v4 as uuidv4 } from "uuid";
 import { ref, uploadString } from "firebase/storage";
-import { Promotion, Card, Wallet, NFT } from "../../../types";
+import { Promotion, Card, Wallet } from "../../../types";
 
 const Qr = () => {
   const [loading, setLoading] = useState<boolean>(false);

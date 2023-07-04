@@ -99,13 +99,12 @@ const Create = () => {
           minted: false,
           price: 0,
         };
-        await setDoc(doc(db, "promotions", docRef), {
+        setDoc(doc(db, "promotions", docRef), {
           ...promoDetails,
           createdAt: new Date().getTime(),
           updatedAt: new Date().getTime(),
         })
           .then(() => {
-            // TODO: Firebase - Record Event
             setOpenModal(true);
           })
           .catch((e) => {
