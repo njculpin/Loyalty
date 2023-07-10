@@ -75,19 +75,34 @@ const Qr = () => {
           throw "key does not match";
         }
         const currentTime = new Date().getTime();
-        await updateCard(promotion, currentTime);
+
+        const cardPoints = await updateCard(promotion, currentTime);
+        console.log("cardPoints", cardPoints);
+
         const promotionPoints = await updatePromotion(promotion, currentTime);
+        console.log("promotionPoints", promotionPoints);
+
         const functions = getFunctions();
         const updateNFTs = httpsCallable(
           functions,
           "addPointTransactionToQueue"
         );
-        await updateNFTs({
+
+        console.log("to update", {
           key: "points",
           promotionId: promotionId,
           value: promotionPoints,
         });
-        await updateVendor(promotion, currentTime);
+
+        const updateNfts = await updateNFTs({
+          key: "points",
+          promotionId: promotionId,
+          value: promotionPoints,
+        });
+        console.log("updateNfts", updateNfts);
+
+        const vendorPoints = await updateVendor(promotion, currentTime);
+        console.log("vendorPoints", vendorPoints);
       } catch (e) {
         console.log("Transaction failed: ", e);
       }
@@ -159,7 +174,7 @@ const Qr = () => {
       let businessWallet = promotion.businessWallet;
       console.log("businessWallet ln 160", businessWallet);
       const bWalletRef = doc(db, "wallets", `${businessWallet}`);
-      await runTransaction(db, async (transaction) => {
+      const points = await runTransaction(db, async (transaction) => {
         const doc = await transaction.get(bWalletRef);
         if (!doc.exists()) {
           throw "Document does not exist!";
@@ -173,6 +188,7 @@ const Qr = () => {
         });
         return newPoints;
       });
+      return points;
     } catch (e) {
       console.log(e);
       return -1;

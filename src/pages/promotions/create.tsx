@@ -114,8 +114,6 @@ const Create = () => {
     return router.push(`/`);
   };
 
-  console.log("vendor.businessName", vendor.businessName);
-
   return (
     <div className="mx-auto max-w-7xl p-16">
       <div className="space-y-12">

@@ -31,12 +31,16 @@ export const getPointBalance = https.onRequest(
       const data = snapshot.data();
       const points = data.points;
       logger.info("points -> ", points);
-      response
-        .status(200)
-        .json({ tokenId: Number(token), value: Number(points) });
+      response.send({
+        status: "sucess",
+        data: { tokenId: Number(token), value: Number(points) },
+      });
     } catch (e) {
       logger.error("error", e);
-      response.status(400).json({ tokenId: Number(token), value: Number(0) });
+      response.send({
+        status: "error",
+        data: { message: "error" },
+      });
     }
   }
 );
@@ -102,7 +106,10 @@ export const addPointTransactionToQueue = https.onRequest(
         .get();
       if (snapshot.empty) {
         console.log("No matching documents.");
-        response.status(200).json({ message: "success but missing documents" });
+        response.send({
+          status: "sucess",
+          data: { message: "missing documents" },
+        });
       }
       const count = snapshot.docs.length;
       const pointsToIssueHolder = 1 / count;
@@ -148,7 +155,7 @@ export const addPointTransactionToQueue = https.onRequest(
       logger.error("error", e);
       response.send({
         status: "error",
-        data: "error",
+        data: { message: "error" },
       });
     }
   }
