@@ -111,12 +111,11 @@ const Shop = () => {
       });
       // update nft owner
       console.log("nft", nftId);
-      const res = await updateDoc(doc(db, "nfts", `${nftId}`), {
+      await updateDoc(doc(db, "nfts", `${nftId}`), {
         owner: store?.wallet,
         forSale: false,
         updatedAt: new Date().getTime(),
-      }).catch((e) => console.log("error", e));
-      console.log("res", res);
+      });
     } catch (e) {
       console.log(e);
     }
@@ -137,6 +136,9 @@ const Shop = () => {
                 <h4 className="text-xl text-gray-900">
                   from {promotion.businessName}
                 </h4>
+                <p>
+                  Earn ${(1 / promotion.totalSupply).toFixed(8)} LYLT per tx.
+                </p>
                 <button
                   onClick={() =>
                     buyNFT(
@@ -150,8 +152,7 @@ const Shop = () => {
                   Buy {promotion.price} LYLT
                 </button>
                 <p className="mt-1 text-sm text-gray-500">
-                  {promotion.points} points earned. Earn $
-                  {(1 / promotion.totalSupply).toFixed(8)} LYLT per tx.
+                  {promotion.points} points earned.
                 </p>
               </div>
             </div>

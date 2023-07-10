@@ -88,12 +88,6 @@ const Qr = () => {
           "addPointTransactionToQueue"
         );
 
-        console.log("to update", {
-          key: "points",
-          promotionId: promotionId,
-          value: promotionPoints,
-        });
-
         const updateNfts = await updateNFTs({
           key: "points",
           promotionId: promotionId,
