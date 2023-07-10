@@ -51,12 +51,12 @@ const About = () => {
             </h2>
             <p className="mt-4 text-lg leading-8 text-gray-600">
               We have decades of experience in the fields of software
-              engineering, product development, commercial print, and marketing.
-              Joe Burk, an Executive Producer at the Food Network, brings his
-              years of experience in entertainment. We've created businesses,
-              NFT projects, built web and mobile apps, and have a deep love of
-              all things Web3. We've combined our skills, experience, and
-              friendships together to start building LYLT.
+              engineering, product development, commercial print, marketing, and
+              small business. Joe Burk, an Executive Producer at the Food
+              Network, brings his years of experience in entertainment. We've
+              created businesses, NFT projects, built web and mobile apps, and
+              have a deep love of all things Web3. We've combined our skills,
+              experience, and friendships together to start building LYLT.
             </p>
           </div>
           <ul

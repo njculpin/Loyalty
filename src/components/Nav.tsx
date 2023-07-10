@@ -8,23 +8,23 @@ import useStore from "@/lib/useStore";
 import useAuthStore from "@/lib/store";
 
 import { db } from "../firebase";
-import { doc, onSnapshot } from "firebase/firestore";
+import { doc, onSnapshot, getDoc } from "firebase/firestore";
 
-import { Wallet } from "@/types";
+import { Wallet, Vendor } from "@/types";
 
-const loggedInNavigation = [
+const loggedInNav = [
   { name: "Shop", href: "/shop" },
   { name: "Account", href: "/account" },
   { name: "Promotions", href: "/promotions" },
+  { name: "About Us", href: "/about" },
   { name: "Settings", href: "/settings" },
-  { name: "About", href: "/about" },
 ];
 
 const landingNav = [
   { name: "Shop", href: "/shop" },
   { name: "Prices", href: "/prices" },
   { name: "Case Studies", href: "/cases" },
-  { name: "About", href: "/about" },
+  { name: "About Us", href: "/about" },
 ];
 
 export default function Nav() {
@@ -45,16 +45,6 @@ export default function Nav() {
   );
 
   useEffect(() => {
-    const confirmAccount = async () => {
-      // check if the wallet exists
-      // create if it does not
-    };
-    if (store?.wallet) {
-      confirmAccount();
-    }
-  }, [store?.wallet]);
-
-  useEffect(() => {
     const queryBalance = async () => {
       if (!store?.wallet) {
         return;
@@ -63,7 +53,11 @@ export default function Nav() {
       const unsubscribe = onSnapshot(q, async (document) => {
         if (document.exists()) {
           const data = document.data() as Wallet;
-          setWallet(data);
+          setWallet({
+            coins: data.coins ? data.coins : 0,
+            points: data.points ? data.points : 0,
+            address: data.address ? data.address : "",
+          });
         }
       });
       return unsubscribe;
@@ -110,7 +104,7 @@ export default function Nav() {
         <div className="hidden lg:flex lg:gap-x-12">
           {store?.wallet ? (
             <>
-              {loggedInNavigation.map((item) => (
+              {loggedInNav.map((item) => (
                 <Link
                   key={item.name}
                   href={item.href}
@@ -189,7 +183,7 @@ export default function Nav() {
               <div className="space-y-2 py-6">
                 {store?.wallet ? (
                   <>
-                    {loggedInNavigation.map((item) => (
+                    {loggedInNav.map((item) => (
                       <Link
                         key={item.name}
                         href={item.href}

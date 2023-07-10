@@ -1,13 +1,27 @@
+import { useEffect, useState } from "react";
 import { CheckIcon } from "@heroicons/react/20/solid";
+import { RadioGroup } from "@headlessui/react";
 
 const includedFeatures = [
-  "Food Alliance Membership",
   "Unlimited Promotions",
-  "Promotion Analytics",
-  "Earn Rewards",
+  "Analytics",
+  "Marketplace Membership",
+  "Frictionless Dashboard",
+  "Earn rewards",
+  "Unlimited Locations",
 ];
 
+const frequencies = [
+  { value: "monthly", label: "Monthly", priceSuffix: "/month" },
+  { value: "annually", label: "Annually", priceSuffix: "/year" },
+];
+
+function classNames(...classes: any) {
+  return classes.filter(Boolean).join(" ");
+}
+
 const Prices = () => {
+  const [frequency, setFrequency] = useState(frequencies[0]);
   return (
     <div className="mx-auto max-w-7xl">
       <div className="bg-white py-16 sm:py-32">
@@ -20,7 +34,8 @@ const Prices = () => {
               We simply have a monthly subscription, cancel any time.
             </p>
           </div>
-          <div className="mx-auto mt-16 max-w-2xl rounded-3xl ring-1 ring-gray-200 sm:mt-20 lg:mx-0 lg:flex lg:max-w-none shadow-lg">
+
+          <div className="mx-auto max-w-2xl rounded-3xl ring-1 ring-gray-200 sm:mt-20 lg:mx-0 lg:flex lg:max-w-none shadow-lg justify-between">
             <div className="p-8 sm:p-10 lg:flex-auto">
               <h3 className="text-2xl font-bold tracking-tight text-gray-900">
                 Monthly membership
@@ -38,7 +53,7 @@ const Prices = () => {
               </div>
               <ul
                 role="list"
-                className="mt-8 grid grid-cols-1 gap-4 text-sm leading-6 text-gray-600 sm:grid-cols-2 sm:gap-6"
+                className="mt-8 grid grid-cols-1 gap-1 text-sm leading-6 text-gray-600 sm:grid-cols-2 sm:gap-6"
               >
                 {includedFeatures.map((feature) => (
                   <li key={feature} className="flex gap-x-3">
@@ -51,18 +66,42 @@ const Prices = () => {
                 ))}
               </ul>
             </div>
-            <div className="-mt-2 p-2 lg:mt-0 lg:w-full lg:max-w-md lg:flex-shrink-0">
+            <div className="-mt-2 p-2 lg:mt-0 lg:w-full lg:max-w-md lg:flex-shrink-0 flex justify-center">
               <div className="rounded-2xl bg-gray-50 py-10 text-center ring-1 ring-inset ring-gray-900/5 lg:flex lg:flex-col lg:justify-center lg:py-16">
                 <div className="mx-auto max-w-xs px-8">
-                  <p className="text-base font-semibold text-gray-600">
-                    Paid Monthly
-                  </p>
+                  <div className="flex justify-center">
+                    <RadioGroup
+                      value={frequency}
+                      onChange={setFrequency}
+                      className="grid grid-cols-2 gap-x-1 rounded-full p-1 text-center text-xs font-semibold leading-5 ring-1 ring-inset ring-gray-200"
+                    >
+                      <RadioGroup.Label className="sr-only">
+                        Payment frequency
+                      </RadioGroup.Label>
+                      {frequencies.map((option) => (
+                        <RadioGroup.Option
+                          key={option.value}
+                          value={option}
+                          className={({ checked }) =>
+                            classNames(
+                              checked
+                                ? "bg-green-600 text-white"
+                                : "text-gray-500",
+                              "cursor-pointer rounded-full px-2.5 py-1"
+                            )
+                          }
+                        >
+                          <span>{option.label}</span>
+                        </RadioGroup.Option>
+                      ))}
+                    </RadioGroup>
+                  </div>
                   <p className="mt-6 flex items-baseline justify-center gap-x-2">
                     <span className="text-5xl font-bold tracking-tight text-gray-900">
-                      $00
+                      {frequency.value == "monthly" ? "$49.99" : "$39.99"}
                     </span>
                     <span className="text-sm font-semibold leading-6 tracking-wide text-gray-600">
-                      USD
+                      USD /month
                     </span>
                   </p>
                   <a

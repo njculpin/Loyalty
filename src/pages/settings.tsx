@@ -1,7 +1,7 @@
 import useStore from "@/lib/useStore";
 import useAuthStore from "@/lib/store";
 import { db } from "../firebase";
-import { doc, setDoc, onSnapshot } from "firebase/firestore";
+import { doc, updateDoc, onSnapshot } from "firebase/firestore";
 import { Fragment, useEffect, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { CheckIcon } from "@heroicons/react/24/outline";
@@ -24,7 +24,7 @@ export default function Settings() {
 
   useEffect(() => {
     if (store?.wallet) {
-      const q = doc(db, "vendors", store?.wallet);
+      const q = doc(db, "wallets", store?.wallet);
       const unsubscribe = onSnapshot(q, (doc) => {
         if (!doc.exists) {
           return;
@@ -47,24 +47,15 @@ export default function Settings() {
     if (!store?.wallet) {
       return;
     }
-    await setDoc(doc(db, "wallets", store?.wallet), {
+    console.log("vendor --> ", vendor);
+    await updateDoc(doc(db, "wallets", store?.wallet), {
+      ...vendor,
+      businessWallet: store?.wallet,
       updatedAt: new Date().getTime(),
     })
-      .then(async () => {
-        if (!store?.wallet) {
-          return;
-        }
-        await setDoc(doc(db, "vendors", store?.wallet), {
-          ...vendor,
-          businessWallet: store?.wallet,
-          updatedAt: new Date().getTime(),
-        })
-          .then(() => {
-            setOpenModal(true);
-          })
-          .catch((e) => {
-            console.log(e);
-          });
+      .then(() => {
+        console.log("complete");
+        setOpenModal(true);
       })
       .catch((e) => {
         console.log(e);
@@ -74,35 +65,6 @@ export default function Settings() {
   return (
     <div className="mx-auto max-w-7xl p-16">
       <div className="space-y-12">
-        <div className="border-b border-gray-900/10 pb-12">
-          <h2 className="text-base font-semibold leading-7 text-gray-900">
-            Personal Information
-          </h2>
-          <p className="mt-1 text-sm leading-6 text-gray-600">
-            This information is used to help you find local participating
-            business. It is optional and not shared.
-          </p>
-          <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
-            <div className="sm:col-span-2">
-              <label
-                htmlFor="businessPostalCode"
-                className="block text-sm font-medium leading-6 text-gray-900"
-              >
-                ZIP / Postal code
-              </label>
-              <div className="mt-2">
-                <input
-                  onChange={handleChange}
-                  type="text"
-                  name="businessPostalCode"
-                  id="businessPostalCode"
-                  value={vendor.businessPostalCode}
-                  className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-green-600 sm:text-sm sm:leading-6"
-                />
-              </div>
-            </div>
-          </div>
-        </div>
         <div className="border-b border-gray-900/10 pb-12">
           <h2 className="text-base font-semibold leading-7 text-gray-900">
             Business Information
@@ -168,29 +130,6 @@ export default function Settings() {
                   value={vendor.businessPhone}
                   className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-green-600 sm:text-sm sm:leading-6"
                 />
-              </div>
-            </div>
-
-            <div className="sm:col-span-3">
-              <label
-                htmlFor="businessCountry"
-                className="block text-sm font-medium leading-6 text-gray-900"
-              >
-                Country
-              </label>
-              <div className="mt-2">
-                <select
-                  onChange={handleChange}
-                  id="businessCountry"
-                  name="businessCountry"
-                  autoComplete="country-name"
-                  className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-green-600 sm:max-w-xs sm:text-sm sm:leading-6"
-                  value={vendor.businessCountry}
-                >
-                  <option>United States</option>
-                  <option>Canada</option>
-                  <option>Mexico</option>
-                </select>
               </div>
             </div>
 
@@ -265,6 +204,25 @@ export default function Settings() {
                   name="businessPostalCode"
                   id="businessPostalCode"
                   value={vendor.businessPostalCode}
+                  className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-green-600 sm:text-sm sm:leading-6"
+                />
+              </div>
+            </div>
+
+            <div className="sm:col-span-2">
+              <label
+                htmlFor="businessCountry"
+                className="block text-sm font-medium leading-6 text-gray-900"
+              >
+                Country
+              </label>
+              <div className="mt-2">
+                <input
+                  onChange={handleChange}
+                  type="text"
+                  name="businessCountry"
+                  id="businessCountry"
+                  value={vendor.businessCountry}
                   className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-green-600 sm:text-sm sm:leading-6"
                 />
               </div>

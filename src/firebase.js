@@ -10,6 +10,7 @@ import {
 import { getFunctions } from "firebase/functions";
 import { getStorage } from "firebase/storage";
 import { getFirestore } from "firebase/firestore";
+import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_KEY,
@@ -55,6 +56,35 @@ export const loginFirebase = async (smartAccount) => {
       console.log("not logged in firebase");
     }
   });
+
+  await setWallet(smartAccount);
+  return;
+};
+
+const setWallet = async (smartAccount) => {
+  try {
+    const docRef = doc(db, "wallets", smartAccount);
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+      console.log("document exists");
+      return;
+    } else {
+      console.log("No such document! create one");
+      await setDoc(doc(db, "wallets", smartAccount), {
+        address: smartAccount,
+        coins: 0,
+        points: 0,
+      })
+        .then(() => {
+          console.log("complete");
+        })
+        .catch((e) => {
+          console.log(e);
+        });
+    }
+  } catch (e) {
+    console.log(e);
+  }
 };
 
 export const logoutFirebase = async () => {
@@ -66,37 +96,6 @@ export const logoutFirebase = async () => {
       console.log("firebase logout error", error);
     });
 };
-
-// export const recordEvent = async (
-//   transactionType,
-//   amount,
-//   reciever,
-//   sender
-// ) => {
-//   try {
-//     /*
-//     mint_nft
-//     list_nft
-//     unlist_nft
-//     transfer_nft
-
-//     transfer_point
-//     transfer_coin
-
-//     create_promotion
-//     */
-//     const docRef = await addDoc(collection(db, "transactions"), {
-//       transactionType: transactionType,
-//       amount: amount,
-//       reciever: reciever,
-//       sender: sender,
-//       createdAt: new Date().toString(),
-//     });
-//     console.log("transactions written with ID: ", docRef.id);
-//   } catch (e) {
-//     console.log(e);
-//   }
-// };
 
 export const recordEvent = async (eventName, params) => {
   return logEvent(analytics, eventName, params);

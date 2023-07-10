@@ -229,13 +229,13 @@ export default function Account() {
                     <p className="">{promotion.coins} LYLT Earned</p>
                   )}
                   {promotion.minted === true ? (
-                    <p className="bg-purple-600 px-2 py-2 text-white text-xs rounded-full shadow-inner">
+                    <p className="bg-purple-600 w-16 px-2 py-2 text-white text-xs rounded-full shadow-inner">
                       Minted
                     </p>
                   ) : (
                     <button
                       onClick={() => sellPromotionNft(promotion)}
-                      className="rounded-full bg-green-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-green-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600"
+                      className="bg-green-600 w-16 px-2 py-2 text-white text-xs rounded-full shadow-inner"
                     >
                       Sell
                     </button>
@@ -316,7 +316,7 @@ export default function Account() {
                             htmlFor="totalSupply"
                             className="block text-sm font-medium leading-6 text-black"
                           >
-                            Total Supply
+                            How Many NFTs would you like to mint?
                           </label>
                           <div className="mt-2">
                             <input
@@ -326,8 +326,8 @@ export default function Account() {
                               type="number"
                               pattern="[0-9]*"
                               required
+                              defaultValue={1}
                               className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-green-600 sm:text-sm sm:leading-6"
-                              value={selectedPromotion.totalSupply}
                             />
                           </div>
                           <label
@@ -344,8 +344,8 @@ export default function Account() {
                               type="number"
                               pattern="[0-9]*"
                               required
+                              defaultValue={1}
                               className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-green-600 sm:text-sm sm:leading-6"
-                              value={selectedPromotion.price}
                             />
                           </div>
                           <button

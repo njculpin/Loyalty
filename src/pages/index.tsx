@@ -26,12 +26,12 @@ import NewsSignup from "@/components/NewsSignup";
 const features = [
   {
     name: "LYLT Coin",
-    description: "The industry contract standards, proven and secure.",
+    description: "Uses the industry contract standards, proven and secure.",
     icon: CloudArrowUpIcon,
   },
   {
     name: "Loyalty NFTs",
-    description: "Adding complexity to promotional design",
+    description: "Create customized transferrable rewards",
     icon: Cog6ToothIcon,
   },
   {
@@ -45,8 +45,9 @@ const features = [
     icon: ArrowPathIcon,
   },
   {
-    name: "Chainlink Oracle Integration",
-    description: "Chainlink Oracle Integration",
+    name: "Oracles",
+    description:
+      "Chainlink provides an oracle to continuously maintain and verify the value of promotions",
     icon: FingerPrintIcon,
   },
 
@@ -60,20 +61,22 @@ const features = [
 const caseStudies = [
   {
     name: "Bacon Club",
-    description: "Premium Bacon Delivered To Your Door.",
+    description:
+      "Drop ship based e-commerce looking to promote and retain monthly subscription customers.",
     href: "/cases/bacon-club",
     icon: "/bacon.png",
   },
   {
     name: "Roaming Travelers",
-    description: "A brick and mortor clothing store.",
+    description:
+      "Retail brick & mortar store looking to improve customer retention from initial in-person tourism driven foot traffic.",
     href: "/cases/roaming",
     icon: "/roamingtravelers.png",
   },
   {
     name: "Food Alliance",
     description:
-      "The NFFA aims to help Web2 and Web3 brands build gamified ecosystems that reward the complete customer journey.",
+      "Bridging customers to a web3 experience within a traditional comfort zone of usability while rewarding interactions.",
     href: "/cases/food-alliance",
     icon: "/nffa.png",
   },
@@ -123,13 +126,13 @@ const Index = () => {
         if (!store?.wallet) {
           return;
         }
-        const docRef = doc(db, "vendors", store?.wallet);
+        const docRef = doc(db, "wallets", store?.wallet);
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
           const data = docSnap.data() as Vendor;
           setVendor(data);
         } else {
-          console.log("No such document!");
+          console.log("No such vendor!");
         }
       } catch (e) {
         console.log(e);
@@ -233,10 +236,10 @@ const Index = () => {
             </svg>
           </div>
           <div className="relative isolate px-6 lg:px-8">
-            <div className="mx-auto max-w-3xl">
+            <div className="mx-auto max-w-2xl">
               <div className="text-center">
                 <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl">
-                  A tokenized loyalty program for small business
+                  A loyalty program for small business
                 </h1>
                 <div className="mt-10 flex items-center justify-center gap-x-6">
                   <a
@@ -319,18 +322,18 @@ const Index = () => {
                 </p>
                 <p className="mt-6 text-lg leading-8 text-gray-600">
                   LYLT is a dynamic ecosystem that connects businesses and their
-                  customers to a reward based marketplace. A simple transaction
-                  issues LYLT points to the customer which is returned to the
-                  business as the web3 LYLT Coin. The LYLT Coins can be used to
-                  purchase goods and services from any participating business in
-                  the marketplace, enhance their promotions, or sell on the free
-                  market. While the points program will rely on a web2 system
-                  that's familiar to the average consumer the web3 LYLT Coin
-                  will operate in the background for businesses.
+                  customers to a reward based marketplace. Every transaction
+                  seamlessly issues LYLT points to the customer which are
+                  returned to the business as the web3 LYLT Coin. LYLT Coins can
+                  be used to purchase goods and services from any participating
+                  business in the marketplace, enhance their promotions, or sell
+                  on the free market. While the points program will rely on a
+                  web2 system that's familiar to the average consumer the web3
+                  LYLT Coin will operate in the background for businesses.
                 </p>
               </div>
             </div>
-            <div className="relative overflow-hidden pt-16">
+            {/* <div className="relative overflow-hidden pt-16">
               <div className="mx-auto max-w-7xl px-6 lg:px-8">
                 <img
                   src="https://tailwindui.com/img/component-images/project-app-screenshot.png"
@@ -343,7 +346,7 @@ const Index = () => {
                   <div className="absolute -inset-x-20 bottom-0 bg-gradient-to-t from-white pt-[7%]" />
                 </div>
               </div>
-            </div>
+            </div> */}
             <div className="mx-auto mt-16 max-w-7xl px-6 sm:mt-20 md:mt-24 lg:px-8">
               <dl className="mx-auto grid max-w-2xl grid-cols-1 gap-x-6 gap-y-10 text-base leading-7 text-gray-600 sm:grid-cols-2 lg:mx-0 lg:max-w-none lg:grid-cols-3 lg:gap-x-8 lg:gap-y-16">
                 {features.map((feature) => (

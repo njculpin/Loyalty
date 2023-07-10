@@ -157,6 +157,7 @@ const Qr = () => {
   const updateVendor = async (promotion: Promotion, currentTime: number) => {
     try {
       let businessWallet = promotion.businessWallet;
+      console.log("businessWallet ln 160", businessWallet);
       const bWalletRef = doc(db, "wallets", `${businessWallet}`);
       await runTransaction(db, async (transaction) => {
         const doc = await transaction.get(bWalletRef);
