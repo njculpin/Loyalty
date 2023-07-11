@@ -46,3 +46,9 @@ npx hardhat run --network localhost scripts/deploy.ts
 ```
 npx hardhat run --network mumbai scripts/deploy.ts
 ```
+
+1. Onboard Vendor
+2. Vendor enters business details
+3. Vendor creates promotions to be redeemed once a customer has a number of
+   points associated with that vendor
+4. Scan to redeem products

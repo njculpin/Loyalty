@@ -1,11 +1,14 @@
 import useStore from "@/lib/useStore";
 import useAuthStore from "@/lib/store";
-import { db } from "../firebase";
+import { storage, db } from "../firebase";
+import { ref, uploadString } from "firebase/storage";
 import { doc, updateDoc, onSnapshot } from "firebase/firestore";
 import { Fragment, useEffect, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { CheckIcon } from "@heroicons/react/24/outline";
 import { Vendor } from "../types";
+import QRCode from "qrcode";
+import { v4 as uuidv4 } from "uuid";
 
 export default function Settings() {
   const store = useStore(useAuthStore, (state) => state);
@@ -20,6 +23,7 @@ export default function Settings() {
     businessStreetAddress: "",
     businessCountry: "",
     businessWallet: "",
+    qRUrl: "",
   });
 
   useEffect(() => {
@@ -47,10 +51,17 @@ export default function Settings() {
     if (!store?.wallet) {
       return;
     }
+    const qr = await QRCode.toDataURL(
+      `loyalty-iota.vercel.app/qr/v/${store?.wallet}`
+    );
+    const storageRef = ref(storage, `qr/v/${store?.wallet}.png`);
+    const uploadTask = await uploadString(storageRef, qr, "data_url");
+    const QRURL = uploadTask.metadata.fullPath;
     console.log("vendor --> ", vendor);
     await updateDoc(doc(db, "wallets", store?.wallet), {
       ...vendor,
       businessWallet: store?.wallet,
+      qRUrl: QRURL,
       updatedAt: new Date().getTime(),
     })
       .then(() => {

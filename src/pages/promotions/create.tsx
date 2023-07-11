@@ -32,7 +32,6 @@ const Create = () => {
     coins: 0,
     points: 0,
     reward: "",
-    key: "",
     qRUrl: "",
   });
   const store = useStore(useAuthStore, (state) => state);
@@ -64,11 +63,10 @@ const Create = () => {
     try {
       if (store?.wallet) {
         const docRef = uuidv4();
-        const key = uuidv4();
         const qr = await QRCode.toDataURL(
-          `loyalty-iota.vercel.app/qr/${docRef}/${key}`
+          `loyalty-iota.vercel.app/qr/p/${docRef}`
         );
-        const storageRef = ref(storage, `qr/${docRef}.png`);
+        const storageRef = ref(storage, `qr/p/${docRef}.png`);
         const uploadTask = await uploadString(storageRef, qr, "data_url");
         const QRURL = uploadTask.metadata.fullPath;
         const promoDetails = {
@@ -87,7 +85,6 @@ const Create = () => {
           coins: 0,
           points: 0,
           reward: promotion.reward,
-          key: key,
           qr: QRURL,
           minted: false,
           price: 0,

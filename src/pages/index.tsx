@@ -1,18 +1,12 @@
-import { useEffect, useState } from "react";
-import {
-  doc,
-  getDoc,
-  collection,
-  query,
-  where,
-  onSnapshot,
-} from "firebase/firestore";
-import { db, storage } from "../firebase";
+import { useEffect, useState, Fragment } from "react";
+import { Dialog, Transition } from "@headlessui/react";
+import { doc, getDoc } from "firebase/firestore";
+import { storage, db } from "../firebase";
 import { ref, getDownloadURL } from "firebase/storage";
 import Link from "next/link";
 import useStore from "@/lib/useStore";
 import useAuthStore from "@/lib/store";
-import { Vendor, Promotion } from "../types";
+import { Vendor } from "../types";
 import {
   ArrowPathIcon,
   CloudArrowUpIcon,
@@ -83,8 +77,10 @@ const caseStudies = [
 ];
 
 const Index = () => {
+  const [loading, setLoading] = useState<boolean>(false);
   const store = useStore(useAuthStore, (state) => state);
-  const [promotions, setPromotions] = useState<Promotion[]>([]);
+  const [open, setOpen] = useState(false);
+
   const [vendor, setVendor] = useState<Vendor>({
     businessCity: "",
     businessEmail: "",
@@ -95,45 +91,27 @@ const Index = () => {
     businessStreetAddress: "",
     businessCountry: "",
     businessWallet: "",
+    qRUrl: "",
   });
-
-  useEffect(() => {
-    if (store?.wallet) {
-      const q = query(
-        collection(db, "promotions"),
-        where("businessWallet", "==", store?.wallet),
-        where("active", "==", true)
-      );
-      const unsubscribe = onSnapshot(q, (querySnapshot) => {
-        const mapped = querySnapshot.docs.map(async function (doc) {
-          const data = doc.data();
-          const qr = data.qr;
-          return getDownloadURL(ref(storage, qr)).then((url) => {
-            return { ...data, qRUrl: url, id: doc.id } as unknown as Promotion;
-          });
-        });
-        Promise.all(mapped).then((result) => {
-          setPromotions(result);
-        });
-      });
-      return unsubscribe;
-    }
-  }, [store?.wallet]);
 
   useEffect(() => {
     const getData = async () => {
       try {
+        setLoading(true);
         if (!store?.wallet) {
           return;
         }
         const docRef = doc(db, "wallets", store?.wallet);
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
-          const data = docSnap.data() as Vendor;
-          setVendor(data);
+          const data = docSnap.data() as any;
+          const qRUrl = data.qRUrl;
+          const url = await getDownloadURL(ref(storage, qRUrl));
+          setVendor({ ...data, qRUrl: url });
         } else {
           console.log("No such vendor!");
         }
+        setLoading(false);
       } catch (e) {
         console.log(e);
       }
@@ -143,67 +121,42 @@ const Index = () => {
 
   return (
     <div className="mx-auto max-w-7xl p-16">
-      {store?.wallet ? (
-        <>
-          <div className="space-y-12">
-            <div className="grid grid-cols-1 gap-4 justify-between items-center">
-              <h2 className="font-bold text-gray-900 text-center text-6xl">
+      {loading && <p>Loading</p>}
+      {store?.wallet && !loading && (
+        <div className="flex justify-center items-center">
+          <div className="p-16 rounded-3xl flex flex-col justify-between items-center">
+            <div className="mb-6">
+              <h2 className="font-bold text-center text-6xl">
                 {vendor.businessName}
               </h2>
-              <p className="text-lg font-semibold text-gray-600 text-center">
+              <p className="text-lg font-semibold text-center">
                 {vendor.businessStreetAddress} {vendor.businessCity}{" "}
                 {vendor.businessCountry} {vendor.businessPostalCode}
               </p>
+              <div className="w-128 flex flex-col justify-center items-center">
+                <img
+                  style={{ height: "256", width: "256" }}
+                  src={vendor.qRUrl}
+                  alt="qr code"
+                />
+              </div>
+              <Link href={`qr/v/${vendor.businessWallet}`}>
+                <p className="mt-8 border px-4 py-2 border-black">
+                  SIMULATE SCAN
+                </p>
+              </Link>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-3">
-              {promotions &&
-                promotions.map(function (promotion: Promotion, index) {
-                  return (
-                    <div
-                      className="m-5 bg-white shadow-xl rounded-xl"
-                      key={index}
-                    >
-                      <div className="h-full p-8 text-center sm:rounded-3xl grid grid-cols-1 justify-between">
-                        <div className="flex justify-between items-center">
-                          <div className="w-full">
-                            <h1 className="text-3xl tracking-tight text-left font-extrabold text-black">
-                              {promotion.reward}
-                            </h1>
-                            {promotion.pointsRequired > 0 && (
-                              <h1 className="text-xl tracking-tight text-left font-extrabold w-full text-gray-600">
-                                {promotion.pointsRequired} Points required
-                              </h1>
-                            )}
-                            {promotion.coinsRequired > 0 && (
-                              <h1 className="text-xl tracking-tight text-left font-extrabold w-full text-gray-600">
-                                {promotion.coinsRequired} LYLT required
-                              </h1>
-                            )}
-                          </div>
-                          <div className="w-128 flex flex-col justify-center items-center">
-                            <img
-                              style={{ height: "256", width: "256" }}
-                              src={promotion.qRUrl}
-                              alt="qr code"
-                            />
-                          </div>
-                        </div>
-
-                        <Link href={`qr/${promotion.id}/${promotion.key}`}>
-                          <p className="mt-8 border px-4 py-2 border-black">
-                            SIMULATE SCAN
-                          </p>
-                        </Link>
-                      </div>
-                    </div>
-                  );
-                })}
-            </div>
-          </div>{" "}
-        </>
-      ) : (
-        <>
-          {/* HERO */}
+            <button
+              className="rounded px-4 py-2 bg-green-700 text-white"
+              onClick={() => setOpen(true)}
+            >
+              present mode
+            </button>
+          </div>
+        </div>
+      )}
+      {!store?.wallet && !loading && (
+        <div>
           <div>
             <svg
               className="absolute inset-0 -z-10 hidden h-full w-full stroke-gray-200 [mask-image:radial-gradient(64rem_64rem_at_top,white,transparent)] sm:block"
@@ -257,8 +210,6 @@ const Index = () => {
               </div>
             </div>
           </div>
-
-          {/* PARTNERS */}
           <div className="bg-white py-24 sm:py-32">
             <div className="mx-auto max-w-7xl px-6 lg:px-8">
               <h2 className="text-center text-lg font-semibold leading-8 text-gray-900">
@@ -310,7 +261,6 @@ const Index = () => {
               </div>
             </div>
           </div>
-          {/* HOW DOES IT WORK */}
           <div className="bg-white ">
             <div className="mx-auto max-w-7xl px-6 lg:px-8">
               <div className="mx-auto max-w-2xl sm:text-center">
@@ -333,20 +283,6 @@ const Index = () => {
                 </p>
               </div>
             </div>
-            {/* <div className="relative overflow-hidden pt-16">
-              <div className="mx-auto max-w-7xl px-6 lg:px-8">
-                <img
-                  src="https://tailwindui.com/img/component-images/project-app-screenshot.png"
-                  alt="App screenshot"
-                  className="mb-[-12%] rounded-xl shadow-2xl ring-1 ring-gray-900/10"
-                  width={2432}
-                  height={1442}
-                />
-                <div className="relative" aria-hidden="true">
-                  <div className="absolute -inset-x-20 bottom-0 bg-gradient-to-t from-white pt-[7%]" />
-                </div>
-              </div>
-            </div> */}
             <div className="mx-auto mt-16 max-w-7xl px-6 sm:mt-20 md:mt-24 lg:px-8">
               <dl className="mx-auto grid max-w-2xl grid-cols-1 gap-x-6 gap-y-10 text-base leading-7 text-gray-600 sm:grid-cols-2 lg:mx-0 lg:max-w-none lg:grid-cols-3 lg:gap-x-8 lg:gap-y-16">
                 {features.map((feature) => (
@@ -364,7 +300,6 @@ const Index = () => {
               </dl>
             </div>
           </div>
-          {/* USE CASE */}
           <div className="bg-white py-24 sm:py-32">
             <div className="mx-auto max-w-7xl px-6 lg:px-8">
               <div className="mx-auto max-w-2xl lg:text-center">
@@ -389,7 +324,6 @@ const Index = () => {
                   View All <span aria-hidden="true">→</span>
                 </a>
               </div>
-
               <div className="mx-auto mt-16 max-w-2xl sm:mt-20 lg:mt-24 lg:max-w-none">
                 <dl className="grid max-w-xl grid-cols-1 gap-x-8 gap-y-16 lg:max-w-none lg:grid-cols-3">
                   {caseStudies.map((feature) => (
@@ -421,8 +355,61 @@ const Index = () => {
             </div>
           </div>
           <NewsSignup />
-        </>
+        </div>
       )}
+      <Transition.Root show={open} as={Fragment}>
+        <Dialog as="div" className="relative z-10" onClose={setOpen}>
+          <Transition.Child
+            as={Fragment}
+            enter="ease-out duration-300"
+            enterFrom="opacity-0"
+            enterTo="opacity-100"
+            leave="ease-in duration-200"
+            leaveFrom="opacity-100"
+            leaveTo="opacity-0"
+          >
+            <div className="fixed inset-0 bg-green-600 transition-opacity" />
+          </Transition.Child>
+
+          <div className="fixed inset-0 z-10 overflow-y-auto">
+            <div className="flex min-h-full items-center justify-center p-4 text-center sm:items-center sm:p-0">
+              <Transition.Child
+                as={Fragment}
+                enter="ease-out duration-300"
+                enterFrom="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                enterTo="opacity-100 translate-y-0 sm:scale-100"
+                leave="ease-in duration-200"
+                leaveFrom="opacity-100 translate-y-0 sm:scale-100"
+                leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+              >
+                <Dialog.Panel className="bg-green-600 relative transform overflow-hidden rounded-lg px-4 pb-4 pt-5 text-left transition-all sm:my-8 sm:w-full sm:max-w-sm sm:p-6">
+                  <div className="flex flex-col justify-center items-center">
+                    <h2 className="font-bold text-white text-center text-6xl m-2">
+                      {vendor.businessName}
+                    </h2>
+                    <p className="text-lg font-semibold text-white text-center m-2">
+                      {vendor.businessStreetAddress} {vendor.businessCity}{" "}
+                      {vendor.businessCountry} {vendor.businessPostalCode}
+                    </p>
+                    <div className="w-128 flex flex-col justify-center items-center">
+                      <img
+                        style={{ height: "256", width: "256" }}
+                        src={vendor.qRUrl}
+                        alt="qr code"
+                      />
+                    </div>
+                    <Link href={`qr/v/${vendor.businessWallet}`}>
+                      <p className="mt-8 border px-4 py-2 border-black">
+                        SIMULATE SCAN
+                      </p>
+                    </Link>
+                  </div>
+                </Dialog.Panel>
+              </Transition.Child>
+            </div>
+          </div>
+        </Dialog>
+      </Transition.Root>
     </div>
   );
 };

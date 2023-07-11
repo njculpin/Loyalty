@@ -8,10 +8,12 @@ import {
   doc,
   updateDoc,
 } from "firebase/firestore";
-import { db } from "../firebase";
+import { db, storage } from "../firebase";
+import { ref, getDownloadURL } from "firebase/storage";
+import Link from "next/link";
 import useStore from "@/lib/useStore";
 import useAuthStore from "@/lib/store";
-import { NFT, Wallet } from "../types";
+import { NFT, Wallet, Promotion } from "../types";
 import { useRouter } from "next/router";
 import { Dialog, Transition } from "@headlessui/react";
 import { XMarkIcon, FaceFrownIcon } from "@heroicons/react/20/solid";
@@ -21,6 +23,7 @@ const Shop = () => {
   const router = useRouter();
   const store = useStore(useAuthStore, (state) => state);
   const [nfts, setNFTS] = useState<NFT[]>([]);
+  const [promotions, setPromotions] = useState<Promotion[]>([]);
   const [wallet, setWallet] = useState<Wallet>({
     address: "",
     coins: 0,
@@ -45,6 +48,29 @@ const Shop = () => {
     };
     if (store?.wallet) {
       queryBalance();
+    }
+  }, [store?.wallet]);
+
+  useEffect(() => {
+    if (store?.wallet) {
+      const q = query(
+        collection(db, "promotions"),
+        where("businessWallet", "==", store?.wallet),
+        where("active", "==", true)
+      );
+      const unsubscribe = onSnapshot(q, (querySnapshot) => {
+        const mapped = querySnapshot.docs.map(async function (doc) {
+          const data = doc.data();
+          const qr = data.qr;
+          return getDownloadURL(ref(storage, qr)).then((url) => {
+            return { ...data, qRUrl: url, id: doc.id } as unknown as Promotion;
+          });
+        });
+        Promise.all(mapped).then((result) => {
+          setPromotions(result);
+        });
+      });
+      return unsubscribe;
     }
   }, [store?.wallet]);
 
@@ -136,6 +162,48 @@ const Shop = () => {
     <div className="mx-auto max-w-7xl overflow-hidden sm:px-6 lg:px-8">
       <div className="mx-auto overflow-hidden px-4 lg:px-8">
         <h2 className="sr-only">Products</h2>
+        {/* PROMOTIONS */}
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-3 mt-8">
+          {promotions &&
+            promotions.map(function (promotion: Promotion, index) {
+              return (
+                <div className="m-5 bg-white shadow-xl rounded-xl" key={index}>
+                  <div className="h-full p-8 text-center sm:rounded-3xl grid grid-cols-1 justify-between">
+                    <div className="flex justify-between items-center">
+                      <div className="w-full">
+                        <h1 className="text-3xl tracking-tight text-left font-extrabold text-black">
+                          {promotion.reward}
+                        </h1>
+                        {promotion.pointsRequired > 0 && (
+                          <h1 className="text-xl tracking-tight text-left font-extrabold w-full text-gray-600">
+                            {promotion.pointsRequired} Points required
+                          </h1>
+                        )}
+                        {promotion.coinsRequired > 0 && (
+                          <h1 className="text-xl tracking-tight text-left font-extrabold w-full text-gray-600">
+                            {promotion.coinsRequired} LYLT required
+                          </h1>
+                        )}
+                      </div>
+                      <div className="w-128 flex flex-col justify-center items-center">
+                        <img
+                          style={{ height: "256", width: "256" }}
+                          src={promotion.qRUrl}
+                          alt="qr code"
+                        />
+                      </div>
+                    </div>
+
+                    <Link href={`qr/p/${promotion.id}`}>
+                      <p className="mt-8 border px-4 py-2 border-black">
+                        SIMULATE REDEEM
+                      </p>
+                    </Link>
+                  </div>
+                </div>
+              );
+            })}
+        </div>
         {/* NFT Sales */}
         <div className="mt-8 grid grid-cols-1 gap-y-12 sm:grid-cols-3 sm:gap-x-6 xl:gap-x-8">
           {nfts.map((promotion) => (

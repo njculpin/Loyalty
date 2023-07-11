@@ -229,15 +229,15 @@ export default function Account() {
                     <p className="">{promotion.coins} LYLT Earned</p>
                   )}
                   {promotion.minted === true ? (
-                    <p className="bg-purple-600 w-16 px-2 py-2 text-white text-xs rounded-full shadow-inner">
+                    <p className="bg-purple-600 px-2 py-2 text-white text-xs rounded-full shadow-inner">
                       Minted
                     </p>
                   ) : (
                     <button
                       onClick={() => sellPromotionNft(promotion)}
-                      className="bg-green-600 w-16 px-2 py-2 text-white text-xs rounded-full shadow-inner"
+                      className="bg-green-600 px-2 py-2 text-white text-xs rounded-full shadow-inner"
                     >
-                      Sell
+                      Revenue Share
                     </button>
                   )}
                 </div>

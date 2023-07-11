@@ -84,4 +84,5 @@ export type Vendor = {
   businessStreetAddress: string;
   businessCountry: string;
   businessWallet: string;
+  qRUrl: string;
 };
