@@ -25,6 +25,7 @@ const Create = () => {
     businessStreetAddress: "",
     businessCountry: "",
     businessWallet: "",
+    qRUrl: "",
   });
   const [promotion, setPromotion] = useState({
     pointsRequired: 0,
