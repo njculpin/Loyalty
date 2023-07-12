@@ -78,7 +78,9 @@ const Qr = () => {
       const currentTime = new Date().getTime();
       const diffTime = currentTime - updatedAt;
       if (diffTime <= 300000) {
-        return setMessage("try again in 5 minutes");
+        return setMessage(
+          `try again in ${Math.floor(diffTime / 60000)} minutes`
+        );
       }
       if (points < promotion.pointsRequired) {
         return setMessage("not enough points");
