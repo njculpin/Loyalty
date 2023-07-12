@@ -60,29 +60,29 @@ export const pointTransactionQueue = onTaskDispatched(
       const data = request.data;
       const collection = data.collection;
       const document = data.document;
-      const key = data.key;
       const value = data.value;
-      const operation = data.operation;
-      if (operation == "replace") {
-        logger.info(
-          `update ${document} from ${collection} with ${key} to ${value}`
-        );
-        const docRef = db.collection(collection).doc(document);
-        const res = await docRef.update({
-          [key]: value,
-          updatedAt: new Date().getTime(),
-        });
-        logger.info(res);
-      }
-      if (operation == "add") {
-        const docRef = db.collection(collection).doc(document);
-        const res = await db.runTransaction(async (t: any) => {
-          const doc = await t.get(docRef);
-          const newPoints = doc.data()[key] + value;
-          t.update(docRef, { [key]: newPoints });
-        });
-        logger.info(res);
-      }
+
+      const docRef = db.collection(collection).doc(document);
+      const res = await db.runTransaction(async (t: any) => {
+        const doc = await t.get(docRef);
+        const docData = doc.data();
+        let newPoints = 0;
+        if (collection === "cards") {
+          newPoints = docData.points - value;
+        } else {
+          newPoints = docData.points + value;
+        }
+        if (newPoints < 0) {
+          logger.info("not enough points");
+        } else {
+          t.update(docRef, {
+            points: newPoints,
+            updatedAt: new Date().getTime(),
+          });
+        }
+        return newPoints;
+      });
+      logger.info(res);
     } catch (e) {
       logger.error("error", e);
     }
@@ -96,49 +96,91 @@ export const addPointTransactionToQueue = https.onRequest(
       const queue = getFunctions().taskQueue("pointTransactionQueue");
       const targetUri = await getFunctionUrl("pointTransactionQueue");
       const body = request.body.data;
-      const documentKey = body.key; // points || coins
       const promotionId = body.promotionId;
+      // const vendorId = body.vendorId;
+      const cardId = body.cardId;
       const value = body.value;
       const enqueues: any = [];
+      /*
+      whenever a customer scans a promotion to redeem it:
+      1. Subtract the value from the customers card
+      2. Add the value to the promotion
+      3. Add the value to the vendor
+      4. Add the value to each NFT
+      5. Add the value to each NFT holder
+      */
+      // 1. CARD
+      enqueues.push(
+        queue.enqueue(
+          {
+            collection: "cards",
+            document: cardId,
+            value: value,
+          },
+          {
+            uri: targetUri,
+          }
+        )
+      );
+
+      // 2. PROMOTION
+      enqueues.push(
+        queue.enqueue(
+          {
+            collection: "promotions",
+            document: promotionId,
+            value: value,
+          },
+          {
+            uri: targetUri,
+          }
+        )
+      );
+      /*
+      // 3. VENDOR
+      enqueues.push(
+        queue.enqueue(
+          {
+            collection: "wallets",
+            document: vendorId,
+            value: value,
+          },
+          {
+            uri: targetUri,
+          }
+        )
+      );
+
+      // 4 & 5. NFTS
       const nftRef = db.collection("nfts");
       const snapshot = await nftRef
         .where("promotionId", "==", promotionId)
         .get();
       if (snapshot.empty) {
         console.log("No matching documents.");
-        response.send({
-          status: "sucess",
-          data: { message: "missing documents" },
-        });
       }
       const count = snapshot.docs.length;
       const pointsToIssueHolder = 1 / count;
       snapshot.forEach((doc: any) => {
         let data = doc.data();
-        // add to wallets of owners the 1 / total NFT from that promotion
         enqueues.push(
           queue.enqueue(
             {
               collection: "wallets",
               document: data.owner,
-              key: documentKey,
               value: pointsToIssueHolder,
-              operation: "add",
             },
             {
               uri: targetUri,
             }
           )
         );
-        // update points on each NFT
         enqueues.push(
           queue.enqueue(
             {
               collection: "nfts",
               document: doc.id,
-              key: documentKey,
               value: value,
-              operation: "replace",
             },
             {
               uri: targetUri,
@@ -146,10 +188,12 @@ export const addPointTransactionToQueue = https.onRequest(
           )
         );
       });
+      */
+
       await Promise.all(enqueues);
       response.send({
         status: "success",
-        data: { promotion: promotionId },
+        data: { ...body, message: "congrats, show this to the store cashier" },
       });
     } catch (e) {
       logger.error("error", e);
@@ -179,3 +223,124 @@ async function getFunctionUrl(name: string, location = "us-central1") {
   }
   return uri;
 }
+
+/*
+  const updateCard = async (promotion: Promotion, currentTime: number) => {
+    try {
+      const patronRef = doc(
+        db,
+        "cards",
+        `${store?.wallet}_${promotion.businessWallet}`
+      );
+      const docSnap = await getDoc(patronRef);
+      if (!docSnap.exists()) {
+        await setDoc(
+          doc(db, "cards", `${store?.wallet}_${promotion.businessWallet}`),
+          {
+            businessCity: promotion.businessCity,
+            businessEmail: promotion.businessEmail,
+            businessName: promotion.businessName,
+            businessPhone: promotion.businessPhone,
+            businessPostalCode: promotion.businessPostalCode,
+            businessRegion: promotion.businessRegion,
+            businessStreetAddress: promotion.businessStreetAddress,
+            businessCountry: promotion.businessCountry,
+            businessWallet: promotion.businessWallet,
+            pointsRequired: promotion.pointsRequired,
+            coinsRequired: promotion.coinsRequired,
+            patronWallet: store?.wallet,
+            points: promotion.pointsRequired > 0 ? 1 : 0,
+            coins: promotion.coinsRequired > 0 ? 1 : 0,
+            createdAt: new Date().getTime(),
+            updatedAt: new Date().getTime(),
+          }
+        );
+        return 1;
+      } else {
+        if (wallet && wallet?.points < promotion.pointsRequired) {
+          return console.log("not enough points");
+        }
+        const cardRef = doc(
+          db,
+          "cards",
+          `${store?.wallet}_${promotion.businessWallet}`
+        );
+        const points = await runTransaction(db, async (transaction) => {
+          const doc = await transaction.get(cardRef);
+          if (!doc.exists()) {
+            throw "Document does not exist!";
+          }
+          const oldData = doc.data() as unknown as Wallet;
+          const oldPoints = oldData.points;
+          const newPoints = oldPoints - promotion.pointsRequired;
+          if (newPoints > 0) {
+            transaction.update(cardRef, {
+              points: newPoints,
+              updatedAt: currentTime,
+            });
+            return newPoints;
+          } else {
+            return oldPoints;
+          }
+        });
+        return points;
+      }
+    } catch (e) {
+      console.log(e);
+      return -1;
+    }
+  };
+
+  const updateVendor = async (promotion: Promotion, currentTime: number) => {
+    try {
+      let businessWallet = promotion.businessWallet;
+      console.log("businessWallet ln 160", businessWallet);
+      const bWalletRef = doc(db, "wallets", `${businessWallet}`);
+      const points = await runTransaction(db, async (transaction) => {
+        const doc = await transaction.get(bWalletRef);
+        if (!doc.exists()) {
+          throw "Document does not exist!";
+        }
+        const oldData = doc.data() as unknown as Wallet;
+        const oldPoints = oldData.points;
+        const newPoints = oldPoints + 1;
+        transaction.update(bWalletRef, {
+          points: newPoints,
+          updatedAt: currentTime,
+        });
+        return newPoints;
+      });
+      return points;
+    } catch (e) {
+      console.log(e);
+      return -1;
+    }
+  };
+
+  const updatePromotion = async (promotion: Promotion, currentTime: number) => {
+    try {
+      if (!promotionId && !promotion) {
+        return console.log("missing vendor");
+      }
+      const newKey = uuidv4();
+      const promotionRef = doc(db, "promotions", `${promotionId}`);
+      return await runTransaction(db, async (transaction) => {
+        const doc = await transaction.get(promotionRef);
+        if (!doc.exists()) {
+          throw "Document does not exist!";
+        }
+        const oldData = doc.data().points;
+        const newPoints = oldData + 1;
+        transaction.update(promotionRef, {
+          points: newPoints,
+          updatedAt: currentTime,
+          key: newKey,
+        });
+        return newPoints;
+      });
+    } catch (e) {
+      console.log(e);
+      return -1;
+    }
+  };
+*/

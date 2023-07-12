@@ -25,6 +25,8 @@ const Qr = () => {
   const [promotion, setPromotion] = useState<Promotion>();
   const [wallet, setWallet] = useState<Wallet>();
 
+  const [message, setMessage] = useState<string>("loading");
+
   useEffect(() => {
     const queryBalance = async () => {
       if (!store?.wallet) {
@@ -54,159 +56,66 @@ const Qr = () => {
   }, [store?.wallet, promotionId]);
 
   useEffect(() => {
-    if (store?.wallet && promotionId) {
-      const q = doc(db, "promotions", `${promotionId}`);
-      const unsubscribe = onSnapshot(q, (doc) => {
-        const data = doc.data() as Promotion;
-        setPromotion(data);
-      });
-      return unsubscribe;
-    }
-  }, [store?.wallet, promotionId]);
-
-  useEffect(() => {
-    const issuePoints = async () => {
-      try {
-        if (!promotion) {
-          throw "missing promotion";
-        }
-        const currentTime = new Date().getTime();
-        const cardPoints = await updateCard(promotion, currentTime);
-        // console.log("cardPoints", cardPoints);
-        // const promotionPoints = await updatePromotion(promotion, currentTime);
-        // console.log("promotionPoints", promotionPoints);
-        // const functions = getFunctions();
-        // const updateNFTs = httpsCallable(
-        //   functions,
-        //   "addPointTransactionToQueue"
-        // );
-        // await updateNFTs({
-        //   key: "points",
-        //   promotionId: promotionId,
-        //   value: promotionPoints,
-        // });
-        // const vendorPoints = await updateVendor(promotion, currentTime);
-        // console.log("vendorPoints", vendorPoints);
-      } catch (e) {
-        console.log("Transaction failed: ", e);
+    const query = async () => {
+      const promoRef = doc(db, "promotions", `${promotionId}`);
+      const promoSnap = await getDoc(promoRef);
+      if (!promoSnap.exists()) {
+        return;
       }
-    };
-    if (promotion) {
-      issuePoints();
-    }
-  }, [promotion]);
-
-  const updateCard = async (promotion: Promotion, currentTime: number) => {
-    try {
-      const patronRef = doc(
+      const promotion = promoSnap.data() as Promotion;
+      const cardRef = doc(
         db,
         "cards",
         `${store?.wallet}_${promotion.businessWallet}`
       );
-      const docSnap = await getDoc(patronRef);
-      if (!docSnap.exists()) {
-        await setDoc(
-          doc(db, "cards", `${store?.wallet}_${promotion.businessWallet}`),
-          {
-            businessCity: promotion.businessCity,
-            businessEmail: promotion.businessEmail,
-            businessName: promotion.businessName,
-            businessPhone: promotion.businessPhone,
-            businessPostalCode: promotion.businessPostalCode,
-            businessRegion: promotion.businessRegion,
-            businessStreetAddress: promotion.businessStreetAddress,
-            businessCountry: promotion.businessCountry,
-            businessWallet: promotion.businessWallet,
-            pointsRequired: promotion.pointsRequired,
-            coinsRequired: promotion.coinsRequired,
-            patronWallet: store?.wallet,
-            points: promotion.pointsRequired > 0 ? 1 : 0,
-            coins: promotion.coinsRequired > 0 ? 1 : 0,
-            createdAt: new Date().getTime(),
-            updatedAt: new Date().getTime(),
-          }
-        );
-        return 1;
-      } else {
-        if (wallet && wallet?.points < promotion.pointsRequired) {
-          return console.log("not enough points");
-        }
-        const cardRef = doc(
-          db,
-          "cards",
-          `${store?.wallet}_${promotion.businessWallet}`
-        );
-        const points = await runTransaction(db, async (transaction) => {
-          const doc = await transaction.get(cardRef);
-          if (!doc.exists()) {
-            throw "Document does not exist!";
-          }
-          const oldData = doc.data() as unknown as Wallet;
-          const oldPoints = oldData.points;
-          const newPoints = oldPoints - promotion.pointsRequired;
-          transaction.update(cardRef, {
-            points: newPoints,
-            updatedAt: currentTime,
-          });
-        });
-        return points;
+      const cardSnap = await getDoc(cardRef);
+      if (!cardSnap.exists()) {
+        return;
       }
-    } catch (e) {
-      console.log(e);
-      return -1;
-    }
-  };
-
-  const updateVendor = async (promotion: Promotion, currentTime: number) => {
-    try {
-      let businessWallet = promotion.businessWallet;
-      console.log("businessWallet ln 160", businessWallet);
-      const bWalletRef = doc(db, "wallets", `${businessWallet}`);
-      const points = await runTransaction(db, async (transaction) => {
-        const doc = await transaction.get(bWalletRef);
-        if (!doc.exists()) {
-          throw "Document does not exist!";
-        }
-        const oldData = doc.data() as unknown as Wallet;
-        const oldPoints = oldData.points;
-        const newPoints = oldPoints + 1;
-        transaction.update(bWalletRef, {
-          points: newPoints,
-          updatedAt: currentTime,
-        });
-        return newPoints;
-      });
-      return points;
-    } catch (e) {
-      console.log(e);
-      return -1;
-    }
-  };
-
-  const updatePromotion = async (promotion: Promotion, currentTime: number) => {
-    try {
-      if (!promotionId && !promotion) {
-        return console.log("missing vendor");
+      const cardData = cardSnap.data() as Card;
+      const updatedAt = cardData.updatedAt;
+      const points = cardData.points;
+      const currentTime = new Date().getTime();
+      const diffTime = currentTime - updatedAt;
+      if (diffTime <= 300000) {
+        return setMessage("try again in 5 minutes");
       }
-      const newKey = uuidv4();
-      const promotionRef = doc(db, "promotions", `${promotionId}`);
-      return await runTransaction(db, async (transaction) => {
-        const doc = await transaction.get(promotionRef);
-        if (!doc.exists()) {
-          throw "Document does not exist!";
-        }
-        const oldData = doc.data().points;
-        const newPoints = oldData + 1;
-        transaction.update(promotionRef, {
-          points: newPoints,
-          updatedAt: currentTime,
-          key: newKey,
-        });
-        return newPoints;
+      if (points < promotion.pointsRequired) {
+        return setMessage("not enough points");
+      }
+      if (!promoSnap.exists() || !cardSnap.exists()) {
+        console.log("document exists");
+        return;
+      }
+      if (!store?.wallet) {
+        return;
+      }
+      await issuePoints(store?.wallet, promotion);
+    };
+    if (store?.wallet && promotionId) {
+      query();
+    }
+  }, [store?.wallet, promotionId]);
+
+  const issuePoints = async (wallet: string, promotion: Promotion) => {
+    try {
+      const functions = getFunctions();
+      const redeemPromotion = httpsCallable(
+        functions,
+        "addPointTransactionToQueue"
+      );
+      const redeem = await redeemPromotion({
+        promotionId: promotionId,
+        vendorId: promotion.businessWallet,
+        cardId: `${wallet}_${promotion.businessWallet}`,
+        value: promotion.pointsRequired,
       });
+      const redeemRes = redeem.data as unknown as any;
+      const message = redeemRes.message;
+      setMessage(message);
+      return console.log(redeem);
     } catch (e) {
-      console.log(e);
-      return -1;
+      console.log("Transaction failed: ", e);
     }
   };
 
@@ -215,13 +124,11 @@ const Qr = () => {
       <div className="mx-auto max-w-7xl p-6">
         <div className="w-full flex justify-center items-center">
           <div className="grid grid-cols-1 text-center">
-            {patronCard && !loading && (
-              <div>
-                <h1 className="mt-4 text-6xl tracking-tight font-extrabold text-black sm:mt-5 sm:text-6xl lg:mt-6 xl:text-8xl">
-                  <span className="text-green-400">{promotion?.reward}!</span>
-                </h1>
-              </div>
-            )}
+            <div>
+              <h1 className="mt-4 text-6xl tracking-tight font-extrabold text-black sm:mt-5 sm:text-6xl lg:mt-6 xl:text-8xl">
+                <span className="text-green-400">{message}</span>
+              </h1>
+            </div>
           </div>
         </div>
       </div>

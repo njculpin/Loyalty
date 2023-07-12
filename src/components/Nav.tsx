@@ -131,12 +131,12 @@ export default function Nav() {
         <div className="hidden lg:flex lg:flex-1 lg:justify-end">
           {store?.wallet && (
             <div className="flex justify-between space-x-2 mr-8">
-              <p className="px-2 py-1 rounded-full bg-gray-100">
-                {wallet.points.toFixed(2)} Points
-              </p>
-              <p className="px-2 py-1 rounded-full bg-black text-white">
-                {wallet.coins.toFixed(2)} LYLT
-              </p>
+              <div className="px-2 py-1 rounded-full bg-gray-100 flex flex-row justify-between items-center space-x-2">
+                <p>{wallet.points.toFixed(2)} Points </p>
+              </div>
+              <div className="px-2 py-1 rounded-full bg-black text-white">
+                <p>{wallet.coins.toFixed(2)} LYLT</p>
+              </div>
             </div>
           )}
           <Suspense fallback={<div>Loading...</div>}>
