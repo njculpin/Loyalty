@@ -4,56 +4,16 @@ import useStore from "@/lib/useStore";
 import useAuthStore from "@/lib/store";
 import { db } from "../../../firebase";
 import { getFunctions, httpsCallable } from "firebase/functions";
-import {
-  doc,
-  setDoc,
-  getDoc,
-  runTransaction,
-  onSnapshot,
-} from "firebase/firestore";
+import { doc, getDoc } from "firebase/firestore";
 
-import { v4 as uuidv4 } from "uuid";
-import { Promotion, Card, Wallet } from "../../../types";
+import { Promotion, Card } from "../../../types";
 
 const Qr = () => {
-  const [loading, setLoading] = useState<boolean>(false);
   const router = useRouter();
   const { promotionId } = router.query;
 
   const store = useStore(useAuthStore, (state) => state);
-  const [patronCard, setPatronCard] = useState<Card>();
-  const [promotion, setPromotion] = useState<Promotion>();
-  const [wallet, setWallet] = useState<Wallet>();
-
   const [message, setMessage] = useState<string>("loading");
-
-  useEffect(() => {
-    const queryBalance = async () => {
-      if (!store?.wallet) {
-        return;
-      }
-      const q = doc(db, "wallets", store?.wallet);
-      const unsubscribe = onSnapshot(q, async (document) => {
-        if (document.exists()) {
-          const data = document.data() as Wallet;
-          setWallet(data);
-        }
-      });
-      return unsubscribe;
-    };
-    queryBalance();
-  }, [store?.wallet]);
-
-  useEffect(() => {
-    if (store?.wallet && promotionId) {
-      const q = doc(db, "cards", `${store?.wallet}_${promotionId}`);
-      const unsubscribe = onSnapshot(q, (doc) => {
-        const data = doc.data() as Card;
-        setPatronCard(data);
-      });
-      return unsubscribe;
-    }
-  }, [store?.wallet, promotionId]);
 
   useEffect(() => {
     const query = async () => {
