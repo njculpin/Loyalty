@@ -97,7 +97,7 @@ export const addPointTransactionToQueue = https.onRequest(
       const targetUri = await getFunctionUrl("pointTransactionQueue");
       const body = request.body.data;
       const promotionId = body.promotionId;
-      // const vendorId = body.vendorId;
+      const vendorId = body.vendorId;
       const cardId = body.cardId;
       const value = body.value;
       const enqueues: any = [];
@@ -136,7 +136,7 @@ export const addPointTransactionToQueue = https.onRequest(
           }
         )
       );
-      /*
+
       // 3. VENDOR
       enqueues.push(
         queue.enqueue(
@@ -151,6 +151,7 @@ export const addPointTransactionToQueue = https.onRequest(
         )
       );
 
+      /*
       // 4 & 5. NFTS
       const nftRef = db.collection("nfts");
       const snapshot = await nftRef

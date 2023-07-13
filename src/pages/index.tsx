@@ -124,7 +124,7 @@ const Index = () => {
       {loading && <p>Loading</p>}
       {store?.wallet && !loading && (
         <div className="flex justify-center items-center">
-          <div className="p-16 rounded-3xl flex flex-col justify-between items-center">
+          <div className="rounded-3xl flex flex-col justify-between items-center">
             <div className="mb-6">
               <h2 className="font-bold text-center text-6xl">
                 {vendor.businessName}
