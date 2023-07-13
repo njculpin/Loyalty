@@ -2,6 +2,7 @@ import useStore from "@/lib/useStore";
 import useAuthStore from "@/lib/store";
 import { db } from "../firebase";
 import {
+  getDoc,
   doc,
   collection,
   query,
@@ -14,7 +15,7 @@ import { Dialog, Transition } from "@headlessui/react";
 import { Fragment, useEffect, useState } from "react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
-import { Wallet, NFT } from "../types";
+import { Wallet, NFT, Vendor } from "../types";
 
 export default function Account() {
   const store = useStore(useAuthStore, (state) => state);
@@ -48,6 +49,35 @@ export default function Account() {
     points: 0,
   });
   const [sellNFTModal, setSellNFTModal] = useState<boolean>(false);
+  const [vendor, setVendor] = useState<Vendor>({
+    businessCity: "",
+    businessEmail: "",
+    businessName: "",
+    businessPhone: "",
+    businessPostalCode: "",
+    businessRegion: "",
+    businessStreetAddress: "",
+    businessCountry: "",
+    businessWallet: "",
+    qRUrl: "",
+  });
+
+  useEffect(() => {
+    const getData = async () => {
+      try {
+        if (!store?.wallet) {
+          return;
+        }
+        const docRef = doc(db, "wallets", store?.wallet);
+        const docSnap = await getDoc(docRef);
+        const vendorData = docSnap.data() as Vendor;
+        setVendor(vendorData);
+      } catch (e) {
+        console.log(e);
+      }
+    };
+    getData();
+  }, [store?.wallet]);
 
   useEffect(() => {
     if (store?.wallet) {
@@ -180,6 +210,21 @@ export default function Account() {
           for their every day life. Users will be able to convert, and move
           tokens when they become available.
         </p>
+      </div>
+      <div className="mb-8">
+        <h3 className="text-base font-semibold leading-6 text-gray-900">
+          Business Details
+        </h3>
+        <h2>{vendor.businessName}</h2>
+        <p>{vendor.businessStreetAddress}</p>
+        <p>{vendor.businessCity}</p>
+        <p>{vendor.businessCountry}</p>
+        <p>{vendor.businessPostalCode}</p>
+        <Link href={"/settings"}>
+          <p className="px-4 py-2 mt-8 underline border w-32 text-center rounded-full">
+            Edit
+          </p>
+        </Link>
       </div>
       <div>
         <h3 className="text-base font-semibold leading-6 text-gray-900">
