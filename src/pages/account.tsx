@@ -172,6 +172,15 @@ export default function Account() {
 
   return (
     <div className="mx-auto max-w-7xl p-16">
+      <div className="flex justify-center items-center my-8">
+        <p className="italic text-center bg-gray-50 max-w-2xl rounded-xl p-8 mb-8">
+          All users have access to their personal account page. This shows their
+          current balance of points, coins, and NFTs. By default every account
+          can own a shop. This means, individuals may freely create promotions
+          for their every day life. Users will be able to convert, and move
+          tokens when they become available.
+        </p>
+      </div>
       <div>
         <h3 className="text-base font-semibold leading-6 text-gray-900">
           Account Balance

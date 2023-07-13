@@ -121,37 +121,56 @@ const Index = () => {
 
   return (
     <div className="mx-auto max-w-7xl p-16">
+      <div className="flex justify-center items-center my-8">
+        <p className="italic text-center bg-gray-50 max-w-2xl rounded-xl p-8 mb-8">
+          By default a user will be able to view all promotion rewards available
+          to them by every store that they have been a customer of here. This
+          will show their individual point balances and rewards which maybe
+          added to their cart and presented to the shop owner.
+        </p>
+      </div>
       {loading && <p>Loading</p>}
       {store?.wallet && !loading && (
         <div className="flex justify-center items-center">
           <div className="rounded-3xl flex flex-col justify-between items-center">
             <div className="mb-6">
               <h2 className="font-bold text-center text-6xl">
-                {vendor.businessName}
+                Shop for Rewards
               </h2>
               <p className="text-lg font-semibold text-center">
-                {vendor.businessStreetAddress} {vendor.businessCity}{" "}
-                {vendor.businessCountry} {vendor.businessPostalCode}
+                These products are available to you to redeem from their
+                respective stores.
               </p>
-              <div className="w-128 flex flex-col justify-center items-center">
-                <img
-                  style={{ height: "256", width: "256" }}
-                  src={vendor.qRUrl}
-                  alt="qr code"
-                />
-              </div>
-              <Link href={`qr/v/${vendor.businessWallet}`}>
-                <p className="mt-8 border px-4 py-2 border-black">
-                  SIMULATE SCAN
-                </p>
-              </Link>
             </div>
-            <button
-              className="rounded px-4 py-2 bg-green-700 text-white"
-              onClick={() => setOpen(true)}
-            >
-              present mode
-            </button>
+            <div className="bg-gray-100">
+              <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                <div className="mx-auto max-w-2xl py-16 sm:py-24 lg:max-w-none lg:py-32">
+                  <h2 className="text-2xl font-bold text-gray-900">Stores</h2>
+                  {/* <div className="mt-6 space-y-12 lg:grid lg:grid-cols-3 lg:gap-x-6 lg:space-y-0">
+                    {myCards.map((card) => (
+                      <div key={callout.name} className="group relative">
+                        <div className="relative h-80 w-full overflow-hidden rounded-lg bg-white sm:aspect-h-1 sm:aspect-w-2 lg:aspect-h-1 lg:aspect-w-1 group-hover:opacity-75 sm:h-64">
+                          <img
+                            src={callout.imageSrc}
+                            alt={callout.imageAlt}
+                            className="h-full w-full object-cover object-center"
+                          />
+                        </div>
+                        <h3 className="mt-6 text-sm text-gray-500">
+                          <a href={callout.href}>
+                            <span className="absolute inset-0" />
+                            {callout.name}
+                          </a>
+                        </h3>
+                        <p className="text-base font-semibold text-gray-900">
+                          {callout.description}
+                        </p>
+                      </div>
+                    ))}
+                  </div> */}
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       )}

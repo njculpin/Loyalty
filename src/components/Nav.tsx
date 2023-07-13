@@ -13,15 +13,17 @@ import { doc, onSnapshot, getDoc } from "firebase/firestore";
 import { Wallet, Vendor } from "@/types";
 
 const loggedInNav = [
-  { name: "Shop", href: "/shop" },
-  { name: "Account", href: "/account" },
+  { name: "Vendor", href: "/vendor" },
+  { name: "Rewards", href: "/rewards" },
   { name: "Promotions", href: "/promotions" },
+  { name: "Account", href: "/account" },
   { name: "About Us", href: "/about" },
   { name: "Settings", href: "/settings" },
 ];
 
 const landingNav = [
-  { name: "Shop", href: "/shop" },
+  { name: "Vendor", href: "/vendor" },
+  { name: "Rewards", href: "/rewards" },
   { name: "Prices", href: "/prices" },
   { name: "Case Studies", href: "/cases" },
   { name: "About Us", href: "/about" },

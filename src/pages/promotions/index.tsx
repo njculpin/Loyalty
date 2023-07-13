@@ -147,6 +147,22 @@ export default function Account() {
 
   return (
     <div className="mx-auto max-w-7xl p-16">
+      <div className="flex justify-center items-center my-8">
+        <p className="italic text-center bg-gray-50 max-w-2xl rounded-xl p-8 mb-8">
+          This view is shown only to the store owner. It is where they will
+          create and manage promotions to offer their customers. A shop owner
+          may create new promotions, set old promotions as active or in active
+          (there is no delete), or sell instances of the promotion as NFTs.
+          Creating the promotion as NFT does not alter the original promotion
+          but will allow their customers to purchase a partial ownership of that
+          promotion. This encourages customers themselves to go out and get
+          others to also redeem that reward. When a customer purchases a
+          promotion NFT, they will earn a percentage of a point. For each point
+          required by the promotion, 1 point is divided by the number of NFTs
+          for that promotion will be issued to the NFT holder. 1 point for each
+          point required will always be issued to the vendor themselves.
+        </p>
+      </div>
       <div className="mt-16">
         <div className="mt-8 sm:flex sm:items-center">
           <div className="sm:flex-auto">

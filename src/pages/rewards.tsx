@@ -160,6 +160,13 @@ const Shop = () => {
 
   return (
     <div className="mx-auto max-w-7xl overflow-hidden sm:px-6 lg:px-8">
+      <div className="flex justify-center items-center my-8">
+        <p className="italic text-center bg-gray-50 max-w-2xl rounded-xl p-8 mb-8">
+          This view is displayed to your customer in your store. Present Mode
+          will take over the entire screen. Customers may scan the promotions in
+          your specific store to redeem them here.
+        </p>
+      </div>
       <div className="mx-auto overflow-hidden px-4 lg:px-8">
         <h2 className="sr-only">Products</h2>
         {/* PROMOTIONS */}
