@@ -19,7 +19,30 @@ const Create = () => {
   const [showError, setShowError] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [vendor, setVendor] = useState<Vendor | null>(null);
-  const [promotion, setPromotion] = useState<Promotion | null>(null);
+  const [promotion, setPromotion] = useState<Promotion>({
+    id: "",
+    active: false,
+    businessCity: "",
+    businessEmail: "",
+    businessName: "",
+    businessPhone: "",
+    businessPostalCode: "",
+    businessRegion: "",
+    businessStreetAddress: "",
+    businessCountry: "",
+    businessWallet: "",
+    pointsRequired: 0,
+    coinsRequired: 0,
+    coins: 0,
+    points: 0,
+    reward: "",
+    key: "",
+    qRUrl: "",
+    minted: false,
+    price: 0,
+    totalSupply: 0,
+    forSale: false,
+  });
   const store = useStore(useAuthStore, (state) => state);
 
   useEffect(() => {
@@ -41,7 +64,9 @@ const Create = () => {
   const createCard = async () => {
     try {
       const valid = await validateFields();
-      if (!valid) {
+      if (!valid.status) {
+        setErrorMessage(valid.message);
+        setShowError(true);
         return;
       }
       const docRef = uuidv4();
@@ -62,11 +87,11 @@ const Create = () => {
         businessRegion: vendor?.businessRegion,
         businessStreetAddress: vendor?.businessStreetAddress,
         businessCountry: vendor?.businessCountry,
-        pointsRequired: Number(promotion.pointsRequired),
-        coinsRequired: Number(promotion.coinsRequired),
+        pointsRequired: Number(promotion?.pointsRequired),
+        coinsRequired: Number(promotion?.coinsRequired),
         coins: 0,
         points: 0,
-        reward: promotion.reward,
+        reward: promotion?.reward,
         qr: QRURL,
         minted: false,
         price: 0,
@@ -100,41 +125,37 @@ const Create = () => {
 
   const validateFields = () => {
     if (!store?.wallet) {
-      setErrorMessage("missing wallet");
-      setShowError(true);
+      return { status: false, message: "missing wallet" };
     } else if (!vendor?.businessCity) {
-      setErrorMessage("missing bussiness city");
-      setShowError(true);
+      return { status: false, message: "missing business city" };
     } else if (!vendor?.businessEmail) {
-      setErrorMessage("missing bussiness email");
-      setShowError(true);
+      return { status: false, message: "missing business email" };
     } else if (!vendor?.businessName) {
-      setErrorMessage("missing bussiness name");
-      setShowError(true);
+      return { status: false, message: "missing business name" };
     } else if (!vendor?.businessPhone) {
-      setErrorMessage("missing bussiness phone");
-      setShowError(true);
+      return { status: false, message: "missing business phone" };
     } else if (!vendor?.businessPostalCode) {
-      setErrorMessage("missing bussiness postal code");
-      setShowError(true);
+      return { status: false, message: "missing business postal code" };
     } else if (!vendor?.businessRegion) {
-      setErrorMessage("missing bussiness region");
-      setShowError(true);
+      return { status: false, message: "missing business region" };
     } else if (!vendor?.businessStreetAddress) {
-      setErrorMessage("missing bussiness address");
-      setShowError(true);
+      return { status: false, message: "missing business address" };
     } else if (!vendor?.businessCountry) {
-      setErrorMessage("missing bussiness country");
-      setShowError(true);
+      return { status: false, message: "missing business country" };
     } else if (!promotion?.pointsRequired) {
-      setErrorMessage("missing points required");
-      setShowError(true);
+      return { status: false, message: "missing points" };
     } else if (!promotion?.reward) {
-      setErrorMessage("missing reward");
-      setShowError(true);
+      return { status: false, message: "missing reward" };
     } else {
-      return true;
+      return { status: true, message: "" };
     }
+  };
+
+  const handleChange = (event: any) => {
+    setPromotion({
+      ...promotion,
+      [event.target.id]: event.target.value,
+    });
   };
 
   return (
@@ -160,11 +181,7 @@ const Create = () => {
                   </label>
                   <div className="mt-2">
                     <input
-                      onChange={(e) =>
-                        setPromotion({
-                          [event.target.id]: event.target.value,
-                        })
-                      }
+                      onChange={handleChange}
                       id="reward"
                       name="reward"
                       type="text"
@@ -182,11 +199,7 @@ const Create = () => {
                   </label>
                   <div className="mt-2">
                     <input
-                      onChange={(e) =>
-                        setPromotion({
-                          [event.target.id]: event.target.value,
-                        })
-                      }
+                      onChange={handleChange}
                       id="pointsRequired"
                       name="pointsRequired"
                       type="number"
