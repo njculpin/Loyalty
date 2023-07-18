@@ -67,7 +67,6 @@ export type Card = {
   pointsRequired: number;
   coinsRequired: number;
   promotionId: string;
-  reward: string;
   points: number;
   coins: number;
   createdAt: number;

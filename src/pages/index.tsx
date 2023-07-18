@@ -1,12 +1,19 @@
 import { useEffect, useState, Fragment } from "react";
 import { Dialog, Transition } from "@headlessui/react";
-import { doc, getDoc } from "firebase/firestore";
+import {
+  doc,
+  getDoc,
+  getDocs,
+  query,
+  collection,
+  where,
+} from "firebase/firestore";
 import { storage, db } from "../firebase";
 import { ref, getDownloadURL } from "firebase/storage";
 import Link from "next/link";
 import useStore from "@/lib/useStore";
 import useAuthStore from "@/lib/store";
-import { Vendor } from "../types";
+import { Card, Vendor } from "../types";
 import {
   ArrowPathIcon,
   CloudArrowUpIcon,
@@ -80,7 +87,7 @@ const Index = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const store = useStore(useAuthStore, (state) => state);
   const [open, setOpen] = useState(false);
-
+  const [cards, setCards] = useState<Card[]>([]);
   const [vendor, setVendor] = useState<Vendor>({
     businessCity: "",
     businessEmail: "",
@@ -119,6 +126,28 @@ const Index = () => {
     getData();
   }, [store?.wallet]);
 
+  useEffect(() => {
+    const queryCards = async () => {
+      try {
+        setLoading(true);
+        if (!store?.wallet) {
+          return;
+        }
+        const cardRef = collection(db, "cards");
+        const q = query(cardRef, where("patronWallet", "==", store?.wallet));
+        const querySnapshot = await getDocs(q);
+        const data = querySnapshot.docs.map((x) =>
+          x.data()
+        ) as unknown as Card[];
+        setCards(data);
+        setLoading(false);
+      } catch (e) {
+        console.log(e);
+      }
+    };
+    queryCards();
+  }, [store?.wallet]);
+
   return (
     <div className="mx-auto max-w-7xl p-16">
       <div className="flex justify-center items-center my-8">
@@ -138,37 +167,30 @@ const Index = () => {
                 Shop for Rewards
               </h2>
               <p className="text-lg font-semibold text-center">
-                These products are available to you to redeem from their
-                respective stores.
+                You have earned from these stores
               </p>
             </div>
-            <div className="bg-gray-100">
-              <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                <div className="mx-auto max-w-2xl py-16 sm:py-24 lg:max-w-none lg:py-32">
-                  <h2 className="text-2xl font-bold text-gray-900">Stores</h2>
-                  {/* <div className="mt-6 space-y-12 lg:grid lg:grid-cols-3 lg:gap-x-6 lg:space-y-0">
-                    {myCards.map((card) => (
-                      <div key={callout.name} className="group relative">
-                        <div className="relative h-80 w-full overflow-hidden rounded-lg bg-white sm:aspect-h-1 sm:aspect-w-2 lg:aspect-h-1 lg:aspect-w-1 group-hover:opacity-75 sm:h-64">
-                          <img
-                            src={callout.imageSrc}
-                            alt={callout.imageAlt}
-                            className="h-full w-full object-cover object-center"
-                          />
-                        </div>
-                        <h3 className="mt-6 text-sm text-gray-500">
-                          <a href={callout.href}>
-                            <span className="absolute inset-0" />
-                            {callout.name}
-                          </a>
+            <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+              <div className="mx-auto max-w-2xl py-16 sm:py-24 lg:max-w-none lg:py-32">
+                {cards && cards.length > 0 && (
+                  <div className="mt-6 space-y-12 lg:grid grid-cols-3 lg:gap-x-6 lg:space-y-0">
+                    {cards.map((card: Card, index: number) => (
+                      <div className="rounded-lg border p-4" key={index}>
+                        <h3 className="text-base font-semibold leading-6 text-gray-900">
+                          Business Details
                         </h3>
+                        <h2>{card.businessName}</h2>
+                        <p>{card.businessStreetAddress}</p>
+                        <p>{card.businessCity}</p>
+                        <p>{card.businessCountry}</p>
+                        <p>{card.businessPostalCode}</p>
                         <p className="text-base font-semibold text-gray-900">
-                          {callout.description}
+                          {card.points} points earned
                         </p>
                       </div>
                     ))}
-                  </div> */}
-                </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -312,7 +334,7 @@ const Index = () => {
                         aria-hidden="true"
                       />
                       {feature.name}
-                    </dt>{" "}
+                    </dt>
                     <dd className="inline">{feature.description}</dd>
                   </div>
                 ))}
