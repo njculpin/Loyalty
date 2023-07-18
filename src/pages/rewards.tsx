@@ -169,7 +169,7 @@ const Shop = () => {
             them here for physical or digital goods.
           </p>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-3 mt-8">
+        <div className="mt-8 grid grid-cols-1 gap-y-12 sm:grid-cols-3 sm:gap-x-6 xl:gap-x-8">
           {promotions &&
             promotions.map(function (promotion: Promotion, index) {
               return (
