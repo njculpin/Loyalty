@@ -75,22 +75,16 @@ export default function Settings() {
 
   return (
     <div className="mx-auto max-w-7xl p-16">
-      <div className="flex justify-center items-center my-8">
-        <p className="italic text-center bg-gray-50 max-w-2xl rounded-xl p-8 mb-8">
-          This is where a user will set their information that is used in their
-          promotions. This information is required to publish promotions.
-        </p>
-      </div>
       <div className="space-y-12">
         <div className="border-b border-gray-900/10 pb-12">
           <h2 className="text-base font-semibold leading-7 text-gray-900">
             Business Information
           </h2>
           <p className="mt-1 text-sm leading-6 text-gray-600">
-            This information is used to help customers find you, it will be
-            public and displayed on every promotional card you publish.
+            This information is used to publish promotions and to help customers
+            find you, it will be public and displayed on every promotional card
+            you publish.
           </p>
-
           <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
             <div className="sm:col-span-3">
               <label

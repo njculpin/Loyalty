@@ -151,7 +151,6 @@ export const addPointTransactionToQueue = https.onRequest(
         )
       );
 
-      /*
       // 4 & 5. NFTS
       const nftRef = db.collection("nfts");
       const snapshot = await nftRef
@@ -160,6 +159,7 @@ export const addPointTransactionToQueue = https.onRequest(
       if (snapshot.empty) {
         console.log("No matching documents.");
       }
+      // points issued is equal to the 1 point divided by the number of NFTs
       const count = snapshot.docs.length;
       const pointsToIssueHolder = 1 / count;
       snapshot.forEach((doc: any) => {
@@ -167,8 +167,8 @@ export const addPointTransactionToQueue = https.onRequest(
         enqueues.push(
           queue.enqueue(
             {
-              collection: "wallets",
-              document: data.owner,
+              collection: "cards",
+              document: `${data.owner}_${vendorId}`,
               value: pointsToIssueHolder,
             },
             {
@@ -189,7 +189,6 @@ export const addPointTransactionToQueue = https.onRequest(
           )
         );
       });
-      */
 
       await Promise.all(enqueues);
       response.send({

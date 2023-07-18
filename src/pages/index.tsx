@@ -11,6 +11,7 @@ import {
 import { storage, db } from "../firebase";
 import { ref, getDownloadURL } from "firebase/storage";
 import Link from "next/link";
+import Image from "next/image";
 import useStore from "@/lib/useStore";
 import useAuthStore from "@/lib/store";
 import { Card, Vendor } from "../types";
@@ -21,6 +22,8 @@ import {
   FingerPrintIcon,
   LockClosedIcon,
   ServerIcon,
+  XMarkIcon,
+  FaceFrownIcon,
 } from "@heroicons/react/20/solid";
 import NewsSignup from "@/components/NewsSignup";
 
@@ -86,6 +89,7 @@ const caseStudies = [
 const Index = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const store = useStore(useAuthStore, (state) => state);
+  const [showError, setShowError] = useState<boolean>(false);
   const [open, setOpen] = useState(false);
   const [cards, setCards] = useState<Card[]>([]);
   const [vendor, setVendor] = useState<Vendor>({
@@ -148,6 +152,11 @@ const Index = () => {
     queryCards();
   }, [store?.wallet]);
 
+  const downloadToAppleWallet = async (card: Card) => {
+    console.log("card", card);
+    setShowError(true);
+  };
+
   return (
     <div className="mx-auto max-w-7xl p-16">
       {loading && <p>Loading</p>}
@@ -162,17 +171,32 @@ const Index = () => {
                 {cards && cards.length > 0 && (
                   <div className="space-y-12 lg:grid grid-cols-3 lg:gap-x-6 lg:space-y-0">
                     {cards.map((card: Card, index: number) => (
-                      <div className="rounded-lg border p-6" key={index}>
-                        <h2 className="text-base font-semibold leading-6 text-gray-900">
-                          {card.businessName}
-                        </h2>
-                        <p>{card.businessStreetAddress}</p>
-                        <p>{card.businessCity}</p>
-                        <p>{card.businessCountry}</p>
-                        <p>{card.businessPostalCode}</p>
-                        <p className="text-base font-semibold text-gray-900 mt-6">
-                          {card.points} points earned
-                        </p>
+                      <div
+                        className="rounded-lg border p-6 flex flex-col justify-between items-center"
+                        key={index}
+                      >
+                        <div className="flex flex-col">
+                          <h2 className="text-base font-semibold leading-6 text-gray-900">
+                            {card.businessName}
+                          </h2>
+                          <p>{card.businessStreetAddress}</p>
+                          <p>{card.businessCity}</p>
+                          <p>{card.businessCountry}</p>
+                          <p>{card.businessPostalCode}</p>
+                          <p className="text-base font-semibold text-gray-900">
+                            {card.points} points earned
+                          </p>
+                        </div>
+                        <div className="mt-8">
+                          <button onClick={() => downloadToAppleWallet(card)}>
+                            <Image
+                              src={"/US-UK_Add_to_Apple_Wallet_RGB_101421.svg"}
+                              alt={"Apple Wallet"}
+                              height={35.016}
+                              width={110.739}
+                            />
+                          </button>
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -437,6 +461,55 @@ const Index = () => {
           </div>
         </Dialog>
       </Transition.Root>
+      <div
+        aria-live="assertive"
+        className="pointer-events-none fixed inset-0 flex items-end px-4 py-6 sm:items-start sm:p-6"
+      >
+        <div className="flex w-full flex-col items-center space-y-4 sm:items-end">
+          {/* Notification panel, dynamically insert this into the live region when it needs to be displayed */}
+          <Transition
+            show={showError}
+            as={Fragment}
+            enter="transform ease-out duration-300 transition"
+            enterFrom="translate-y-2 opacity-0 sm:translate-y-0 sm:translate-x-2"
+            enterTo="translate-y-0 opacity-100 sm:translate-x-0"
+            leave="transition ease-in duration-100"
+            leaveFrom="opacity-100"
+            leaveTo="opacity-0"
+          >
+            <div className="pointer-events-auto w-full max-w-sm overflow-hidden rounded-lg bg-white shadow-lg ring-1 ring-black ring-opacity-5">
+              <div className="p-4">
+                <div className="flex items-start">
+                  <div className="flex-shrink-0">
+                    <FaceFrownIcon
+                      className="h-6 w-6 text-red-500"
+                      aria-hidden="true"
+                    />
+                  </div>
+                  <div className="ml-3 w-0 flex-1 pt-0.5">
+                    <p className="text-sm font-medium text-gray-900">Oops!</p>
+                    <p className="mt-1 text-sm text-gray-500">
+                      Sorry not ready for this yet
+                    </p>
+                  </div>
+                  <div className="ml-4 flex flex-shrink-0">
+                    <button
+                      type="button"
+                      className="inline-flex rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                      onClick={() => {
+                        setShowError(false);
+                      }}
+                    >
+                      <span className="sr-only">Close</span>
+                      <XMarkIcon className="h-5 w-5" aria-hidden="true" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Transition>
+        </div>
+      </div>
     </div>
   );
 };

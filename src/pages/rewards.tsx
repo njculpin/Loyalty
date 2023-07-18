@@ -167,7 +167,7 @@ const Shop = () => {
               Rewards
             </h1>
             <p className="mt-2 text-sm text-gray-700">
-              Scan a reward to redeem it at this vendor
+              Redeem a reward from this business
             </p>
           </div>
         </div>
@@ -219,7 +219,9 @@ const Shop = () => {
               Revenue Shares
             </h1>
             <p className="mt-2 text-sm text-gray-700">
-              Purchase revenue shares from this business
+              Purchase revenue shares from this business. Each time a promotion
+              is redeemed, you will earn a percentage of a Point from that
+              business.
             </p>
           </div>
         </div>
@@ -234,7 +236,7 @@ const Shop = () => {
                   from {promotion.businessName}
                 </h4>
                 <p>
-                  Earn ${(1 / promotion.totalSupply).toFixed(8)} LYLT per tx.
+                  Earn ${(1 / promotion.totalSupply).toFixed(8)} Points per tx.
                 </p>
                 <button
                   onClick={() =>
