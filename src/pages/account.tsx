@@ -237,19 +237,19 @@ export default function Account() {
 
   return (
     <div className="mx-auto max-w-7xl p-16">
-      <div className="mb-8">
-        <h3 className="text-base font-semibold leading-6 text-gray-900">
-          Business Details
-        </h3>
-        <h2>{vendor.businessName}</h2>
-        <p>{vendor.businessStreetAddress}</p>
-        <p>{vendor.businessCity}</p>
-        <p>{vendor.businessCountry}</p>
-        <p>{vendor.businessPostalCode}</p>
+      <div className="max-w-lg rounded-lg bg-white px-4 py-5 shadow sm:p-6 mb-6 flex flex-row justify-between items-center">
+        <div>
+          <h3 className="text-base font-semibold leading-6 text-gray-900">
+            Business Details
+          </h3>
+          <h2>{vendor.businessName}</h2>
+          <p>{vendor.businessStreetAddress}</p>
+          <p>{vendor.businessCity}</p>
+          <p>{vendor.businessCountry}</p>
+          <p>{vendor.businessPostalCode}</p>
+        </div>
         <Link href={"/settings"}>
-          <p className="px-4 py-2 mt-8 underline border w-32 text-center rounded-full">
-            Edit
-          </p>
+          <p className="px-4 py-2 mt-8 underline w-32 text-center">Edit</p>
         </Link>
       </div>
       <div>
