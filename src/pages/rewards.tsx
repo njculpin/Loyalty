@@ -160,21 +160,20 @@ const Shop = () => {
 
   return (
     <div className="mx-auto max-w-7xl overflow-hidden sm:px-6 lg:px-8">
-      <div className="flex justify-center items-center my-8">
-        <p className="italic text-center bg-gray-50 max-w-2xl rounded-xl p-8 mb-8">
-          This view is displayed to your customer in your store. Present Mode
-          will take over the entire screen. Customers may scan the promotions in
-          your specific store to redeem them here.
-        </p>
-      </div>
       <div className="mx-auto overflow-hidden px-4 lg:px-8">
         <h2 className="sr-only">Products</h2>
         {/* PROMOTIONS */}
+        <div className="flex justify-center items-center my-8">
+          <p className="italic text-center bg-gray-50 max-w-2xl rounded-xl p-8 mb-8">
+            Customers may scan the promotions in your specific store to redeem
+            them here for physical or digital goods.
+          </p>
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-3 mt-8">
           {promotions &&
             promotions.map(function (promotion: Promotion, index) {
               return (
-                <div className="m-5 bg-white shadow-xl rounded-xl" key={index}>
+                <div className="rounded-lg border p-4" key={index}>
                   <div className="h-full p-8 text-center sm:rounded-3xl grid grid-cols-1 justify-between">
                     <div className="flex justify-between items-center">
                       <div className="w-full">
@@ -212,6 +211,14 @@ const Shop = () => {
             })}
         </div>
         {/* NFT Sales */}
+        <div className="flex justify-center items-center my-8">
+          <p className="italic text-center bg-gray-50 max-w-2xl rounded-xl p-8 mb-8">
+            Customers may purchase NFTs you have made available through your
+            promotions dashboard. When a customer purchases one of these, they
+            earn a portion of points distributed with each scan of that related
+            promotion.
+          </p>
+        </div>
         <div className="mt-8 grid grid-cols-1 gap-y-12 sm:grid-cols-3 sm:gap-x-6 xl:gap-x-8">
           {nfts.map((promotion) => (
             <div className="rounded-lg border p-4" key={promotion.id}>
