@@ -22,8 +22,6 @@ const loggedInNav = [
 ];
 
 const landingNav = [
-  { name: "Vendor", href: "/vendor" },
-  { name: "Rewards", href: "/rewards" },
   { name: "Prices", href: "/prices" },
   { name: "Case Studies", href: "/cases" },
   { name: "About Us", href: "/about" },

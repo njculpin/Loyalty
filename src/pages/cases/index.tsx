@@ -26,10 +26,10 @@ const Case = () => {
         {clients.map((client) => (
           <li
             key={client.id}
-            className="overflow-hidden rounded-xl border border-gray-200"
+            className="overflow-hidden rounded-xl border border-gray-200 bg-white"
           >
             <img
-              className="h-32 w-full flex-none items-center gap-x-4 border-b border-gray-900/5 object-contain bg-gray-50 p-6"
+              className="h-32 w-full flex-none items-center gap-x-4 border-b border-gray-900/5 object-contain bg-white p-6"
               src={client.imageUrl}
               alt={client.name}
             />

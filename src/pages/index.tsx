@@ -110,6 +110,7 @@ const Index = () => {
       try {
         setLoading(true);
         if (!store?.wallet) {
+          setLoading(false);
           return;
         }
         const docRef = doc(db, "wallets", store?.wallet);
@@ -135,6 +136,7 @@ const Index = () => {
       try {
         setLoading(true);
         if (!store?.wallet) {
+          setLoading(false);
           return;
         }
         const cardRef = collection(db, "cards");
@@ -147,6 +149,7 @@ const Index = () => {
         setLoading(false);
       } catch (e) {
         console.log(e);
+        setLoading(false);
       }
     };
     queryCards();
@@ -207,7 +210,7 @@ const Index = () => {
         </div>
       )}
       {!store?.wallet && !loading && (
-        <div>
+        <div className="bg-white p-8">
           <div>
             <svg
               className="absolute inset-0 -z-10 hidden h-full w-full stroke-gray-200 [mask-image:radial-gradient(64rem_64rem_at_top,white,transparent)] sm:block"
