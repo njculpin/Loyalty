@@ -150,41 +150,32 @@ const Index = () => {
 
   return (
     <div className="mx-auto max-w-7xl p-16">
-      <div className="flex justify-center items-center my-8">
-        <p className="italic text-center bg-gray-50 max-w-2xl rounded-xl p-8 mb-8">
-          By default a user will be able to view all promotion rewards available
-          to them by every store that they have been a customer of here. This
-          will show their individual point balances and rewards which maybe
-          added to their cart and presented to the shop owner.
-        </p>
-      </div>
       {loading && <p>Loading</p>}
       {store?.wallet && !loading && (
         <div className="flex justify-center items-center">
           <div className="rounded-3xl flex flex-col justify-between items-center">
-            <div className="mb-6">
+            <div className="mb-2">
               <h2 className="font-bold text-center text-6xl">
-                Shop for Rewards
+                Your Shop Cards
               </h2>
               <p className="text-lg font-semibold text-center">
                 You have earned from these stores
               </p>
             </div>
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-              <div className="mx-auto max-w-2xl py-16 sm:py-24 lg:max-w-none lg:py-32">
+              <div className="mx-auto max-w-2xl py-16 lg:max-w-none">
                 {cards && cards.length > 0 && (
-                  <div className="mt-6 space-y-12 lg:grid grid-cols-3 lg:gap-x-6 lg:space-y-0">
+                  <div className="space-y-12 lg:grid grid-cols-3 lg:gap-x-6 lg:space-y-0">
                     {cards.map((card: Card, index: number) => (
-                      <div className="rounded-lg border p-4" key={index}>
-                        <h3 className="text-base font-semibold leading-6 text-gray-900">
-                          Business Details
-                        </h3>
-                        <h2>{card.businessName}</h2>
+                      <div className="rounded-lg border p-6" key={index}>
+                        <h2 className="text-base font-semibold leading-6 text-gray-900">
+                          {card.businessName}
+                        </h2>
                         <p>{card.businessStreetAddress}</p>
                         <p>{card.businessCity}</p>
                         <p>{card.businessCountry}</p>
                         <p>{card.businessPostalCode}</p>
-                        <p className="text-base font-semibold text-gray-900">
+                        <p className="text-base font-semibold text-gray-900 mt-6">
                           {card.points} points earned
                         </p>
                       </div>
