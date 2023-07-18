@@ -169,14 +169,14 @@ const Index = () => {
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
               <div className="mx-auto max-w-2xl py-16 lg:max-w-none">
                 {cards && cards.length > 0 && (
-                  <div className="space-y-12 lg:grid grid-cols-3 lg:gap-x-6 lg:space-y-0">
+                  <div className="lg:grid grid-cols-3 gap-4">
                     {cards.map((card: Card, index: number) => (
                       <div
                         className="rounded-lg border p-6 flex flex-col justify-between items-center"
                         key={index}
                       >
                         <div className="flex flex-col">
-                          <h2 className="text-base font-semibold leading-6 text-gray-900">
+                          <h2 className="text-xl font-semibold leading-6 text-gray-900">
                             {card.businessName}
                           </h2>
                           <p>{card.businessStreetAddress}</p>
@@ -187,7 +187,7 @@ const Index = () => {
                             {card.points} points earned
                           </p>
                         </div>
-                        <div className="mt-8">
+                        <div className="flex justify-center items-center mt-8">
                           <button onClick={() => downloadToAppleWallet(card)}>
                             <Image
                               src={"/US-UK_Add_to_Apple_Wallet_RGB_101421.svg"}
