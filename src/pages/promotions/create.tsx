@@ -19,30 +19,7 @@ const Create = () => {
   const [showError, setShowError] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [vendor, setVendor] = useState<Vendor | null>(null);
-  const [promotion, setPromotion] = useState<Promotion>({
-    id: " ",
-    active: false,
-    businessCity: " ",
-    businessEmail: " ",
-    businessName: " ",
-    businessPhone: " ",
-    businessPostalCode: " ",
-    businessRegion: " ",
-    businessStreetAddress: " ",
-    businessCountry: " ",
-    businessWallet: " ",
-    pointsRequired: 0,
-    coinsRequired: 0,
-    coins: 0,
-    points: 0,
-    reward: " ",
-    key: " ",
-    qRUrl: " ",
-    minted: false,
-    price: 0,
-    totalSupply: 0,
-    forSale: false,
-  });
+  const [promotion, setPromotion] = useState<Promotion | null>(null);
   const store = useStore(useAuthStore, (state) => state);
 
   useEffect(() => {
@@ -61,66 +38,51 @@ const Create = () => {
     }
   }, [store?.wallet]);
 
-  const handleChange = (event: any) => {
-    setPromotion({
-      ...promotion,
-      [event.target.id]: event.target.value,
-    });
-  };
-
   const createCard = async () => {
     try {
-      if (!vendor) {
-        setErrorMessage("missing vendor information");
-        setShowError(true);
+      const valid = await validateFields();
+      if (!valid) {
         return;
       }
-      if (!promotion) {
-        setErrorMessage("missing promotion information");
-        setShowError(true);
-        return;
-      }
-      if (store?.wallet) {
-        const docRef = uuidv4();
-        const qr = await QRCode.toDataURL(
-          `loyalty-iota.vercel.app/qr/p/${docRef}`
-        );
-        const storageRef = ref(storage, `qr/p/${docRef}.png`);
-        const uploadTask = await uploadString(storageRef, qr, "data_url");
-        const QRURL = uploadTask.metadata.fullPath;
-        const promoDetails = {
-          active: true,
-          businessWallet: store.wallet,
-          businessCity: vendor.businessCity,
-          businessEmail: vendor.businessEmail,
-          businessName: vendor.businessName,
-          businessPhone: vendor.businessPhone,
-          businessPostalCode: vendor.businessPostalCode,
-          businessRegion: vendor.businessRegion,
-          businessStreetAddress: vendor.businessStreetAddress,
-          businessCountry: vendor.businessCountry,
-          pointsRequired: Number(promotion.pointsRequired),
-          coinsRequired: Number(promotion.coinsRequired),
-          coins: 0,
-          points: 0,
-          reward: promotion.reward,
-          qr: QRURL,
-          minted: false,
-          price: 0,
-        };
-        setDoc(doc(db, "promotions", docRef), {
-          ...promoDetails,
-          createdAt: new Date().getTime(),
-          updatedAt: new Date().getTime(),
+      const docRef = uuidv4();
+      const qr = await QRCode.toDataURL(
+        `loyalty-iota.vercel.app/qr/p/${docRef}`
+      );
+      const storageRef = ref(storage, `qr/p/${docRef}.png`);
+      const uploadTask = await uploadString(storageRef, qr, "data_url");
+      const QRURL = uploadTask.metadata.fullPath;
+      const promoDetails = {
+        active: true,
+        businessWallet: store?.wallet,
+        businessCity: vendor?.businessCity,
+        businessEmail: vendor?.businessEmail,
+        businessName: vendor?.businessName,
+        businessPhone: vendor?.businessPhone,
+        businessPostalCode: vendor?.businessPostalCode,
+        businessRegion: vendor?.businessRegion,
+        businessStreetAddress: vendor?.businessStreetAddress,
+        businessCountry: vendor?.businessCountry,
+        pointsRequired: Number(promotion.pointsRequired),
+        coinsRequired: Number(promotion.coinsRequired),
+        coins: 0,
+        points: 0,
+        reward: promotion.reward,
+        qr: QRURL,
+        minted: false,
+        price: 0,
+      };
+      setDoc(doc(db, "promotions", docRef), {
+        ...promoDetails,
+        createdAt: new Date().getTime(),
+        updatedAt: new Date().getTime(),
+      })
+        .then(() => {
+          setShowSuccess(true);
         })
-          .then(() => {
-            setShowSuccess(true);
-          })
-          .catch((e) => {
-            console.log(e);
-            setShowError(true);
-          });
-      }
+        .catch((e) => {
+          console.log(e);
+          setShowError(true);
+        });
     } catch (e) {
       setErrorMessage(
         "something went wrong, please check your business details"
@@ -134,6 +96,45 @@ const Create = () => {
     setShowError(false);
     setShowSuccess(false);
     return router.push(`/promotions`);
+  };
+
+  const validateFields = () => {
+    if (!store?.wallet) {
+      setErrorMessage("missing wallet");
+      setShowError(true);
+    } else if (!vendor?.businessCity) {
+      setErrorMessage("missing bussiness city");
+      setShowError(true);
+    } else if (!vendor?.businessEmail) {
+      setErrorMessage("missing bussiness email");
+      setShowError(true);
+    } else if (!vendor?.businessName) {
+      setErrorMessage("missing bussiness name");
+      setShowError(true);
+    } else if (!vendor?.businessPhone) {
+      setErrorMessage("missing bussiness phone");
+      setShowError(true);
+    } else if (!vendor?.businessPostalCode) {
+      setErrorMessage("missing bussiness postal code");
+      setShowError(true);
+    } else if (!vendor?.businessRegion) {
+      setErrorMessage("missing bussiness region");
+      setShowError(true);
+    } else if (!vendor?.businessStreetAddress) {
+      setErrorMessage("missing bussiness address");
+      setShowError(true);
+    } else if (!vendor?.businessCountry) {
+      setErrorMessage("missing bussiness country");
+      setShowError(true);
+    } else if (!promotion?.pointsRequired) {
+      setErrorMessage("missing points required");
+      setShowError(true);
+    } else if (!promotion?.reward) {
+      setErrorMessage("missing reward");
+      setShowError(true);
+    } else {
+      return true;
+    }
   };
 
   return (
@@ -159,7 +160,11 @@ const Create = () => {
                   </label>
                   <div className="mt-2">
                     <input
-                      onChange={handleChange}
+                      onChange={(e) =>
+                        setPromotion({
+                          [event.target.id]: event.target.value,
+                        })
+                      }
                       id="reward"
                       name="reward"
                       type="text"
@@ -177,7 +182,11 @@ const Create = () => {
                   </label>
                   <div className="mt-2">
                     <input
-                      onChange={handleChange}
+                      onChange={(e) =>
+                        setPromotion({
+                          [event.target.id]: event.target.value,
+                        })
+                      }
                       id="pointsRequired"
                       name="pointsRequired"
                       type="number"
