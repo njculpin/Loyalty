@@ -155,12 +155,7 @@ const Index = () => {
         <div className="flex justify-center items-center">
           <div className="rounded-3xl flex flex-col justify-between items-center">
             <div className="mb-2">
-              <h2 className="font-bold text-center text-6xl">
-                Your Shop Cards
-              </h2>
-              <p className="text-lg font-semibold text-center">
-                You have earned from these stores
-              </p>
+              <h2 className="font-bold text-center text-6xl">Your Cards</h2>
             </div>
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
               <div className="mx-auto max-w-2xl py-16 lg:max-w-none">

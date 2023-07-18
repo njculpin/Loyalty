@@ -43,6 +43,7 @@ export default function Account() {
     forSale: false,
   });
   const [nfts, setNFTS] = useState<NFT[]>([]);
+  const [listedNfts, setListedNFTS] = useState<NFT[]>([]);
   const [wallet, setWallet] = useState<Wallet>({
     address: "",
     coins: 0,
@@ -93,6 +94,26 @@ export default function Account() {
         });
         Promise.all(mapped).then((result) => {
           setNFTS(result);
+        });
+      });
+      return unsubscribe;
+    }
+  }, [store?.wallet]);
+
+  useEffect(() => {
+    if (store?.wallet) {
+      const q = query(
+        collection(db, "nfts"),
+        where("forSale", "==", true),
+        where("owner", "==", store?.wallet)
+      );
+      const unsubscribe = onSnapshot(q, (querySnapshot) => {
+        const mapped = querySnapshot.docs.map(async function (doc) {
+          const data = doc.data();
+          return { ...data, id: doc.id } as unknown as NFT;
+        });
+        Promise.all(mapped).then((result) => {
+          setListedNFTS(result);
         });
       });
       return unsubscribe;
@@ -185,6 +206,20 @@ export default function Account() {
     setSelectedNft(nft);
   };
 
+  const delistNft = async (nftId: string) => {
+    await updateDoc(doc(db, "nfts", `${nftId}`), {
+      forSale: false,
+      updatedAt: new Date().getTime(),
+    })
+      .then(() => {
+        console.log("complete");
+        setSellNFTModal(false);
+      })
+      .catch((e) => {
+        console.log(e);
+      });
+  };
+
   const sellNFT = async (nftId: string, price: number) => {
     await updateDoc(doc(db, "nfts", `${nftId}`), {
       price: Number(price),
@@ -202,15 +237,6 @@ export default function Account() {
 
   return (
     <div className="mx-auto max-w-7xl p-16">
-      <div className="flex justify-center items-center my-8">
-        <p className="italic text-center bg-gray-50 max-w-2xl rounded-xl p-8 mb-8">
-          All users have access to their personal account page. This shows their
-          current balance of points, coins, and NFTs. By default every account
-          can own a shop. This means, individuals may freely create promotions
-          for their every day life. Users will be able to convert, and move
-          tokens when they become available.
-        </p>
-      </div>
       <div className="mb-8">
         <h3 className="text-base font-semibold leading-6 text-gray-900">
           Business Details
@@ -326,14 +352,21 @@ export default function Account() {
             </div>
           </dl>
         </div>
-        <h3 className="text-base font-semibold leading-6 text-gray-900">
-          NFTs
-        </h3>
+        <div className="sm:flex sm:items-center">
+          <div className="sm:flex-auto">
+            <h1 className="text-base font-semibold leading-6 text-gray-900">
+              Your shares
+            </h1>
+            <p className="mt-2 text-sm text-gray-700">
+              These are shares of promotions owned by your account
+            </p>
+          </div>
+        </div>
         <div className="mt-8 grid grid-cols-1 gap-y-12 sm:grid-cols-3 sm:gap-x-6 xl:gap-x-8">
           {nfts.map((nft) => (
             <div className="rounded-lg border p-4" key={nft.id}>
               <div className="m-2 text-center space-y-2">
-                <p>{nft.promotionId}</p>
+                <p>{nft.id}</p>
                 <h3 className="text-2xl font-bold text-gray-900">
                   {nft.reward} NFT
                 </h3>
@@ -343,6 +376,36 @@ export default function Account() {
                   className="rounded-md bg-green-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-green-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600"
                 >
                   Sell
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+        <div className="sm:flex sm:items-center mt-8">
+          <div className="sm:flex-auto">
+            <h1 className="text-base font-semibold leading-6 text-gray-900">
+              Listed Shares
+            </h1>
+            <p className="mt-2 text-sm text-gray-700">
+              These are shares of promotions owned by your account and are for
+              sale
+            </p>
+          </div>
+        </div>
+        <div className="mt-8 grid grid-cols-1 gap-y-12 sm:grid-cols-3 sm:gap-x-6 xl:gap-x-8">
+          {listedNfts.map((nft) => (
+            <div className="rounded-lg border p-4" key={nft.id}>
+              <div className="m-2 text-center space-y-2">
+                <p>{nft.id}</p>
+                <h3 className="text-2xl font-bold text-gray-900">
+                  {nft.reward} NFT
+                </h3>
+                <p>{nft.points} points earned</p>
+                <button
+                  onClick={() => delistNft(nft.id)}
+                  className="rounded-md bg-green-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-green-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600"
+                >
+                  Delist
                 </button>
               </div>
             </div>

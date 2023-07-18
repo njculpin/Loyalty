@@ -53,13 +53,6 @@ const Index = () => {
 
   return (
     <div className="mx-auto max-w-7xl p-16">
-      <div className="flex justify-center items-center my-8">
-        <p className="italic text-center bg-gray-50 max-w-2xl rounded-xl p-8 mb-8">
-          This view is displayed to your customer in your store. Present Mode
-          will take over the entire screen. Customers will scan when they first
-          sign up and all subsequent visits to accumulate points
-        </p>
-      </div>
       {loading && <p>Loading</p>}
       {store?.wallet && !loading && (
         <div className="flex justify-center items-center">

@@ -159,15 +159,17 @@ const Shop = () => {
   };
 
   return (
-    <div className="mx-auto max-w-7xl overflow-hidden sm:px-6 lg:px-8">
+    <div className="mx-auto max-w-7xl p-16">
       <div className="mx-auto overflow-hidden px-4 lg:px-8">
-        <h2 className="sr-only">Products</h2>
-        {/* PROMOTIONS */}
-        <div className="flex justify-center items-center my-8">
-          <p className="italic text-center bg-gray-50 max-w-2xl rounded-xl p-8 mb-8">
-            Customers may scan the promotions in your specific store to redeem
-            them here for physical or digital goods.
-          </p>
+        <div className="sm:flex sm:items-center">
+          <div className="sm:flex-auto">
+            <h1 className="text-base font-semibold leading-6 text-gray-900">
+              Rewards
+            </h1>
+            <p className="mt-2 text-sm text-gray-700">
+              Scan a reward to redeem it at this vendor
+            </p>
+          </div>
         </div>
         <div className="mt-8 grid grid-cols-1 gap-y-12 sm:grid-cols-3 sm:gap-x-6 xl:gap-x-8">
           {promotions &&
@@ -211,13 +213,15 @@ const Shop = () => {
             })}
         </div>
         {/* NFT Sales */}
-        <div className="flex justify-center items-center my-8">
-          <p className="italic text-center bg-gray-50 max-w-2xl rounded-xl p-8 mb-8">
-            Customers may purchase NFTs you have made available through your
-            promotions dashboard. When a customer purchases one of these, they
-            earn a portion of points distributed with each scan of that related
-            promotion.
-          </p>
+        <div className="sm:flex sm:items-center mt-8">
+          <div className="sm:flex-auto">
+            <h1 className="text-base font-semibold leading-6 text-gray-900">
+              Revenue Shares
+            </h1>
+            <p className="mt-2 text-sm text-gray-700">
+              Purchase revenue shares from this business
+            </p>
+          </div>
         </div>
         <div className="mt-8 grid grid-cols-1 gap-y-12 sm:grid-cols-3 sm:gap-x-6 xl:gap-x-8">
           {nfts.map((promotion) => (
