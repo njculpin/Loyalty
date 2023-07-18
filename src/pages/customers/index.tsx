@@ -108,9 +108,6 @@ export default function Customers() {
                           {patron.promotionId}
                         </td>
                         <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                          {patron.reward}
-                        </td>
-                        <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
                           {patron.points}
                         </td>
                       </tr>
