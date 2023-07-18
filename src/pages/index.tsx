@@ -172,7 +172,7 @@ const Index = () => {
                   <div className="lg:grid grid-cols-3 gap-4">
                     {cards.map((card: Card, index: number) => (
                       <div
-                        className="rounded-lg border p-6 flex flex-col justify-between items-center"
+                        className="bg-white rounded-lg border p-6 flex flex-col justify-between items-center"
                         key={index}
                       >
                         <div className="flex flex-col">

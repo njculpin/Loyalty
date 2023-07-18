@@ -170,7 +170,10 @@ export default function Account() {
         </div>
         <div className="mt-8 grid grid-cols-1 gap-y-12 sm:grid-cols-3 sm:gap-x-6 xl:gap-x-8">
           {promotions.map((promotion) => (
-            <div className="rounded-lg border p-4" key={promotion.id}>
+            <div
+              className="overflow-hidden rounded-lg bg-white px-4 py-5 shadow sm:p-6"
+              key={promotion.id}
+            >
               <div className="m-2 space-y-2">
                 <div className="flex justify-between items-center">
                   <div>

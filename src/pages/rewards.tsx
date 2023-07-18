@@ -175,7 +175,10 @@ const Shop = () => {
           {promotions &&
             promotions.map(function (promotion: Promotion, index) {
               return (
-                <div className="rounded-lg border p-4" key={index}>
+                <div
+                  className="overflow-hidden rounded-lg bg-white px-4 py-5 shadow sm:p-6"
+                  key={index}
+                >
                   <div className="h-full p-8 text-center sm:rounded-3xl grid grid-cols-1 justify-between">
                     <div className="flex justify-between items-center">
                       <div className="w-full">
@@ -225,9 +228,12 @@ const Shop = () => {
             </p>
           </div>
         </div>
-        <div className="mt-8 grid grid-cols-1 gap-y-12 sm:grid-cols-3 sm:gap-x-6 xl:gap-x-8">
+        <div className="mt-8 grid grid-cols-1 gap-y-12 sm:grid-cols-3 sm:gap-x-6 xl:gap-x-8 pb-2">
           {nfts.map((promotion) => (
-            <div className="rounded-lg border p-4" key={promotion.id}>
+            <div
+              className="overflow-hidden rounded-lg bg-white px-4 py-5 shadow sm:p-6"
+              key={promotion.id}
+            >
               <div className="m-2 text-center space-y-2">
                 <h3 className="text-2xl font-bold text-gray-900">
                   {promotion.reward} NFT

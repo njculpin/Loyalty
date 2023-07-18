@@ -364,7 +364,10 @@ export default function Account() {
         </div>
         <div className="mt-8 grid grid-cols-1 gap-y-12 sm:grid-cols-3 sm:gap-x-6 xl:gap-x-8">
           {nfts.map((nft) => (
-            <div className="rounded-lg border p-4" key={nft.id}>
+            <div
+              className="overflow-hidden rounded-lg bg-white px-4 py-5 shadow sm:p-6"
+              key={nft.id}
+            >
               <div className="m-2 text-center space-y-2">
                 <p>{nft.id}</p>
                 <h3 className="text-2xl font-bold text-gray-900">
@@ -394,7 +397,10 @@ export default function Account() {
         </div>
         <div className="mt-8 grid grid-cols-1 gap-y-12 sm:grid-cols-3 sm:gap-x-6 xl:gap-x-8">
           {listedNfts.map((nft) => (
-            <div className="rounded-lg border p-4" key={nft.id}>
+            <div
+              className="overflow-hidden rounded-lg bg-white px-4 py-5 shadow sm:p-6"
+              key={nft.id}
+            >
               <div className="m-2 text-center space-y-2">
                 <p>{nft.id}</p>
                 <h3 className="text-2xl font-bold text-gray-900">
