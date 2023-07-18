@@ -5,35 +5,43 @@ import { doc, onSnapshot, setDoc } from "firebase/firestore";
 import { ref, uploadString } from "firebase/storage";
 import { Dialog, Transition } from "@headlessui/react";
 import { CheckIcon } from "@heroicons/react/24/outline";
+import { XMarkIcon, FaceFrownIcon } from "@heroicons/react/20/solid";
 import QRCode from "qrcode";
 import { v4 as uuidv4 } from "uuid";
 import useAuthStore from "@/lib/store";
 import useStore from "@/lib/useStore";
-import { Vendor } from "../../types";
+import { Promotion, Vendor } from "../../types";
 import Link from "next/link";
 
 const Create = () => {
   const router = useRouter();
-  const [openModal, setOpenModal] = useState<boolean>(false);
-  const [vendor, setVendor] = useState<Vendor>({
-    businessCity: "",
-    businessEmail: "",
-    businessName: "",
-    businessPhone: "",
-    businessPostalCode: "",
-    businessRegion: "",
-    businessStreetAddress: "",
-    businessCountry: "",
-    businessWallet: "",
-    qRUrl: "",
-  });
-  const [promotion, setPromotion] = useState({
+  const [showSuccess, setShowSuccess] = useState<boolean>(false);
+  const [showError, setShowError] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<string>("");
+  const [vendor, setVendor] = useState<Vendor | null>(null);
+  const [promotion, setPromotion] = useState<Promotion>({
+    id: " ",
+    active: false,
+    businessCity: " ",
+    businessEmail: " ",
+    businessName: " ",
+    businessPhone: " ",
+    businessPostalCode: " ",
+    businessRegion: " ",
+    businessStreetAddress: " ",
+    businessCountry: " ",
+    businessWallet: " ",
     pointsRequired: 0,
     coinsRequired: 0,
     coins: 0,
     points: 0,
-    reward: "",
-    qRUrl: "",
+    reward: " ",
+    key: " ",
+    qRUrl: " ",
+    minted: false,
+    price: 0,
+    totalSupply: 0,
+    forSale: false,
   });
   const store = useStore(useAuthStore, (state) => state);
 
@@ -62,6 +70,16 @@ const Create = () => {
 
   const createCard = async () => {
     try {
+      if (!vendor) {
+        setErrorMessage("missing vendor information");
+        setShowError(true);
+        return;
+      }
+      if (!promotion) {
+        setErrorMessage("missing promotion information");
+        setShowError(true);
+        return;
+      }
       if (store?.wallet) {
         const docRef = uuidv4();
         const qr = await QRCode.toDataURL(
@@ -96,26 +114,32 @@ const Create = () => {
           updatedAt: new Date().getTime(),
         })
           .then(() => {
-            setOpenModal(true);
+            setShowSuccess(true);
           })
           .catch((e) => {
             console.log(e);
+            setShowError(true);
           });
       }
     } catch (e) {
+      setErrorMessage(
+        "something went wrong, please check your business details"
+      );
+      setShowError(true);
       console.log(e);
     }
   };
 
   const returnHome = () => {
-    setOpenModal(false);
-    return router.push(`/`);
+    setShowError(false);
+    setShowSuccess(false);
+    return router.push(`/promotions`);
   };
 
   return (
     <div className="mx-auto max-w-7xl p-16">
       <div className="space-y-12">
-        {vendor.businessName ? (
+        {vendor && vendor.businessName ? (
           <>
             <div className="border-b border-gray-900/10 pb-12">
               <h2 className="text-base font-semibold leading-7 text-gray-900">
@@ -186,8 +210,8 @@ const Create = () => {
         )}
       </div>
 
-      <Transition.Root show={openModal} as={Fragment}>
-        <Dialog as="div" className="relative z-10" onClose={setOpenModal}>
+      <Transition.Root show={showSuccess} as={Fragment}>
+        <Dialog as="div" className="relative z-10" onClose={setShowSuccess}>
           <Transition.Child
             as={Fragment}
             enter="ease-out duration-300"
@@ -248,6 +272,53 @@ const Create = () => {
           </div>
         </Dialog>
       </Transition.Root>
+      <div
+        aria-live="assertive"
+        className="pointer-events-none fixed inset-0 flex items-end px-4 py-6 sm:items-start sm:p-6"
+      >
+        <div className="flex w-full flex-col items-center space-y-4 sm:items-end">
+          {/* Notification panel, dynamically insert this into the live region when it needs to be displayed */}
+          <Transition
+            show={showError}
+            as={Fragment}
+            enter="transform ease-out duration-300 transition"
+            enterFrom="translate-y-2 opacity-0 sm:translate-y-0 sm:translate-x-2"
+            enterTo="translate-y-0 opacity-100 sm:translate-x-0"
+            leave="transition ease-in duration-100"
+            leaveFrom="opacity-100"
+            leaveTo="opacity-0"
+          >
+            <div className="pointer-events-auto w-full max-w-sm overflow-hidden rounded-lg bg-white shadow-lg ring-1 ring-black ring-opacity-5">
+              <div className="p-4">
+                <div className="flex items-start">
+                  <div className="flex-shrink-0">
+                    <FaceFrownIcon
+                      className="h-6 w-6 text-red-500"
+                      aria-hidden="true"
+                    />
+                  </div>
+                  <div className="ml-3 w-0 flex-1 pt-0.5">
+                    <p className="text-sm font-medium text-gray-900">Oops!</p>
+                    <p className="mt-1 text-sm text-gray-500">{errorMessage}</p>
+                  </div>
+                  <div className="ml-4 flex flex-shrink-0">
+                    <button
+                      type="button"
+                      className="inline-flex rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                      onClick={() => {
+                        setShowError(false);
+                      }}
+                    >
+                      <span className="sr-only">Close</span>
+                      <XMarkIcon className="h-5 w-5" aria-hidden="true" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Transition>
+        </div>
+      </div>
     </div>
   );
 };
