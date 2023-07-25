@@ -99,10 +99,11 @@ const Qr = () => {
             const updatedAt = oldData?.updatedAt;
             const currentTime = new Date().getTime();
             const difference = currentTime - updatedAt;
-            if (difference < 300000) {
-              setShowError(true);
-              return oldPoint;
-            }
+            // TODO: replaced, removed for demo
+            // if (difference < 300000) {
+            //   setShowError(true);
+            //   return oldPoint;
+            // }
             let newPoint = oldPoint + 1;
             transaction.update(patronRef, {
               points: newPoint,

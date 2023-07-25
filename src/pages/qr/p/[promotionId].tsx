@@ -38,10 +38,11 @@ const Qr = () => {
       const points = cardData.points;
       const currentTime = new Date().getTime();
       const diffTime = currentTime - updatedAt;
-      if (diffTime <= 300000) {
-        setShowError(true);
-        return setMessage(`try again in 5 minutes`);
-      }
+      // TODO: replaced, removed for demo
+      // if (diffTime <= 300000) {
+      //   setShowError(true);
+      //   return setMessage(`try again in 5 minutes`);
+      // }
       if (points < promotion.pointsRequired) {
         setShowError(true);
         return setMessage("not enough points");
