@@ -29,7 +29,7 @@ export const storage = getStorage(app);
 export const db = getFirestore(app);
 // const analytics = getAnalytics(app);
 
-export const loginFirebase = async (smartAccount) => {
+export const loginFirebase = async () => {
   signInAnonymously(auth)
     .then((res) => {
       console.log("logged in", res);
