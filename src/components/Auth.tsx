@@ -73,8 +73,9 @@ export default function Auth() {
       //   ],
       // });
       // await smartAccount.init();
-      // store?.login(smartAccount?.address);
-      await loginFirebase();
+
+      const account = await loginFirebase();
+      store?.login(account);
       setLoading(false);
     } catch (err) {
       console.log(err);
