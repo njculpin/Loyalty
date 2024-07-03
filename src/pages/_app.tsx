@@ -7,10 +7,10 @@ import NewsSignup from "@/components/NewsSignup";
 export default function App({ Component, pageProps }: AppProps) {
   return (
     <div>
-      <NewsSignup />
-      {/* <Nav />
+      {/* <NewsSignup /> */}
+      <Nav />
       <Component {...pageProps} />
-      <Footer /> */}
+      <Footer />
     </div>
   );
 }
