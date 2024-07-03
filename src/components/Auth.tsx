@@ -75,6 +75,7 @@ export default function Auth() {
       // await smartAccount.init();
 
       const account = await loginFirebase();
+      console.log(account);
       store?.login(account);
       setLoading(false);
     } catch (err) {

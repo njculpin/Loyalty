@@ -30,27 +30,8 @@ export const db = getFirestore(app);
 // const analytics = getAnalytics(app);
 
 export const loginFirebase = async () => {
-  let uid = "";
-  signInAnonymously(auth)
-    .then((res) => {
-      console.log("logged in", res);
-      uid = res.user.uid;
-    })
-    .catch((error) => {
-      const errorCode = error.code;
-      const errorMessage = error.message;
-      console.log("errorCode", errorCode);
-      console.log("errorMessage", errorMessage);
-    });
-  onAuthStateChanged(auth, (user) => {
-    if (user) {
-      const uid = user.uid;
-      console.log("firebase auth changed", uid);
-    } else {
-      console.log("not logged in firebase");
-    }
-  });
-  return uid;
+  const uid = await signInAnonymously(auth);
+  return uid.user.uid;
 };
 
 export const logoutFirebase = async () => {
